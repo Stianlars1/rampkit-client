@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ColorInput } from "@/components/ColorInput/ColorInput";
 import { ColorRamp } from "@/components/ColorRamp/ColorRamp";
 import { ExportPanel } from "@/components/ExportPanel/ExportPanel";
@@ -11,21 +11,17 @@ import { Loader } from "@/components/Loader/Loader";
 import { LoadingTips } from "@/components/LoadingTips/LoadingTips";
 import { useThemeUpdater } from "@/hooks/useThemeUpdater";
 import { ThemeControls } from "@/components/ThemeControls/ThemeControls";
-import { useAnalytics } from "@/hooks/useAnalytics";
-import { trackPageView } from "@/lib/analytics/utils";
+import { bumpVisitorOncePerSession } from "@/lib/metrics/store";
+import { StatsPanel } from "@/components/StatsPanel/StatsPanel";
 
 export default function HomePage() {
   const [paletteData, setPaletteData] = useState<PaletteData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { trackGenerateSuccess, trackGenerateError } = useAnalytics();
-
   useThemeUpdater(paletteData);
-
-  // Track page view on mount
   useEffect(() => {
-    trackPageView("Home Page");
+    bumpVisitorOncePerSession().then();
   }, []);
 
   const handleGenerate = async (hex: string, scheme: Scheme) => {
@@ -35,14 +31,10 @@ export default function HomePage() {
 
       const data = generatePalette({ hex, scheme });
       setPaletteData(data);
-      trackGenerateSuccess(hex, scheme);
-
-      console.log("data", data);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to generate palette";
       setError(errorMessage);
-      trackGenerateError(errorMessage);
       console.error("Generation error:", err);
     } finally {
       setLoading(false);
@@ -88,6 +80,7 @@ export default function HomePage() {
             <div className={styles.results}>
               <ColorRamp data={paletteData} />
               <ExportPanel data={paletteData} />
+              <StatsPanel />
             </div>
           </>
         )}

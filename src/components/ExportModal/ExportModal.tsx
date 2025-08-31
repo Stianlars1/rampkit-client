@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PaletteData } from "@/types";
 import { Button } from "@/components/ui/Button/Button";
-import { useAnalytics } from "@/hooks/useAnalytics";
 import styles from "./ExportModal.module.scss";
 import { generateDownloadFile } from "@/lib/download-utils";
+import { useMetrics } from "@/hooks/useMetrics";
 
 interface ExportModalProps {
   data: PaletteData;
@@ -51,17 +51,14 @@ export function ExportModal({ data, isOpen, onClose }: ExportModalProps) {
     useState<ExportFormat>("readable-txt");
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const {
-    trackExportFormatSelect,
-    trackExportDownload,
-    trackExportDownloadSuccess,
-    trackExportDownloadError,
-  } = useAnalytics();
+  const { trackExportModalOpen, trackExportDownload } = useMetrics();
+  useEffect(() => {
+    if (isOpen) trackExportModalOpen();
+  }, [isOpen, trackExportModalOpen]);
 
   if (!isOpen) return null;
 
   const handleFormatSelect = (format: ExportFormat) => {
-    trackExportFormatSelect(format);
     setSelectedFormat(format);
   };
 
@@ -70,12 +67,7 @@ export function ExportModal({ data, isOpen, onClose }: ExportModalProps) {
     trackExportDownload(selectedFormat);
 
     try {
-      await generateDownloadFile(
-        data,
-        selectedFormat,
-        () => trackExportDownloadSuccess(selectedFormat),
-        (error) => trackExportDownloadError(selectedFormat, error),
-      );
+      await generateDownloadFile(data, selectedFormat);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Download failed";

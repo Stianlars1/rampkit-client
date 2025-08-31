@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/Input/Input";
 import { Button } from "@/components/ui/Button/Button";
 import { Scheme } from "@/types";
-import { useAnalytics } from "@/hooks/useAnalytics";
 import styles from "./ColorInput.module.scss";
 import { isValidHex } from "@/lib/utils/color-utils";
+import { useMetrics } from "@/hooks/useMetrics";
 
 interface ColorInputProps {
   onGenerate: (hex: string, scheme: Scheme) => void;
@@ -25,7 +25,7 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
   const [scheme, setScheme] = useState<Scheme>("analogous");
   const [error, setError] = useState("");
 
-  const { trackGenerate } = useAnalytics();
+  const { trackGenerate } = useMetrics();
 
   const handleGenerate = () => {
     if (!isValidHex(hex)) {

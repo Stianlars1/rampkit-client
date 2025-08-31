@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { PaletteData, ExportOptions, StylePreset, ColorFormat } from "@/types";
+import { ColorFormat, ExportOptions, PaletteData, StylePreset } from "@/types";
 import { Button } from "@/components/ui/Button/Button";
 import { ExportModal } from "@/components/ExportModal/ExportModal";
 import { generateExportCode } from "@/lib/export-formats";
-import { useAnalytics } from "@/hooks/useAnalytics";
 import styles from "./ExportPanel.module.scss";
+import { useMetrics } from "@/hooks/useMetrics";
 
 interface ExportPanelProps {
   data: PaletteData;
@@ -42,56 +42,52 @@ export function ExportPanel({ data }: ExportPanelProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
-    trackExportClick,
-    trackExportModalOpen,
-    trackDevToolsPresetChange,
-    trackDevToolsFormatChange,
-    trackDevToolsShowCode,
-    trackDevToolsHideCode,
-    trackDevToolsCopyCode,
-    trackDevToolsCopySuccess,
-    trackDevToolsCopyError,
-  } = useAnalytics();
+    trackExportButton,
+    trackDevPreset,
+    trackDevFormat,
+    trackDevCopy,
+    trackShowCode,
+    trackHideCode,
+  } = useMetrics();
 
   const code = generateExportCode(data, options);
 
   const handleCopy = async () => {
-    trackDevToolsCopyCode(options.preset, options.format);
+    trackDevCopy();
 
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      trackDevToolsCopySuccess(options.preset, options.format);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Copy failed";
-      trackDevToolsCopyError(errorMessage);
       console.error("Failed to copy:", err);
     }
   };
 
   const handleExport = () => {
-    trackExportClick();
-    trackExportModalOpen();
+    trackExportButton();
+
     setIsModalOpen(true);
   };
 
   const handlePresetChange = (preset: StylePreset) => {
-    trackDevToolsPresetChange(preset);
+    trackDevPreset(preset);
+
     setOptions((prev) => ({ ...prev, preset }));
   };
 
   const handleFormatChange = (format: ColorFormat) => {
-    trackDevToolsFormatChange(format);
+    trackDevFormat(format);
     setOptions((prev) => ({ ...prev, format }));
   };
 
   const handleToggleCode = () => {
     const newShowCode = !showCode;
     if (newShowCode) {
-      trackDevToolsShowCode(options.preset, options.format);
+      trackShowCode();
     } else {
-      trackDevToolsHideCode(options.preset, options.format);
+      trackHideCode();
     }
     setShowCode(newShowCode);
   };
