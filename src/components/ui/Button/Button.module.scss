@@ -42,6 +42,7 @@
 .outline {
   border: 1px solid hsl(var(--border));
   background: transparent;
+  color: hsl(var(--foreground));
 
   &:hover {
     background: hsl(var(--accent));

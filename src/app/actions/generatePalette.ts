@@ -1,21 +1,58 @@
-import { Scheme, PaletteData } from '@/types';
-import {RAMPKIT_API_URL} from "@/lib/utils/urls";
+import { PaletteData, Scheme } from "@/types";
+import { generateBaseColors } from "@/lib/utils/color/generateBaseColors";
+import { generateRadixColors } from "@/components/radix/generateRadixColors";
+import { RadixColorTheme } from "@/types/radix";
 
-const API_BASE = process.env.NODE_ENV === 'production'
-    ? RAMPKIT_API_URL
-    : 'http://localhost:3000';
+interface GeneratePalette {
+  hex: string;
+  scheme?: Scheme;
+  harmonized?: boolean;
+}
+export function generatePalette({
+  harmonized = false,
+  hex,
+  scheme,
+}: GeneratePalette): PaletteData {
+  const baseColors = generateBaseColors(hex, scheme, { harmonized });
 
-export async function generatePalette(hex: string, scheme: Scheme): Promise<PaletteData> {
-    const response = await fetch(`${API_BASE}/api/generate-palette`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hex, scheme })
-    });
+  const light = generateRadixColors({
+    appearance: "light",
+    accent: baseColors.accent,
+    gray: baseColors.gray,
+    background: baseColors.lightBackground,
+  });
 
-    if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`);
-    }
+  const dark = generateRadixColors({
+    appearance: "dark",
+    accent: baseColors.accent,
+    gray: baseColors.gray,
+    background: baseColors.darkBackground,
+  });
 
-    const result = await response.json();
-    return result.data;
+  return {
+    accent: baseColors.accent,
+    gray: baseColors.gray,
+    lightBackground: baseColors.lightBackground,
+    darkBackground: baseColors.darkBackground,
+    accentScale: {
+      light: light.accentScale,
+      dark: dark.accentScale,
+    },
+    grayScale: {
+      light: light.grayScale,
+      dark: dark.grayScale,
+    },
+
+    accentScaleAlpha: {
+      light: light.accentScaleAlpha,
+      dark: dark.accentScaleAlpha,
+    },
+    grayScaleAlpha: {
+      light: light.grayScaleAlpha,
+      dark: dark.grayScaleAlpha,
+    },
+
+    radixOriginalLight: light as RadixColorTheme,
+    radixOriginalDark: dark as RadixColorTheme,
+  };
 }

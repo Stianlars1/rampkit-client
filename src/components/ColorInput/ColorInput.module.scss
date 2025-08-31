@@ -13,22 +13,7 @@
   gap: 8px;
 }
 
-.title {
-  font-size: 48px;
-  font-weight: 700;
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent-foreground)));
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.02em;
-}
 
-.subtitle {
-  font-size: 18px;
-  color: hsl(var(--foreground-subtle));
-  max-width: 480px;
-  margin: 0 auto;
-}
 
 .form {
   display: flex;
@@ -51,6 +36,10 @@
   align-items: center;
   position: relative;
   flex: 1;
+
+  .colorInput {
+    color: hsl(var(--foreground));
+  }
 }
 
 .colorPreview {

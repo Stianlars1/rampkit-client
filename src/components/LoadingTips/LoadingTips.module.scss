@@ -1,0 +1,10 @@
+.container {
+  padding: 8px 16px;
+  width: min(600px, 100%);
+
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+
+  border-radius: 8px;
+  color: hsl(var(--muted-foreground));
+}
