@@ -12,7 +12,7 @@
 
 # testing
 /coverage
-
+firebase-service-account.json
 # next.js
 /.next/
 /out/
