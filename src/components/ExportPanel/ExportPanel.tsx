@@ -61,7 +61,7 @@ export function ExportPanel({ data }: ExportPanelProps) {
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Copy failed";
-      console.error("Failed to copy:", err);
+      console.error("Failed to copy:", err, errorMessage);
     }
   };
 
