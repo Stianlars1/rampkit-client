@@ -1,0 +1,40 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input {
+  display: flex;
+  height: 40px;
+  width: 100%;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  padding: 0 12px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  &:focus {
+    outline: none;
+    border-color: hsl(var(--ring));
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.error {
+  border-color: hsl(var(--destructive));
+}
+
+.errorText {
+  font-size: 12px;
+  color: hsl(var(--destructive));
+}

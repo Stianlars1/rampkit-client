@@ -1,0 +1,101 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+
+  @media (max-width: 768px) {
+    min-width: unset;
+  }
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: hsl(var(--foreground-subtle));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.select {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: hsl(var(--ring));
+  }
+}
+
+.codeContainer {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.codeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.codeTitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: hsl(var(--foreground-subtle));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.codeBlock {
+  margin: 0;
+  padding: 20px;
+  background: hsl(var(--background));
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: hsl(var(--foreground));
+
+  code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    font-size: 12px;
+  }
+}

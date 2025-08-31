@@ -1,0 +1,76 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: calc(var(--radius) - 2px);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+.primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+
+  &:hover {
+    background: hsl(var(--primary) / 0.9);
+  }
+}
+
+.secondary {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+
+  &:hover {
+    background: hsl(var(--secondary) / 0.8);
+  }
+}
+
+.outline {
+  border: 1px solid hsl(var(--border));
+  background: transparent;
+
+  &:hover {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+.ghost {
+  background: transparent;
+
+  &:hover {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+.sm {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.md {
+  height: 40px;
+  padding: 0 16px;
+}
+
+.lg {
+  height: 44px;
+  padding: 0 20px;
+  font-size: 15px;
+}

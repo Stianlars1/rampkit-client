@@ -1,0 +1,32 @@
+export type Scheme = 'monochromatic' | 'analogous' | 'complementary' | 'triadic';
+
+export type ColorFormat = 'HEX' | 'RGB' | 'HSL' | 'HSL_VALUES' | 'OKLAB' | 'OKLCH';
+
+export type StylePreset =
+    | 'radix'
+    | 'shadcn'
+    | 'tailwind'
+    | 'css-variables'
+    | 'css-in-js'
+    | 'scss'
+    | 'material-ui'
+    | 'chakra-ui';
+
+export interface ColorScale {
+    light: string[];
+    dark: string[];
+}
+
+export interface PaletteData {
+    accent: string;
+    gray: string;
+    lightBackground: string;
+    darkBackground: string;
+    accentScale: ColorScale;
+    grayScale: ColorScale;
+}
+
+export interface ExportOptions {
+    preset: StylePreset;
+    format: ColorFormat;
+}

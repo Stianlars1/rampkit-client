@@ -1,0 +1,1 @@
+export const RAMPKIT_API_URL = process.env.NEXT_PUBLIC_RAMPKIT_API_URL
