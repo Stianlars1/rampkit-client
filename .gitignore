@@ -13,6 +13,22 @@
 # testing
 /coverage
 firebase-service-account.json
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase service accounts (CRITICAL!)
+*firebase-adminsdk*.json
+firebase-service-account*.json
+service-account*.json
+
+# Firebase config
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+
 # next.js
 /.next/
 /out/
