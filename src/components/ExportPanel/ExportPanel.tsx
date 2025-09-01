@@ -103,7 +103,7 @@ export function ExportPanel({ data }: ExportPanelProps) {
             colors.
           </p>
           <Button type={"button"} variant={"primary"} onClick={handleExport}>
-            Download Palette
+            Start Export
           </Button>
         </div>
 

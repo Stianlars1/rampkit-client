@@ -82,10 +82,11 @@ export default function HomePage() {
             <div className={styles.results}>
               <ColorRamp data={paletteData} />
               <ExportPanel data={paletteData} />
-              <StatsPanel />
             </div>
           </>
         )}
+
+        <StatsPanel />
       </main>
 
       <footer className={styles.footer}>

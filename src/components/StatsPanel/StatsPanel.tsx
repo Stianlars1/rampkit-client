@@ -13,11 +13,17 @@ type MetricsDoc = {
   export_clicks: number;
   export_modal_opens: number;
   export_downloads: number;
-  devtools_copy_clicks: number;
   export_format_counts: CountMap;
+
+  devtools_copy_clicks: number;
   devtools_preset_counts: CountMap;
   devtools_format_counts: CountMap;
+
+  hide_code_clicks: number;
+  show_code_clicks: number;
 };
+
+//
 
 export function StatsPanel() {
   const [metrics, setMetrics] = useState<MetricsDoc | null>(null);
@@ -27,7 +33,9 @@ export function StatsPanel() {
     if (!db) return;
     const ref = doc(db, "metrics", "public");
     const unsub = onSnapshot(ref, (snap) => {
-      if (snap.exists()) setMetrics(snap.data() as MetricsDoc);
+      if (snap.exists()) {
+        setMetrics(snap.data() as MetricsDoc);
+      }
     });
     return () => unsub();
   }, []);
@@ -45,9 +53,8 @@ export function StatsPanel() {
 
       <div className={styles.grid}>
         <Stat label="Visitors" value={metrics.visitors} />
-        <Stat label="Generate clicks" value={metrics.generate_clicks} />
-        <Stat label="Export button" value={metrics.export_clicks} />
-        <Stat label="Export modal opens" value={metrics.export_modal_opens} />
+        <Stat label="Generated ramps" value={metrics.generate_clicks} />
+        <Stat label="Clicks export" value={metrics.export_clicks} />
         <Stat label="Export downloads" value={metrics.export_downloads} />
         <Stat label="Dev-tools copy" value={metrics.devtools_copy_clicks} />
       </div>
@@ -87,14 +94,14 @@ function OptionList({
   items: [string, number][];
 }) {
   return (
-    <div className={styles.list}>
-      <h3>{title}</h3>
+    <div className={styles.stats}>
+      <h3 className={styles.title}>{title}</h3>
       {items.length === 0 ? (
         <p className={styles.empty}>No data yet</p>
       ) : (
-        <ul>
+        <ul className={styles.list}>
           {items.map(([k, v]) => (
-            <li key={k}>
+            <li className={styles.item} key={k}>
               <span>{k}</span>
               <strong>{v}</strong>
             </li>
