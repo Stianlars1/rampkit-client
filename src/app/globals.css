@@ -1,6 +1,8 @@
 :root {
   --radius: 0.5rem;
 
+  --max-width: 1200px;
+
   --background: 240 20% 98%;
   --foreground: 217 69% 23%;
   --foreground-subtle: 248 10% 55%;

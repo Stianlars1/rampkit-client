@@ -1,23 +1,50 @@
-import {ButtonHTMLAttributes} from 'react';
-import styles from './Button.module.scss';
+import { ButtonHTMLAttributes, AnchorHTMLAttributes, ReactNode } from "react";
+import Link, { LinkProps } from "next/link";
+import styles from "./Button.module.scss";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-    size?: 'sm' | 'md' | 'lg';
-    ref?: React.Ref<HTMLButtonElement>;
+type Variants = "primary" | "secondary" | "outline" | "ghost";
+type Sizes = "sm" | "md" | "lg" | "icon";
+
+interface BaseProps {
+  variant?: Variants;
+  size?: Sizes;
+  className?: string;
+  children: ReactNode;
 }
 
-export const Button = (
-    ({className = '', variant = 'primary', size = 'md', children,ref, ...props}: ButtonProps) => {
-        return (
-            <button
-                ref={ref}
-                className={`${styles.button} ${styles[variant]} ${styles[size]} ${className}`}
-                {...props}
-            >
-                {children}
-            </button>
-        );
-    }
-);
+type ButtonProps = BaseProps &
+  ButtonHTMLAttributes<HTMLButtonElement> & {
+    as?: "button";
+  };
 
+type LinkButtonProps = BaseProps &
+  AnchorHTMLAttributes<HTMLAnchorElement> &
+  LinkProps & {
+    as: "link";
+  };
+
+export function Button({
+  variant = "primary",
+  size = "md",
+  className = "",
+  children,
+  as = "button",
+  ...props
+}: ButtonProps | LinkButtonProps) {
+  const classes = `${styles.button} ${styles[variant]} ${styles[size]} ${className}`;
+
+  if (as === "link") {
+    const { href, ...linkProps } = props as LinkButtonProps;
+    return (
+      <Link href={href} className={classes} {...linkProps}>
+        {children}
+      </Link>
+    );
+  }
+
+  return (
+    <button className={classes} {...(props as ButtonProps)}>
+      {children}
+    </button>
+  );
+}

@@ -63,6 +63,26 @@
   }
 }
 
+.icon {
+  width: 24px; /* 32px */
+  height: 24px; /* square */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px; /* no extra padding */
+  border-radius: 4px; /* adjust if you want rounder/square */
+  background: hsl(var(--muted));
+  box-sizing: content-box;
+
+  fill: hsl(var(--foreground));
+
+  &:hover {
+    background: hsl(var(--accent));
+    fill: hsl(var(--accent-foreground));
+    border-color: hsl(var(--primary) / 0.75);
+  }
+}
+
 .sm {
   height: 36px;
   padding: 0 12px;

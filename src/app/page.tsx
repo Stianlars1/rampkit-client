@@ -13,6 +13,7 @@ import { useThemeUpdater } from "@/hooks/useThemeUpdater";
 import { ThemeControls } from "@/components/ThemeControls/ThemeControls";
 import { bumpVisitorOncePerSession } from "@/lib/metrics/store";
 import { StatsPanel } from "@/components/StatsPanel/StatsPanel";
+import { Footer } from "@/components/Footer/Footer";
 
 export default function HomePage() {
   const [paletteData, setPaletteData] = useState<PaletteData | null>(null);
@@ -97,18 +98,7 @@ export default function HomePage() {
         <StatsPanel />
       </main>
 
-      <footer className={styles.footer}>
-        <p>
-          Built with ♥ by Rampkit •{" "}
-          <a
-            href={"https://www.radix-ui.com/colors/custom"}
-            style={{ color: "inherit" }}
-          >
-            Radix Custom Color Generator
-          </a>{" "}
-          • Open Source
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }

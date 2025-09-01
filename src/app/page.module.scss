@@ -89,15 +89,3 @@
     gap: 40px;
   }
 }
-
-.footer {
-  border-top: 1px solid hsl(var(--border));
-  padding: 20px;
-  text-align: center;
-
-  p {
-    color: hsl(var(--muted-foreground));
-    font-size: 14px;
-    margin: 0;
-  }
-}
