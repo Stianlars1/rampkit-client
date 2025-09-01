@@ -1,9 +1,13 @@
 "use client";
 
+import * as React from "react";
 import { useEffect, useState } from "react";
 import { getDb } from "@/lib/firebase/firestore";
 import { doc, onSnapshot } from "firebase/firestore";
 import styles from "./StatsPanel.module.scss";
+import { Button } from "@/components/ui/Button/Button";
+import { AnalyticSvg } from "@/components/StatsPanel/analyticSvg";
+import { cx } from "@/lib/utils/cx";
 
 type CountMap = Record<string, number>;
 
@@ -27,6 +31,7 @@ type MetricsDoc = {
 
 export function StatsPanel() {
   const [metrics, setMetrics] = useState<MetricsDoc | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const db = getDb();
@@ -48,32 +53,46 @@ export function StatsPanel() {
       .slice(0, 5);
 
   return (
-    <div className={styles.panel}>
-      <h2>Live Stats</h2>
+    <>
+      <Button
+        variant={"ghost"}
+        className={styles.iconButton}
+        aria-label="See live stats"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <AnalyticSvg className={styles.triggerIcon} />
+      </Button>
 
-      <div className={styles.grid}>
-        <Stat label="Visitors" value={metrics.visitors} />
-        <Stat label="Generated ramps" value={metrics.generate_clicks} />
-        <Stat label="Clicks export" value={metrics.export_clicks} />
-        <Stat label="Export downloads" value={metrics.export_downloads} />
-        <Stat label="Dev-tools copy" value={metrics.devtools_copy_clicks} />
-      </div>
+      <div
+        id={"stats-panel"}
+        className={cx(styles.panel, isOpen ? styles.isOpen : styles.isClosed)}
+      >
+        <h2>Live Stats</h2>
 
-      <div className={styles.lists}>
-        <OptionList
-          title="Top export formats"
-          items={top(metrics.export_format_counts)}
-        />
-        <OptionList
-          title="Top presets"
-          items={top(metrics.devtools_preset_counts)}
-        />
-        <OptionList
-          title="Top color formats"
-          items={top(metrics.devtools_format_counts)}
-        />
+        <div className={styles.grid}>
+          <Stat label="Visitors" value={metrics.visitors} />
+          <Stat label="Generated ramps" value={metrics.generate_clicks} />
+          <Stat label="Clicks export" value={metrics.export_clicks} />
+          <Stat label="Export downloads" value={metrics.export_downloads} />
+          <Stat label="Dev-tools copy" value={metrics.devtools_copy_clicks} />
+        </div>
+
+        <div className={styles.lists}>
+          <OptionList
+            title="Top export formats"
+            items={top(metrics.export_format_counts)}
+          />
+          <OptionList
+            title="Top presets"
+            items={top(metrics.devtools_preset_counts)}
+          />
+          <OptionList
+            title="Top color formats"
+            items={top(metrics.devtools_format_counts)}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
