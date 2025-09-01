@@ -8,8 +8,12 @@ import styles from "./StatsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
 import { AnalyticSvg } from "@/components/StatsPanel/analyticSvg";
 import { cx } from "@/lib/utils/cx";
+import { CrossSvg } from "@/components/StatsPanel/crossSvg";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
 
 type CountMap = Record<string, number>;
+gsap.registerPlugin(useGSAP);
 
 type MetricsDoc = {
   visitors: number;
@@ -27,11 +31,13 @@ type MetricsDoc = {
   show_code_clicks: number;
 };
 
-//
-
 export function StatsPanel() {
   const [metrics, setMetrics] = useState<MetricsDoc | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpen = () => {
+    setIsOpen(!isOpen);
+  };
 
   useEffect(() => {
     const db = getDb();
@@ -42,7 +48,10 @@ export function StatsPanel() {
         setMetrics(snap.data() as MetricsDoc);
       }
     });
-    return () => unsub();
+
+    return () => {
+      unsub();
+    };
   }, []);
 
   if (!metrics) return null;
@@ -58,9 +67,13 @@ export function StatsPanel() {
         variant={"ghost"}
         className={styles.iconButton}
         aria-label="See live stats"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleOpen}
       >
-        <AnalyticSvg className={styles.triggerIcon} />
+        {isOpen ? (
+          <CrossSvg className={styles.triggerIcon} />
+        ) : (
+          <AnalyticSvg className={styles.triggerIcon} />
+        )}
       </Button>
 
       <div

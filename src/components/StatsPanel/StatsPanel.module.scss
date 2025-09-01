@@ -29,8 +29,8 @@
 
 .iconButton {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  top: 20px;
+  right: 20px;
   z-index: 20;
 
   background: transparent;
@@ -38,8 +38,13 @@
   border: 2px solid hsl(var(--border));
   width: auto;
   aspect-ratio: 1;
+
   .triggerIcon {
     width: fit-content;
+  }
+
+  &:hover {
+    border-color: hsl(var(--primary));
   }
 }
 
