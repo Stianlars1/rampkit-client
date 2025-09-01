@@ -95,18 +95,28 @@ export function ExportPanel({ data }: ExportPanelProps) {
   return (
     <>
       <div className={styles.container}>
-        <>
-          <h2>Export Colors</h2>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.title}>Export Your Color Palette</h2>
+          <p className={styles.subTitle}>
+            Download your custom color palette in various formats. Perfect for
+            designers, developers, and anyone who wants to save and share their
+            colors.
+          </p>
           <Button type={"button"} variant={"primary"} onClick={handleExport}>
-            Export
+            Download Palette
           </Button>
-        </>
+        </div>
 
-        <>
-          <h2>For devs</h2>
+        <div className={styles.panelContent}>
+          <h3 className={styles.forDevsTitle}>Developer Tools</h3>
+          <p className={styles.forDevsSubTitle}>
+            Generate ready-to-use code for your favorite framework or CSS
+            preprocessor. Choose your preferred style format and color notation
+            below.
+          </p>
           <div className={styles.controls}>
             <div className={styles.controlGroup}>
-              <label className={styles.label}>Style Preset</label>
+              <label className={styles.label}>Framework/Style</label>
               <select
                 className={styles.select}
                 value={options.preset}
@@ -139,8 +149,12 @@ export function ExportPanel({ data }: ExportPanelProps) {
               </select>
             </div>
 
-            <Button onClick={handleToggleCode} variant="outline">
-              {showCode ? "Hide Code" : "Show Code"}
+            <Button
+              onClick={handleToggleCode}
+              variant="outline"
+              className={styles.showCodeButton}
+            >
+              {showCode ? "Hide Code" : "Generate Code"}
             </Button>
           </div>
 
@@ -152,7 +166,12 @@ export function ExportPanel({ data }: ExportPanelProps) {
                   •{" "}
                   {colorFormats.find((f) => f.value === options.format)?.label}
                 </span>
-                <Button onClick={handleCopy} variant="ghost" size="sm">
+                <Button
+                  className={styles.copy}
+                  onClick={handleCopy}
+                  variant="outline"
+                  size="sm"
+                >
                   {copied ? "Copied!" : "Copy"}
                 </Button>
               </div>
@@ -161,14 +180,14 @@ export function ExportPanel({ data }: ExportPanelProps) {
               </pre>
             </div>
           )}
-        </>
-      </div>
+        </div>
 
-      <ExportModal
-        data={data}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+        <ExportModal
+          data={data}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      </div>
     </>
   );
 }

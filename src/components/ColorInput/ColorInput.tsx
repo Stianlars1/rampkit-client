@@ -54,12 +54,10 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
   };
 
   const handleHexChange = (value: string) => {
-    if (isValidHex(value)) {
-      value = normalizeHex(value);
-      setHex(value);
-    }
+    const normalizedValue = normalizeHex(value);
+    setHex(normalizedValue);
 
-    if (error && isValidHex(value)) {
+    if (error && isValidHex(normalizedValue)) {
       setError("");
     }
   };
@@ -103,7 +101,7 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
           disabled={loading || !isValidHex(hex)}
           size="lg"
         >
-          {loading ? "Generating..." : "Generate Ramp"}
+          {loading ? "Generating..." : "Generate Palette"}
         </Button>
       </div>
     </div>

@@ -1,6 +1,10 @@
 :root {
+  --radius: 0.5rem;
+
   --background: 240 20% 98%;
   --foreground: 217 69% 23%;
+  --foreground-subtle: 248 10% 55%;
+
   --primary: 217 91% 60%;
   --primary-foreground: 210 25% 97%;
   --secondary: 217 60% 93%;
@@ -48,6 +52,7 @@
   :root {
     --background: 230 15% 8%;
     --foreground: 217 100% 91%;
+    --foreground-subtle: 249 9% 46%;
     --primary: 217 91% 60%;
     --primary-foreground: 219 41% 8%;
     --secondary: 217 60% 17%;

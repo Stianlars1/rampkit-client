@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@radix-ui/colors": "3.0.0",
+    "@stianlarsen/copy-to-clipboard": "^1.0.4",
     "@types/cors": "^2.8.17",
     "bezier-easing": "^2.1.0",
     "colorjs.io": "0.5.2",

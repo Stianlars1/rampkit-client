@@ -48,28 +48,30 @@ export default function HomePage() {
   return (
     <div className={styles.container}>
       <main className={styles.main}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Rampkit</h1>
-          <p className={styles.subtitle}>
-            Generate beautiful 12-step color ramps from any hex color
-          </p>
-        </div>
-        <ColorInput onGenerate={handleGenerate} loading={loading} />
-
-        {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
+        <section className={styles.firstSection}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Rampkit</h1>
+            <p className={styles.subtitle}>
+              Generate beautiful 12-step color ramps from any hex color
+            </p>
           </div>
-        )}
+          <ColorInput onGenerate={handleGenerate} loading={loading} />
 
-        {loading && (
-          <div className={styles.loadingInfo}>
-            <LoadingTips />
-            <div className={styles.loading}>
-              <Loader /> <p>Generating palette</p>
+          {error && (
+            <div className={styles.error}>
+              <p>{error}</p>
             </div>
-          </div>
-        )}
+          )}
+
+          {loading && (
+            <div className={styles.loadingInfo}>
+              <LoadingTips />
+              <div className={styles.loading}>
+                <Loader /> <p>Generating palette</p>
+              </div>
+            </div>
+          )}
+        </section>
 
         {paletteData && (
           <>
@@ -87,7 +89,16 @@ export default function HomePage() {
       </main>
 
       <footer className={styles.footer}>
-        <p>Built with Rampkit API • Open Source</p>
+        <p>
+          Built with ♥ by Rampkit •{" "}
+          <a
+            href={"https://www.radix-ui.com/colors/custom"}
+            style={{ color: "inherit" }}
+          >
+            Radix Custom Color Generator
+          </a>{" "}
+          • Open Source
+        </p>
       </footer>
     </div>
   );

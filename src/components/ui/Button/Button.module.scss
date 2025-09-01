@@ -9,6 +9,9 @@
   border: 1px solid transparent;
   cursor: pointer;
   font-size: 14px;
+  color: hsl(var(--foreground));
+  width: fit-content;
+  margin: auto;
 
   &:disabled {
     pointer-events: none;
@@ -40,13 +43,13 @@
 }
 
 .outline {
-  border: 1px solid hsl(var(--border));
-  background: transparent;
-  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border) / 0.85);
+  background: hsl(var(--muted) / 0.85);
+  color: hsl(var(--muted-foreground) / 0.85);
 
   &:hover {
-    background: hsl(var(--accent));
-    color: hsl(var(--accent-foreground));
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
   }
 }
 
@@ -54,6 +57,7 @@
   background: transparent;
 
   &:hover {
+    border-color: hsl(var(--border));
     background: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
   }

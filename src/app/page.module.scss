@@ -10,12 +10,17 @@
     padding: 60px 20px;
     display: flex;
     flex-direction: column;
-    gap: 60px;
+    gap: 96px;
+
+    .firstSection {
+      display: grid;
+      row-gap: 32px;
+    }
 
     .header {
       .title {
         text-align: center;
-        font-size: 48px;
+        font-size: 56px;
         font-weight: 700;
         background: linear-gradient(
           135deg,
@@ -25,7 +30,8 @@
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        letter-spacing: -0.02em;
+
+        letter-spacing: -3px;
       }
 
       .subtitle {
