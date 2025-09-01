@@ -1,5 +1,5 @@
 import styles from "./Footer.module.scss";
-import { GithubIcon, RadixIcon } from "@/lib/icons/icons";
+import { GithubIcon, RadixIcon, RampkitIcon } from "@/lib/icons/icons";
 import { GITHUB_SOURCE_URL, RADIX_UI_URL, STIAN_URL } from "@/lib/utils/urls";
 import { Button } from "@/components/ui/Button/Button";
 import Image from "next/image";

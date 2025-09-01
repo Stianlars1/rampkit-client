@@ -72,6 +72,7 @@
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
+    width: min(200px, 100%);
   }
 }
 
@@ -83,6 +84,7 @@
 
   @media (max-width: 768px) {
     min-width: unset;
+    width: min(350px, 100%);
   }
 }
 
@@ -139,6 +141,12 @@
 .showCodeButton {
   margin: auto 0 0 auto;
   font-family: var(--font-geist-mono);
+  @media screen and (max-width: 768px) {
+    margin: 0 auto;
+    width: 100%;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }
 
 .copy {
