@@ -7,6 +7,13 @@ import { Scheme } from "@/types";
 import styles from "./ColorInput.module.scss";
 import { isValidHex } from "@/lib/utils/color-utils";
 import { useMetrics } from "@/hooks/useMetrics";
+import { SettingsSvg } from "@/components/ColorInput/SettingsSvg";
+import { Settings2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
 
 interface ColorInputProps {
   onGenerate: (hex: string, scheme: Scheme, harmonizeColors: boolean) => void;
@@ -25,7 +32,7 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
   const [scheme, setScheme] = useState<Scheme>("analogous");
   const [error, setError] = useState("");
   const [harmonizeColors, setHarmonizeColors] = useState(true);
-
+  const [showOptions, setShowOptions] = useState(false);
   const { trackGenerate } = useMetrics();
 
   const handleGenerate = () => {
@@ -101,32 +108,44 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
               </option>
             ))}
           </select>
-        </div>
 
-        <label htmlFor={"harmonize"} className={styles.harmonizeOption}>
-          <input
-            id={"harmonize"}
-            type="checkbox"
-            checked={harmonizeColors}
-            onChange={() => setHarmonizeColors(!harmonizeColors)}
-          />
-          <strong
-            title={
-              "Apply the harmony scheme to your base color, or keep it unchanged with supporting colors"
-            }
+          <Button
+            className={styles.settingsButton}
+            variant={"outline"}
+            onClick={() => setShowOptions(!showOptions)}
           >
-            Transform input color
-          </strong>
-        </label>
-
-        <Button
-          onClick={handleGenerate}
-          disabled={loading || !isValidHex(hex)}
-          size="lg"
-        >
-          {loading ? "Generating..." : "Generate Palette"}
-        </Button>
+            <Settings2 className={styles.settingsIcon} />
+          </Button>
+        </div>
       </div>
+
+      {showOptions && (
+        <ul className={styles.optionsMenu}>
+          <li>
+            <label htmlFor={"harmonize"} className={styles.harmonizeOption}>
+              <input
+                id={"harmonize"}
+                type="checkbox"
+                checked={harmonizeColors}
+                onChange={() => setHarmonizeColors(!harmonizeColors)}
+              />
+              Transform input color
+            </label>
+            <p className={styles.harmonizeDescription}>
+              Apply the harmony scheme to your base color, or keep it unchanged
+              with supporting colors
+            </p>
+          </li>
+        </ul>
+      )}
+
+      <Button
+        onClick={handleGenerate}
+        disabled={loading || !isValidHex(hex)}
+        size="lg"
+      >
+        {loading ? "Generating..." : "Generate Palette"}
+      </Button>
     </div>
   );
 }

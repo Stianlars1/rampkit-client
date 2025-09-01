@@ -2,8 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  max-width: 600px;
+  width: min(600px, 100%);
   margin: 0 auto;
+  align-items: center;
   text-align: center;
 }
 
@@ -36,10 +37,13 @@
 }
 
 .colorPicker {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  margin-right: 8px;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 2px;
 }
 .hiddenColorInput {
   position: absolute;
@@ -56,10 +60,10 @@
   display: flex;
   align-items: center;
   position: relative;
-  flex: 1;
 
   .colorInput {
     color: hsl(var(--foreground));
+    width: 150px;
   }
 }
 
@@ -81,14 +85,49 @@
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   font-size: 14px;
-  min-width: 160px;
+  width: 150px;
 
   &:focus {
     outline: none;
     border-color: hsl(var(--ring));
   }
+}
 
-  @media (max-width: 640px) {
-    width: 100%;
+.settingsButton {
+  padding: 0;
+  margin: 0;
+
+  aspect-ratio: 1;
+
+  .settingsIcon {
+    width: 24px;
+    height: 24px;
+    color: hsl(var(--foreground));
+  }
+}
+
+.optionsMenu {
+  width: min(350px, 100%);
+  padding: 8px;
+  border: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  border-radius: 4px;
+
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+
+  li {
+    list-style-type: none;
+    text-align: left;
+    color: hsl(var(--foreground));
+
+    .harmonizeDescription {
+      margin-top: 4px;
+      font-size: 12px;
+      color: hsl(var(--muted-foreground));
+    }
   }
 }
