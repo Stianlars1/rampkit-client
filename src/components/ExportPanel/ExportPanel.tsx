@@ -7,6 +7,8 @@ import { ExportModal } from "@/components/ExportModal/ExportModal";
 import { generateExportCode } from "@/lib/export-formats";
 import styles from "./ExportPanel.module.scss";
 import { useMetrics } from "@/hooks/useMetrics";
+import { EXPORT_FORMAT_GITHUB_ISSUES_URL } from "@/lib/utils/urls";
+import RequestExportOption from "@/components/RequestOption/requestOption";
 
 interface ExportPanelProps {
   data: PaletteData;
@@ -114,6 +116,7 @@ export function ExportPanel({ data }: ExportPanelProps) {
             preprocessor. Choose your preferred style format and color notation
             below.
           </p>
+          <RequestExportOption />
           <div className={styles.controls}>
             <div className={styles.controlGroup}>
               <label className={styles.label}>Framework/Style</label>

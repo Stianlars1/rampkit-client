@@ -83,6 +83,23 @@
   }
 }
 
+.link {
+  display: inline-block;
+  background: transparent;
+  color: hsl(var(--primary));
+  height: auto;
+  padding: 0;
+  font-weight: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+
+  &:hover {
+    color: hsl(var(--primary) / 0.8);
+    background: transparent;
+  }
+}
+
 .sm {
   height: 36px;
   padding: 0 12px;

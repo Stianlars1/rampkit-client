@@ -1,104 +1,42 @@
-"use client";
+import { site } from "@/lib/seo/site";
+import { Metadata, ResolvingMetadata } from "next";
+import { RampKitApp } from "@/app/app";
 
-import { useEffect, useState } from "react";
-import { ColorInput } from "@/components/ColorInput/ColorInput";
-import { ColorRamp } from "@/components/ColorRamp/ColorRamp";
-import { ExportPanel } from "@/components/ExportPanel/ExportPanel";
-import { PaletteData, Scheme } from "@/types";
-import styles from "./page.module.scss";
-import { generatePalette } from "@/app/actions/generatePalette";
-import { Loader } from "@/components/Loader/Loader";
-import { LoadingTips } from "@/components/LoadingTips/LoadingTips";
-import { useThemeUpdater } from "@/hooks/useThemeUpdater";
-import { ThemeControls } from "@/components/ThemeControls/ThemeControls";
-import { bumpVisitorOncePerSession } from "@/lib/metrics/store";
-import { StatsPanel } from "@/components/StatsPanel/StatsPanel";
-import { Footer } from "@/components/Footer/Footer";
+type Props = {
+  params: Promise<Record<string, never>>;
+  searchParams: Promise<{ hex?: string; scheme?: string; harmonize?: string }>;
+};
 
-export default function HomePage() {
-  const [paletteData, setPaletteData] = useState<PaletteData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+export async function generateMetadata(
+  { searchParams }: Props,
+  _parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const sp = await searchParams;
+  const hex = (sp.hex ?? "").replace(/^#/, "").toUpperCase();
+  const scheme = sp.scheme?.toLowerCase();
+  const harmonize = sp.harmonize === "true";
 
-  useThemeUpdater(paletteData);
-  useEffect(() => {
-    bumpVisitorOncePerSession().then();
-  }, []);
+  const titleBits = [
+    hex ? `#${hex}` : null,
+    scheme ? `${scheme}` : null,
+    harmonize ? "harmonized" : null,
+  ].filter(Boolean);
 
-  const handleGenerate = async (
-    hex: string,
-    scheme: Scheme,
-    harmonizeColors: boolean,
-  ) => {
-    try {
-      setLoading(true);
-      setError("");
+  const dynamicTitle = titleBits.length
+    ? `${titleBits.join(" • ")} palette`
+    : site.tagline;
 
-      const data = generatePalette({
-        hex,
-        scheme,
-        harmonized: harmonizeColors,
-      });
-      setPaletteData(data);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to generate palette";
-      setError(errorMessage);
-      console.error("Generation error:", err);
-    } finally {
-      setLoading(false);
-    }
+  return {
+    title: dynamicTitle,
+    description: site.description,
+    alternates: {
+      canonical: hex ? `${site.url}/?hex=${hex}` : site.url,
+    },
+    // Optionally, enrich OG labels according to params too.
+    openGraph: { title: `${dynamicTitle} — ${site.name}` },
   };
+}
 
-  const handleResetTheme = () => {
-    setPaletteData(null);
-  };
-
-  return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <section className={styles.firstSection}>
-          <div className={styles.header}>
-            <h1 className={styles.title}>Rampkit</h1>
-            <p className={styles.subtitle}>
-              Generate beautiful 12-step color ramps from any hex color
-            </p>
-          </div>
-          <ColorInput onGenerate={handleGenerate} loading={loading} />
-
-          {error && (
-            <div className={styles.error}>
-              <p>{error}</p>
-            </div>
-          )}
-
-          {loading && (
-            <div className={styles.loadingInfo}>
-              <LoadingTips />
-              <div className={styles.loading}>
-                <Loader /> <p>Generating palette</p>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {paletteData && (
-          <>
-            <ThemeControls
-              onReset={handleResetTheme}
-              hasCustomTheme={!!paletteData}
-            />
-            <div className={styles.results}>
-              <ColorRamp data={paletteData} />
-              <ExportPanel data={paletteData} />
-            </div>
-          </>
-        )}
-
-        <StatsPanel />
-      </main>
-
-      <Footer />
-    </div>
-  );
+export default async function HomePage() {
+  return <RampKitApp />;
 }

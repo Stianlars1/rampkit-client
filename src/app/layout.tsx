@@ -1,42 +1,96 @@
-import type {Metadata} from "next";
+import type { Metadata } from "next";
 import "./globals.css";
-import {assistant, dmSans, geistMono, geistSans, inter} from "@/lib/fonts/index";
-import {cx} from "@/lib/utils/cx";
-
+import {
+  assistant,
+  dmSans,
+  geistMono,
+  geistSans,
+  inter,
+} from "@/lib/fonts/index";
+import { cx } from "@/lib/utils/cx";
+import { site } from "@/lib/seo/site";
+import Head from "next/head";
+import Script from "next/script";
 
 export const metadata: Metadata = {
-    title: 'Rampkit - Beautiful Color Ramps',
-    description: 'Generate beautiful 12-step color ramps from any hex color',
-    keywords: 'color, palette, ramp, design, ui, ux, radix, shadcn',
-    authors: [{ name: 'Rampkit' }],
-    openGraph: {
-        title: 'Rampkit - Beautiful Color Ramps',
-        description: 'Generate beautiful 12-step color ramps from any hex color',
-        url: 'https://rampkit.app',
-        siteName: 'Rampkit',
-        type: 'website'
-    }
+  title: "Rampkit - Beautiful Color Ramps",
+  description: "Generate beautiful 12-step color ramps from any hex color",
+  keywords: "color, palette, ramp, design, ui, ux, radix, shadcn",
+  authors: [{ name: "Rampkit" }],
+  openGraph: {
+    title: "Rampkit - Beautiful Color Ramps",
+    description: "Generate beautiful 12-step color ramps from any hex color",
+    url: "https://rampkit.app",
+    siteName: "Rampkit",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
+  children,
+}: Readonly<{
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-        <body
-            className={cx(
-                geistSans.variable,
-                geistMono.variable,
-                inter.variable,
-                dmSans.variable,
-                assistant.variable,
-                "blue"
-            )}
-        >
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${site.url}#website`,
+        url: site.url,
+        name: site.name,
+        description: site.description,
+        inLanguage: site.locale,
+        potentialAction: [
+          {
+            "@type": "SearchAction",
+            target: `${site.url}/?hex={hex}`,
+            "query-input": "required name=hex",
+          },
+        ],
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${site.url}#app`,
+        name: site.name,
+        applicationCategory: "DesignApplication",
+        operatingSystem: "Web",
+        description: site.description,
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        url: site.url,
+      },
+      {
+        "@type": "Organization",
+        "@id": `${site.url}#org`,
+        name: "Rampkit",
+        url: site.url,
+        sameAs: [site.socials.github, site.socials.radix],
+        // logo: { "@type": "ImageObject", url: `${site.url}/og.png` },
+      },
+    ],
+  };
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          id="jsonld-site"
+          type="application/ld+json"
+          suppressHydrationWarning={true}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body
+        className={cx(
+          geistSans.variable,
+          geistMono.variable,
+          inter.variable,
+          dmSans.variable,
+          assistant.variable,
+          "blue",
+        )}
+      >
         {children}
-        </body>
-        </html>
-    );
+      </body>
+    </html>
+  );
 }
