@@ -1,6 +1,11 @@
 import styles from "./Footer.module.scss";
 import { GithubIcon, RadixIcon, RampkitIcon } from "@/lib/icons/icons";
-import { GITHUB_SOURCE_URL, RADIX_UI_URL, STIAN_URL } from "@/lib/utils/urls";
+import {
+  COLORPALETTE_URL,
+  GITHUB_SOURCE_URL,
+  RADIX_UI_URL,
+  STIAN_URL,
+} from "@/lib/utils/urls";
 import { Button } from "@/components/ui/Button/Button";
 import Image from "next/image";
 
@@ -26,6 +31,16 @@ export const Footer = () => {
         </div>
 
         <div className={styles.right}>
+          <Button
+            variant={"outline"}
+            size={"icon"}
+            as={"link"}
+            href={COLORPALETTE_URL}
+            title={"ColorPalette.dev"}
+            aria-label={"ColorPalette dot dev"}
+          >
+            v1
+          </Button>
           <Button
             variant={"outline"}
             size={"icon"}
