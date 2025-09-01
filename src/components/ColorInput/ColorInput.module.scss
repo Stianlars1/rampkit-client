@@ -29,6 +29,12 @@
   }
 }
 
+.harmonizeOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .colorPicker {
   width: 24px;
   height: 24px;

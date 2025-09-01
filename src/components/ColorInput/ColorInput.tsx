@@ -9,7 +9,7 @@ import { isValidHex } from "@/lib/utils/color-utils";
 import { useMetrics } from "@/hooks/useMetrics";
 
 interface ColorInputProps {
-  onGenerate: (hex: string, scheme: Scheme) => void;
+  onGenerate: (hex: string, scheme: Scheme, harmonizeColors: boolean) => void;
   loading?: boolean;
 }
 
@@ -24,6 +24,7 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
   const [hex, setHex] = useState("#3B82F6");
   const [scheme, setScheme] = useState<Scheme>("analogous");
   const [error, setError] = useState("");
+  const [harmonizeColors, setHarmonizeColors] = useState(true);
 
   const { trackGenerate } = useMetrics();
 
@@ -35,7 +36,7 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
 
     setError("");
     trackGenerate(hex, scheme);
-    onGenerate(hex, scheme);
+    onGenerate(hex, scheme, harmonizeColors);
   };
 
   const normalizeHex = (value: string) => {
@@ -101,6 +102,22 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
             ))}
           </select>
         </div>
+
+        <label htmlFor={"harmonize"} className={styles.harmonizeOption}>
+          <input
+            id={"harmonize"}
+            type="checkbox"
+            checked={harmonizeColors}
+            onChange={() => setHarmonizeColors(!harmonizeColors)}
+          />
+          <strong
+            title={
+              "Apply the harmony scheme to your base color, or keep it unchanged with supporting colors"
+            }
+          >
+            Transform input color
+          </strong>
+        </label>
 
         <Button
           onClick={handleGenerate}

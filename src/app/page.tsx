@@ -24,12 +24,20 @@ export default function HomePage() {
     bumpVisitorOncePerSession().then();
   }, []);
 
-  const handleGenerate = async (hex: string, scheme: Scheme) => {
+  const handleGenerate = async (
+    hex: string,
+    scheme: Scheme,
+    harmonizeColors: boolean,
+  ) => {
     try {
       setLoading(true);
       setError("");
 
-      const data = generatePalette({ hex, scheme });
+      const data = generatePalette({
+        hex,
+        scheme,
+        harmonized: harmonizeColors,
+      });
       setPaletteData(data);
     } catch (err) {
       const errorMessage =
