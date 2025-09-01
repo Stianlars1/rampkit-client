@@ -67,6 +67,18 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
       <div className={styles.form}>
         <div className={styles.inputGroup}>
           <div className={styles.colorInputWrapper}>
+            <label
+              htmlFor="color"
+              className={styles.colorPicker}
+              style={{ backgroundColor: isValidHex(hex) ? hex : "#ffffff" }}
+            />
+            <input
+              id={"color"}
+              type="color"
+              className={styles.hiddenColorInput}
+              onChange={(e) => handleHexChange(e.target.value)}
+              title="Click to open color picker"
+            />
             <Input
               type="text"
               placeholder="#3B82F6"
@@ -74,12 +86,6 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
               onChange={(e) => handleHexChange(e.target.value)}
               error={error}
               className={styles.colorInput}
-            />
-            <div
-              className={styles.colorPreview}
-              style={{
-                background: isValidHex(hex) ? hex : "transparent",
-              }}
             />
           </div>
 
