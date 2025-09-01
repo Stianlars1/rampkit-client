@@ -2,6 +2,60 @@ import { Scheme } from "@/types";
 import { hexToHSL } from "@/lib/utils/color-utils";
 import { HSLColor, hslToHex } from "@/lib/utils/color/colorConverters";
 
+/**
+ * Utility functions for color manipulation
+ */
+const clamp = (n: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, n));
+
+const rotateHue = (h: number, delta: number) =>
+  (((h + delta) % 360) + 360) % 360;
+
+/**
+ * Preserves the "tone quality" of original color when shifting hue
+ * Ensures resulting colors maintain usable saturation/lightness ranges
+ */
+const preserveTone = (
+  original: HSLColor,
+  newHue: number,
+  saturationBias = 0,
+): HSLColor => ({
+  h: newHue,
+  s: clamp(original.s + saturationBias, 20, 90),
+  l: clamp(original.l, 25, 75),
+});
+
+/**
+ * Creates a tinted neutral that maintains palette temperature
+ * Perfect for generating cohesive gray scales
+ */
+const createTintedNeutral = (hue: number): HSLColor => ({
+  h: hue,
+  s: 4, // Just enough to avoid "dead" gray
+  l: 52, // Mid-range for versatile scaling
+});
+
+/**
+ * Generate harmonious light/dark backgrounds
+ * Darker backgrounds now properly dark (L: 4-5)
+ */
+const createBackgrounds = (
+  hue: number,
+  scheme: Scheme,
+): { lightBg: HSLColor; darkBg: HSLColor } => {
+  // Adjust saturation based on scheme for better cohesion
+  const lightSaturation = scheme === "monochromatic" ? 12 : 8;
+  const darkSaturation = scheme === "monochromatic" ? 20 : 14;
+
+  return {
+    lightBg: { h: hue, s: lightSaturation, l: 97 },
+    darkBg: { h: hue, s: darkSaturation, l: 5 }, // Much darker!
+  };
+};
+
+/**
+ * Main palette generation based on color scheme
+ */
 export function generateHarmoniousPalette(
   baseColor: string,
   scheme: Scheme = "analogous",
@@ -11,154 +65,62 @@ export function generateHarmoniousPalette(
   lightBg: string;
   darkBg: string;
 } {
-  const hsl = hexToHSL(baseColor);
+  const baseHSL = hexToHSL(baseColor);
+
+  let accentHSL: HSLColor;
+  let backgroundHue: number = baseHSL.h;
 
   switch (scheme) {
-    case "analogous":
-      return generateAnalogous(hsl);
-    case "complementary":
-      return generateComplementary(hsl);
-    case "triadic":
-      return generateTriadic(hsl);
+    case "complementary": {
+      // True complementary: accent IS the complement
+      const complementHue = rotateHue(baseHSL.h, 180);
+      accentHSL = preserveTone(baseHSL, complementHue, 5);
+      // Mix hues for backgrounds to avoid jarring contrast
+      backgroundHue = baseHSL.h;
+      break;
+    }
+
+    case "triadic": {
+      // First triadic color as accent (120° rotation)
+      const triadicHue = rotateHue(baseHSL.h, 120);
+      accentHSL = preserveTone(baseHSL, triadicHue, 8);
+      // Use base hue for backgrounds for stability
+      backgroundHue = baseHSL.h;
+      break;
+    }
+
+    case "analogous": {
+      // Adjacent color with smart direction selection
+      // Avoid muddy yellow-greens (60-140°)
+      const isInMuddyRange = baseHSL.h >= 60 && baseHSL.h <= 140;
+      const rotation = isInMuddyRange ? -35 : 35;
+      const analogousHue = rotateHue(baseHSL.h, rotation);
+      accentHSL = preserveTone(baseHSL, analogousHue, 3);
+      backgroundHue = baseHSL.h;
+      break;
+    }
+
     case "monochromatic":
-      return generateMonochromatic(hsl);
-    default:
-      return generateAnalogous(hsl);
+    default: {
+      // Same hue, enhanced saturation for vibrancy
+      const saturationBoost = baseHSL.s < 40 ? 15 : 8;
+      accentHSL = {
+        h: baseHSL.h,
+        s: clamp(baseHSL.s + saturationBoost, 25, 85),
+        l: clamp(baseHSL.l, 35, 65),
+      };
+      backgroundHue = baseHSL.h;
+      break;
+    }
   }
-}
 
-export function generateAnalogous(baseHSL: HSLColor) {
-  // Analogous: Use colors 30° adjacent for harmonious, temperature-consistent palette
-  const adjacentHue1 = (baseHSL.h + 30) % 360;
-  const adjacentHue2 = (baseHSL.h - 30 + 360) % 360;
+  const grayHSL = createTintedNeutral(baseHSL.h);
+  const { lightBg, darkBg } = createBackgrounds(backgroundHue, scheme);
 
-  // Use the more vibrant adjacent color as accent
-  const accent = hslToHex({
-    h: adjacentHue1,
-    s: Math.max(75, baseHSL.s),
-    l: 55,
-  });
-
-  // Gray from the other adjacent hue with very low saturation
-  const gray = hslToHex({
-    h: adjacentHue2,
-    s: 8,
-    l: 50,
-  });
-
-  // Backgrounds using the base hue with subtle shifts
-  const lightBg = hslToHex({
-    h: baseHSL.h,
-    s: 15,
-    l: 98,
-  });
-
-  const darkBg = hslToHex({
-    h: baseHSL.h,
-    s: 20,
-    l: 8,
-  });
-
-  return { accent, gray, lightBg, darkBg };
-}
-
-export function generateComplementary(baseHSL: HSLColor) {
-  console.log("Generating complementary palette for", baseHSL);
-  // Complementary: Use actual complementary color (180° opposite) for high contrast
-  const complementaryHue = (baseHSL.h + 180) % 360;
-
-  // Accent should be the complementary color, not the base
-  const accent = hslToHex({
-    h: complementaryHue,
-    s: Math.max(70, baseHSL.s),
-    l: 55,
-  });
-
-  // Gray derived from complementary but desaturated heavily to avoid visual discomfort
-  const gray = hslToHex({
-    h: complementaryHue,
-    s: 5,
-    l: 50,
-  });
-
-  // Light background from base color, very desaturated
-  const lightBg = hslToHex({
-    h: baseHSL.h,
-    s: 10,
-    l: 98,
-  });
-
-  // Dark background from complementary, also very desaturated
-  const darkBg = hslToHex({
-    h: complementaryHue,
-    s: 15,
-    l: 8,
-  });
-
-  return { accent, gray, lightBg, darkBg };
-}
-
-export function generateTriadic(baseHSL: HSLColor) {
-  // Triadic: Three colors 120° apart forming equilateral triangle
-  const triadicHue1 = (baseHSL.h + 120) % 360;
-  const triadicHue2 = (baseHSL.h + 240) % 360;
-
-  // Use first triadic color as accent (most vibrant)
-  const accent = hslToHex({
-    h: triadicHue1,
-    s: Math.max(80, baseHSL.s),
-    l: 55,
-  });
-
-  // Gray from second triadic color, heavily desaturated
-  const gray = hslToHex({
-    h: triadicHue2,
-    s: 8,
-    l: 50,
-  });
-
-  // Backgrounds alternate between base and triadic colors
-  const lightBg = hslToHex({
-    h: baseHSL.h,
-    s: 12,
-    l: 98,
-  });
-
-  const darkBg = hslToHex({
-    h: triadicHue1,
-    s: 18,
-    l: 8,
-  });
-
-  return { accent, gray, lightBg, darkBg };
-}
-
-export function generateMonochromatic(baseHSL: HSLColor) {
-  // Monochromatic: Same hue with varied saturation and lightness
-  const accent = hslToHex({
-    h: baseHSL.h,
-    s: Math.max(85, baseHSL.s),
-    l: 45, // Darker for more contrast
-  });
-
-  // Gray uses same hue but very low saturation
-  const gray = hslToHex({
-    h: baseHSL.h,
-    s: 4,
-    l: 55, // Slightly lighter than accent
-  });
-
-  const lightBg = hslToHex({
-    h: baseHSL.h,
-    s: 12,
-    l: 98,
-  });
-
-  const darkBg = hslToHex({
-    h: baseHSL.h,
-    s: 25,
-    l: 8,
-  });
-
-  return { accent, gray, lightBg, darkBg };
+  return {
+    accent: hslToHex(accentHSL),
+    gray: hslToHex(grayHSL),
+    lightBg: hslToHex(lightBg),
+    darkBg: hslToHex(darkBg),
+  };
 }

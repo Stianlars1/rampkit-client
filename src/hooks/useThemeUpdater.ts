@@ -61,7 +61,7 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
       "--popover": hexToHSLValues(data.grayScale.dark[2]),
       "--popover-foreground": hexToHSLValues(data.accentScale.dark[11]),
       "--primary": hexToHSLValues(data.accent),
-      "--primary-foreground": hexToHSLValues(data.accentScale.dark[11]),
+      "--primary-foreground": hexToHSLValues(data.accentScale.dark[0]),
       "--secondary": hexToHSLValues(data.accentScale.dark[2]),
       "--secondary-foreground": hexToHSLValues(data.accentScale.dark[11]),
       "--muted": hexToHSLValues(data.grayScale.dark[2]),
