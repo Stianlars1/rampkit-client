@@ -175,7 +175,12 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
                   </Tooltip.Root>
                 </Tooltip.Provider>
                 <div className={styles.switchLabel}>
-                  <span className={styles.switchTitle}>Color Harmony</span>
+                  <span className={styles.switchTitle}>
+                    Color Harmony{" "}
+                    <small className={styles.sliderStatus}>
+                      {harmonizeColors ? "🟢  on" : "🔴  off"}
+                    </small>
+                  </span>
                   <span className={styles.switchDescription}>
                     {harmonizeColors
                       ? "Transform base color using scheme"

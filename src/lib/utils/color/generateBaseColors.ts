@@ -1,13 +1,20 @@
 import { Scheme } from "@/types";
 import { generateHarmoniousPalette } from "@/lib/utils/color/ColorTheory";
 
-/**
- * Generate base colors for palette creation
- *
- * @param brandColor - Hex color to use as base
- * @param scheme - Color harmony scheme to apply
- * @param opts.harmonized - Whether to use harmonized accent or original brand
- */
+function normalizeHex(input?: string | null): string | null {
+  if (!input) return null;
+  let v = input.trim();
+  if (v.startsWith("0x")) v = v.slice(2);
+  if (!v.startsWith("#")) v = `#${v}`;
+  if (v.length === 4) {
+    const r = v[1],
+      g = v[2],
+      b = v[3];
+    v = `#${r}${r}${g}${g}${b}${b}`;
+  }
+  return /^#([0-9a-fA-F]{6})$/.test(v) ? v.toUpperCase() : null;
+}
+
 export function generateBaseColors(
   brandColor?: string,
   scheme: Scheme = "analogous",
@@ -18,34 +25,18 @@ export function generateBaseColors(
   lightBackground: string;
   darkBackground: string;
 } {
-  const normalizeHex = (raw?: string): string | undefined => {
-    if (!raw) return undefined;
+  const useHarmonized = opts?.harmonized ?? true;
+  const seed = normalizeHex(brandColor) ?? "#3B82F6"; // safe default
 
-    const cleaned = raw.trim().replace(/^#/, "").toUpperCase();
-
-    // Handle 3-char hex
-    if (/^[0-9A-F]{3}$/.test(cleaned)) {
-      const [r, g, b] = cleaned.split("");
-      return `#${r}${r}${g}${g}${b}${b}`;
-    }
-
-    // Handle 6-char hex
-    if (/^[0-9A-F]{6}$/.test(cleaned)) {
-      return `#${cleaned}`;
-    }
-
-    return undefined;
-  };
-
-  const useHarmonized = opts?.harmonized ?? true; // Default to harmonized
-  const seed = normalizeHex(brandColor) ?? "#3B82F6"; // Tailwind blue-500
-
-  const palette = generateHarmoniousPalette(seed, scheme);
+  const { accent, gray, lightBg, darkBg } = generateHarmoniousPalette(
+    seed,
+    scheme,
+  );
 
   return {
-    accent: useHarmonized ? palette.accent : seed,
-    gray: palette.gray,
-    lightBackground: palette.lightBg,
-    darkBackground: palette.darkBg,
+    accent: useHarmonized ? accent : seed,
+    gray,
+    lightBackground: lightBg,
+    darkBackground: darkBg,
   };
 }

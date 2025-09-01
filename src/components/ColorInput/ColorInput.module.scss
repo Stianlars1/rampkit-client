@@ -193,6 +193,17 @@
         font-size: 14px;
         font-weight: 500;
         color: hsl(var(--foreground));
+
+        .sliderStatus {
+          font-size: 12px;
+          font-weight: 400;
+          color: hsl(var(--muted-foreground));
+          margin-left: 6px;
+
+          background: hsl(var(--background));
+          padding: 4px 8px;
+          border-radius: 4px;
+        }
       }
 
       .switchDescription {
