@@ -1,5 +1,6 @@
 import { PaletteData, ExportOptions } from "@/types";
 import { hexToHSL, hexToRGB } from "@/lib/utils/color-utils";
+import { getBestForegroundStep } from "@/lib/utils/color/contrast-utils";
 
 export function generateExportCode(
   data: PaletteData,
@@ -50,17 +51,61 @@ function formatColor(hex: string, format: string): string {
 function generateShadcnCSS(data: PaletteData, format: string): string {
   const formatFn = (hex: string) => formatColor(hex, format);
 
+  // Calculate best foreground steps for light theme
+  const lightForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.accentScale.light,
+  );
+  const lightPrimaryForegroundStep = getBestForegroundStep(
+    data.accent,
+    data.accentScale.light,
+  );
+  const lightSecondaryForegroundStep = getBestForegroundStep(
+    data.accentScale.light[2],
+    data.accentScale.light,
+  );
+  const lightMutedForegroundStep = getBestForegroundStep(
+    data.grayScale.light[2],
+    data.grayScale.light,
+  );
+  const lightAccentForegroundStep = getBestForegroundStep(
+    data.accentScale.light[2],
+    data.accentScale.light,
+  );
+
+  // Calculate best foreground steps for dark theme
+  const darkForegroundStep = getBestForegroundStep(
+    data.darkBackground,
+    data.accentScale.dark,
+  );
+  const darkPrimaryForegroundStep = getBestForegroundStep(
+    data.accent,
+    data.accentScale.dark,
+  );
+  const darkSecondaryForegroundStep = getBestForegroundStep(
+    data.accentScale.dark[2],
+    data.accentScale.dark,
+  );
+  const darkMutedForegroundStep = getBestForegroundStep(
+    data.grayScale.dark[2],
+    data.grayScale.dark,
+  );
+  const darkAccentForegroundStep = getBestForegroundStep(
+    data.accentScale.dark[2],
+    data.accentScale.dark,
+  );
+
   return `:root {
   --background: ${formatFn(data.lightBackground)};
-  --foreground: ${formatFn(data.accentScale.light[11])};
+  --foreground: ${formatFn(data.accentScale.light[lightForegroundStep])};
   --primary: ${formatFn(data.accent)};
-  --primary-foreground: ${formatFn(data.accentScale.light[0])};
+  --primary-foreground: ${formatFn(data.accentScale.light[lightPrimaryForegroundStep])};
   --secondary: ${formatFn(data.accentScale.light[2])};
-  --secondary-foreground: ${formatFn(data.accentScale.light[11])};
+  --secondary-foreground: ${formatFn(data.accentScale.light[lightSecondaryForegroundStep])};
   --muted: ${formatFn(data.grayScale.light[2])};
-  --muted-foreground: ${formatFn(data.grayScale.light[10])};
+  --muted-foreground: ${formatFn(data.grayScale.light[lightMutedForegroundStep])};
   --accent: ${formatFn(data.accentScale.light[2])};
-  --accent-foreground: ${formatFn(data.accentScale.light[10])};
+  --accent-foreground: ${formatFn(data.accentScale.light[lightAccentForegroundStep])};
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 100%;
   --border: ${formatFn(data.grayScale.light[6])};
@@ -81,15 +126,15 @@ ${data.grayScale.light
 @media (prefers-color-scheme: dark) {
   :root {
     --background: ${formatFn(data.darkBackground)};
-    --foreground: ${formatFn(data.accentScale.dark[11])};
+    --foreground: ${formatFn(data.accentScale.dark[darkForegroundStep])};
     --primary: ${formatFn(data.accent)};
-    --primary-foreground: ${formatFn(data.accentScale.dark[0])};
+    --primary-foreground: ${formatFn(data.accentScale.dark[darkPrimaryForegroundStep])};
     --secondary: ${formatFn(data.accentScale.dark[2])};
-    --secondary-foreground: ${formatFn(data.accentScale.dark[11])};
+    --secondary-foreground: ${formatFn(data.accentScale.dark[darkSecondaryForegroundStep])};
     --muted: ${formatFn(data.grayScale.dark[2])};
-    --muted-foreground: ${formatFn(data.grayScale.dark[10])};
+    --muted-foreground: ${formatFn(data.grayScale.dark[darkMutedForegroundStep])};
     --accent: ${formatFn(data.accentScale.dark[2])};
-    --accent-foreground: ${formatFn(data.accentScale.dark[10])};
+    --accent-foreground: ${formatFn(data.accentScale.dark[darkAccentForegroundStep])};
     --border: ${formatFn(data.grayScale.dark[6])};
     --input: ${formatFn(data.grayScale.dark[6])};
     --ring: ${formatFn(data.accent)};

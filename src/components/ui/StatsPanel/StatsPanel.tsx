@@ -31,7 +31,7 @@ type MetricsDoc = {
   show_code_clicks: number;
 };
 
-export function StatsPanel() {
+export const StatsPanel = ({ iconSize }: { iconSize: number }) => {
   const [metrics, setMetrics] = useState<MetricsDoc | null>(null);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export function StatsPanel() {
         type={"button"}
         size={"icon"}
         aria-label="See live stats"
-        // Remove the onClick handler - popover API handles this
+        style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
       >
         <AnalyticSvg className={styles.triggerIcon} />
       </Button>
@@ -111,7 +111,7 @@ export function StatsPanel() {
       </div>
     </>
   );
-}
+};
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (

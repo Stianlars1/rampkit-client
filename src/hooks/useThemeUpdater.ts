@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { PaletteData } from "@/types";
 import { hexToHSL } from "@/lib/utils/color-utils";
+import { getBestForegroundStep } from "@/lib/utils/color/contrast-utils";
 
 interface ThemeMapping {
   light: Record<string, string>;
@@ -15,23 +16,157 @@ function hexToHSLValues(hex: string): string {
 }
 
 function generateThemeMapping(data: PaletteData): ThemeMapping {
+  // Calculate best foreground steps for main palette - light theme
+  const lightForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.accentScale.light,
+  );
+  const lightCardForegroundStep = getBestForegroundStep(
+    data.grayScale.light[1],
+    data.accentScale.light,
+  );
+  const lightPopoverForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.accentScale.light,
+  );
+  const lightPrimaryForegroundStep = getBestForegroundStep(
+    data.accent,
+    data.accentScale.light,
+  );
+  const lightSecondaryForegroundStep = getBestForegroundStep(
+    data.accentScale.light[2],
+    data.accentScale.light,
+  );
+  const lightMutedForegroundStep = getBestForegroundStep(
+    data.grayScale.light[2],
+    data.grayScale.light,
+  );
+  const lightAccentForegroundStep = getBestForegroundStep(
+    data.accentScale.light[2],
+    data.accentScale.light,
+  );
+
+  // Calculate best foreground steps for analogous palette - light theme
+  const lightAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.lightBackground,
+    data.analogous.accentScale.light,
+  );
+  const lightAnalogousCardForegroundStep = getBestForegroundStep(
+    data.analogous.grayScale.light[1],
+    data.analogous.accentScale.light,
+  );
+  const lightAnalogousPopoverForegroundStep = getBestForegroundStep(
+    data.analogous.lightBackground,
+    data.analogous.accentScale.light,
+  );
+  const lightAnalogousPrimaryForegroundStep = getBestForegroundStep(
+    data.analogous.accent,
+    data.analogous.accentScale.light,
+  );
+  const lightAnalogousSecondaryForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[2],
+    data.analogous.accentScale.light,
+  );
+  const lightAnalogousMutedForegroundStep = getBestForegroundStep(
+    data.analogous.grayScale.light[2],
+    data.analogous.grayScale.light,
+  );
+  const lightAnalogousAccentForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[2],
+    data.analogous.accentScale.light,
+  );
+
+  // Calculate best foreground steps for main palette - dark theme
+  const darkForegroundStep = getBestForegroundStep(
+    data.darkBackground,
+    data.accentScale.dark,
+  );
+  const darkCardForegroundStep = getBestForegroundStep(
+    data.grayScale.dark[1],
+    data.accentScale.dark,
+  );
+  const darkPopoverForegroundStep = getBestForegroundStep(
+    data.grayScale.dark[2],
+    data.accentScale.dark,
+  );
+  const darkPrimaryForegroundStep = getBestForegroundStep(
+    data.accent,
+    data.accentScale.dark,
+  );
+  const darkSecondaryForegroundStep = getBestForegroundStep(
+    data.accentScale.dark[2],
+    data.accentScale.dark,
+  );
+  const darkMutedForegroundStep = getBestForegroundStep(
+    data.grayScale.dark[2],
+    data.grayScale.dark,
+  );
+  const darkAccentForegroundStep = getBestForegroundStep(
+    data.accentScale.dark[2],
+    data.accentScale.dark,
+  );
+
+  // Calculate best foreground steps for analogous palette - dark theme
+  const darkAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.darkBackground,
+    data.analogous.accentScale.dark,
+  );
+  const darkAnalogousCardForegroundStep = getBestForegroundStep(
+    data.analogous.grayScale.dark[1],
+    data.analogous.accentScale.dark,
+  );
+  const darkAnalogousPopoverForegroundStep = getBestForegroundStep(
+    data.analogous.grayScale.dark[2],
+    data.analogous.accentScale.dark,
+  );
+  const darkAnalogousPrimaryForegroundStep = getBestForegroundStep(
+    data.analogous.accent,
+    data.analogous.accentScale.dark,
+  );
+  const darkAnalogousSecondaryForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.dark[2],
+    data.analogous.accentScale.dark,
+  );
+  const darkAnalogousMutedForegroundStep = getBestForegroundStep(
+    data.analogous.grayScale.dark[2],
+    data.analogous.grayScale.dark,
+  );
+  const darkAnalogousAccentForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.dark[2],
+    data.analogous.accentScale.dark,
+  );
+
   return {
     light: {
       "--background": hexToHSLValues(data.lightBackground),
-      "--foreground": hexToHSLValues(data.accentScale.light[11]),
+      "--foreground": hexToHSLValues(
+        data.accentScale.light[lightForegroundStep],
+      ),
       "--foreground-subtle": hexToHSLValues(data.grayScale.light[10]),
       "--card": hexToHSLValues(data.grayScale.light[1]),
-      "--card-foreground": hexToHSLValues(data.accentScale.light[11]),
+      "--card-foreground": hexToHSLValues(
+        data.accentScale.light[lightCardForegroundStep],
+      ),
       "--popover": hexToHSLValues(data.lightBackground),
-      "--popover-foreground": hexToHSLValues(data.accentScale.light[11]),
+      "--popover-foreground": hexToHSLValues(
+        data.accentScale.light[lightPopoverForegroundStep],
+      ),
       "--primary": hexToHSLValues(data.accent),
-      "--primary-foreground": hexToHSLValues(data.accentScale.light[11]),
+      "--primary-foreground": hexToHSLValues(
+        data.accentScale.light[lightPrimaryForegroundStep],
+      ),
       "--secondary": hexToHSLValues(data.accentScale.light[2]),
-      "--secondary-foreground": hexToHSLValues(data.accentScale.light[11]),
+      "--secondary-foreground": hexToHSLValues(
+        data.accentScale.light[lightSecondaryForegroundStep],
+      ),
       "--muted": hexToHSLValues(data.grayScale.light[2]),
-      "--muted-foreground": hexToHSLValues(data.grayScale.light[10]),
+      "--muted-foreground": hexToHSLValues(
+        data.grayScale.light[lightMutedForegroundStep],
+      ),
       "--accent": hexToHSLValues(data.accentScale.light[2]),
-      "--accent-foreground": hexToHSLValues(data.accentScale.light[10]),
+      "--accent-foreground": hexToHSLValues(
+        data.accentScale.light[lightAccentForegroundStep],
+      ),
       "--border": hexToHSLValues(data.grayScale.light[6]),
       "--input": hexToHSLValues(data.grayScale.light[6]),
       "--ring": hexToHSLValues(data.accent),
@@ -56,33 +191,35 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
     },
     lightAnalogous: {
       "--a-background": hexToHSLValues(data.analogous.lightBackground),
-      "--a-foreground": hexToHSLValues(data.analogous.accentScale.light[11]),
+      "--a-foreground": hexToHSLValues(
+        data.analogous.accentScale.light[lightAnalogousForegroundStep],
+      ),
       "--a-foreground-subtle": hexToHSLValues(
         data.analogous.grayScale.light[10],
       ),
       "--a-card": hexToHSLValues(data.analogous.grayScale.light[1]),
       "--a-card-foreground": hexToHSLValues(
-        data.analogous.accentScale.light[11],
+        data.analogous.accentScale.light[lightAnalogousCardForegroundStep],
       ),
       "--a-popover": hexToHSLValues(data.analogous.lightBackground),
       "--a-popover-foreground": hexToHSLValues(
-        data.analogous.accentScale.light[11],
+        data.analogous.accentScale.light[lightAnalogousPopoverForegroundStep],
       ),
       "--a-primary": hexToHSLValues(data.analogous.accent),
       "--a-primary-foreground": hexToHSLValues(
-        data.analogous.accentScale.light[11],
+        data.analogous.accentScale.light[lightAnalogousPrimaryForegroundStep],
       ),
       "--a-secondary": hexToHSLValues(data.analogous.accentScale.light[2]),
       "--a-secondary-foreground": hexToHSLValues(
-        data.analogous.accentScale.light[11],
+        data.analogous.accentScale.light[lightAnalogousSecondaryForegroundStep],
       ),
       "--a-muted": hexToHSLValues(data.analogous.grayScale.light[2]),
       "--a-muted-foreground": hexToHSLValues(
-        data.analogous.grayScale.light[10],
+        data.analogous.grayScale.light[lightAnalogousMutedForegroundStep],
       ),
       "--a-accent": hexToHSLValues(data.analogous.accentScale.light[2]),
       "--a-accent-foreground": hexToHSLValues(
-        data.analogous.accentScale.light[10],
+        data.analogous.accentScale.light[lightAnalogousAccentForegroundStep],
       ),
       "--a-border": hexToHSLValues(data.analogous.grayScale.light[6]),
       "--a-input": hexToHSLValues(data.analogous.grayScale.light[6]),
@@ -108,20 +245,32 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
     },
     dark: {
       "--background": hexToHSLValues(data.darkBackground),
-      "--foreground": hexToHSLValues(data.accentScale.dark[11]),
+      "--foreground": hexToHSLValues(data.accentScale.dark[darkForegroundStep]),
       "--foreground-subtle": hexToHSLValues(data.grayScale.dark[10]),
       "--card": hexToHSLValues(data.grayScale.dark[1]),
-      "--card-foreground": hexToHSLValues(data.accentScale.dark[11]),
+      "--card-foreground": hexToHSLValues(
+        data.accentScale.dark[darkCardForegroundStep],
+      ),
       "--popover": hexToHSLValues(data.grayScale.dark[2]),
-      "--popover-foreground": hexToHSLValues(data.accentScale.dark[11]),
+      "--popover-foreground": hexToHSLValues(
+        data.accentScale.dark[darkPopoverForegroundStep],
+      ),
       "--primary": hexToHSLValues(data.accent),
-      "--primary-foreground": hexToHSLValues(data.accentScale.dark[0]),
+      "--primary-foreground": hexToHSLValues(
+        data.accentScale.dark[darkPrimaryForegroundStep],
+      ),
       "--secondary": hexToHSLValues(data.accentScale.dark[2]),
-      "--secondary-foreground": hexToHSLValues(data.accentScale.dark[11]),
+      "--secondary-foreground": hexToHSLValues(
+        data.accentScale.dark[darkSecondaryForegroundStep],
+      ),
       "--muted": hexToHSLValues(data.grayScale.dark[2]),
-      "--muted-foreground": hexToHSLValues(data.grayScale.dark[10]),
+      "--muted-foreground": hexToHSLValues(
+        data.grayScale.dark[darkMutedForegroundStep],
+      ),
       "--accent": hexToHSLValues(data.accentScale.dark[2]),
-      "--accent-foreground": hexToHSLValues(data.accentScale.dark[10]),
+      "--accent-foreground": hexToHSLValues(
+        data.accentScale.dark[darkAccentForegroundStep],
+      ),
       "--border": hexToHSLValues(data.grayScale.dark[6]),
       "--input": hexToHSLValues(data.grayScale.dark[6]),
       "--ring": hexToHSLValues(data.accent),
@@ -146,31 +295,35 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
     },
     darkAnalogous: {
       "--a-background": hexToHSLValues(data.analogous.darkBackground),
-      "--a-foreground": hexToHSLValues(data.analogous.accentScale.dark[11]),
+      "--a-foreground": hexToHSLValues(
+        data.analogous.accentScale.dark[darkAnalogousForegroundStep],
+      ),
       "--a-foreground-subtle": hexToHSLValues(
         data.analogous.grayScale.dark[10],
       ),
       "--a-card": hexToHSLValues(data.analogous.grayScale.dark[1]),
       "--a-card-foreground": hexToHSLValues(
-        data.analogous.accentScale.dark[11],
+        data.analogous.accentScale.dark[darkAnalogousCardForegroundStep],
       ),
       "--a-popover": hexToHSLValues(data.analogous.grayScale.dark[2]),
       "--a-popover-foreground": hexToHSLValues(
-        data.analogous.accentScale.dark[11],
+        data.analogous.accentScale.dark[darkAnalogousPopoverForegroundStep],
       ),
       "--a-primary": hexToHSLValues(data.analogous.accent),
       "--a-primary-foreground": hexToHSLValues(
-        data.analogous.accentScale.dark[0],
+        data.analogous.accentScale.dark[darkAnalogousPrimaryForegroundStep],
       ),
       "--a-secondary": hexToHSLValues(data.analogous.accentScale.dark[2]),
       "--a-secondary-foreground": hexToHSLValues(
-        data.analogous.accentScale.dark[11],
+        data.analogous.accentScale.dark[darkAnalogousSecondaryForegroundStep],
       ),
       "--a-muted": hexToHSLValues(data.analogous.grayScale.dark[2]),
-      "--a-muted-foreground": hexToHSLValues(data.analogous.grayScale.dark[10]),
+      "--a-muted-foreground": hexToHSLValues(
+        data.analogous.grayScale.dark[darkAnalogousMutedForegroundStep],
+      ),
       "--a-accent": hexToHSLValues(data.analogous.accentScale.dark[2]),
       "--a-accent-foreground": hexToHSLValues(
-        data.analogous.accentScale.dark[10],
+        data.analogous.accentScale.dark[darkAnalogousAccentForegroundStep],
       ),
       "--a-border": hexToHSLValues(data.analogous.grayScale.dark[6]),
       "--a-input": hexToHSLValues(data.analogous.grayScale.dark[6]),
@@ -266,8 +419,7 @@ export function useThemeUpdater(paletteData: PaletteData | null) {
     }
 
     const mapping = generateThemeMapping(paletteData);
-    const cleanup = applyThemeToDocument(mapping);
 
-    return cleanup;
+    return applyThemeToDocument(mapping);
   }, [paletteData]);
 }

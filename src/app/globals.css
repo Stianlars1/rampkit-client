@@ -3,16 +3,17 @@
   --nav-height: 60px;
 
   --max-width: 1200px;
+
   --background: 0 0% 97%;
   --foreground: 217 69% 23%;
   --primary: 217 91% 60%;
-  --primary-foreground: 220 14% 96%;
+  --primary-foreground: 217 69% 23%;
   --secondary: 215 55% 92%;
   --secondary-foreground: 217 69% 23%;
   --muted: 220 6% 90%;
-  --muted-foreground: 220 3% 36%;
+  --muted-foreground: 225 6% 13%;
   --accent: 215 55% 92%;
-  --accent-foreground: 217 79% 46%;
+  --accent-foreground: 217 69% 23%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 100%;
   --border: 220 5% 76%;
@@ -57,9 +58,9 @@
     --secondary: 217 60% 17%;
     --secondary-foreground: 217 100% 91%;
     --muted: 240 1% 14%;
-    --muted-foreground: 216 3% 71%;
+    --muted-foreground: 210 6% 93%;
     --accent: 217 60% 17%;
-    --accent-foreground: 216 100% 76%;
+    --accent-foreground: 217 100% 91%;
     --border: 216 3% 28%;
     --input: 216 3% 28%;
     --ring: 217 91% 60%;
