@@ -1,0 +1,12 @@
+.brandLink {
+  .brandLogo {
+    margin-right: 12px;
+    width: 42px;
+    height: 42px;
+    vertical-align: middle;
+
+    @media (prefers-color-scheme: dark) {
+      filter: invert(1);
+    }
+  }
+}
