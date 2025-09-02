@@ -4,24 +4,30 @@ import {
   COLORPALETTE_URL,
   GITHUB_SOURCE_URL,
   RADIX_UI_URL,
+  RAMPKIT_URL,
   STIAN_URL,
 } from "@/lib/utils/urls";
 import { Button } from "@/components/ui/Button/Button";
 import Image from "next/image";
+import { cx } from "@/lib/utils/cx";
+import Link from "next/link";
+import layoutStyles from "./../../../app/layout.module.scss";
 
 export const Footer = () => {
   return (
-    <div className={styles.wrapper}>
+    <div className={cx(styles.wrapper, layoutStyles.footer)}>
       <footer className={styles.footer}>
         <div className={styles.left}>
           <p>
-            <Image
-              src={"/icon0.svg"}
-              alt={"Logo"}
-              width={32}
-              height={32}
-              className={styles.brandLogo}
-            />
+            <Link href={RAMPKIT_URL} className={styles.brandLink}>
+              <Image
+                src={"/logo/round/rampkit_round.svg"}
+                alt={"Logo"}
+                width={32}
+                height={32}
+                className={styles.brandLogo}
+              />
+            </Link>
             Built with ♥ by Rampkit{" "}
           </p>
 
@@ -38,7 +44,7 @@ export const Footer = () => {
             href={COLORPALETTE_URL}
             title={"ColorPalette.dev"}
             aria-label={"ColorPalette dot dev"}
-            className={styles.v1}
+            className={cx(styles.v1, styles.icon)}
           >
             v1
           </Button>
@@ -50,7 +56,7 @@ export const Footer = () => {
             title={"Radix Colors"}
             aria-label={"Radix Colors"}
           >
-            <RadixIcon />
+            <RadixIcon className={styles.icon} />
           </Button>
           <Button
             variant={"outline"}
@@ -60,7 +66,7 @@ export const Footer = () => {
             title={"Source code on GitHub"}
             aria-label={"Source code on GitHub"}
           >
-            <GithubIcon />
+            <GithubIcon className={styles.icon} />
           </Button>
           <Button
             variant={"outline"}
@@ -75,6 +81,7 @@ export const Footer = () => {
               alt={"Stian, the creator"}
               width={32}
               height={32}
+              className={styles.icon}
             />
           </Button>
         </div>

@@ -1,3 +1,7 @@
+export const RAMPKIT_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://rampkit.app"
+    : "http://localhost:3000";
 export const RAMPKIT_API_URL = process.env.NEXT_PUBLIC_RAMPKIT_API_URL;
 export const GITHUB_SOURCE_URL =
   "https://github.com/Stianlars1/rampkit-client.git";

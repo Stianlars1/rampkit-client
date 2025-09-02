@@ -1,18 +1,19 @@
 "use client";
 import styles from "./page.module.scss";
-import { Footer } from "@/components/Footer/Footer";
 import { useEffect, useState } from "react";
 import { PaletteData, Scheme } from "@/types";
 import { useThemeUpdater } from "@/hooks/useThemeUpdater";
 import { bumpVisitorOncePerSession } from "@/lib/metrics/store";
 import { generatePalette } from "@/app/actions/generatePalette";
-import { StatsPanel } from "@/components/StatsPanel/StatsPanel";
-import { ColorInput } from "@/components/ColorInput/ColorInput";
-import { LoadingTips } from "@/components/LoadingTips/LoadingTips";
-import { Loader } from "@/components/Loader/Loader";
-import { ThemeControls } from "@/components/ThemeControls/ThemeControls";
-import { ColorRamp } from "@/components/ColorRamp/ColorRamp";
-import { ExportPanel } from "@/components/ExportPanel/ExportPanel";
+import { StatsPanel } from "@/components/ui/StatsPanel/StatsPanel";
+import { ColorInput } from "@/components/ui/ColorInput/ColorInput";
+import { LoadingTips } from "@/components/ui/LoadingTips/LoadingTips";
+import { Loader } from "@/components/ui/Loader/Loader";
+import { ThemeControls } from "@/components/ui/ThemeControls/ThemeControls";
+import { ColorRamp } from "@/components/ui/ColorRamp/ColorRamp";
+import { ExportPanel } from "@/components/ui/ExportPanel/ExportPanel";
+import layoutStyles from "./layout.module.scss";
+import { cx } from "@/lib/utils/cx";
 
 export const RampKitApp = () => {
   const [paletteData, setPaletteData] = useState<PaletteData | null>(null);
@@ -54,7 +55,7 @@ export const RampKitApp = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={cx(styles.container, layoutStyles.hero)}>
       <main className={styles.main}>
         <section className={styles.firstSection}>
           <div className={styles.header}>
@@ -93,11 +94,7 @@ export const RampKitApp = () => {
             </div>
           </>
         )}
-
-        <StatsPanel />
       </main>
-
-      <Footer />
     </div>
   );
 };

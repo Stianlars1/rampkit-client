@@ -9,8 +9,10 @@ import {
 } from "@/lib/fonts/index";
 import { cx } from "@/lib/utils/cx";
 import { site } from "@/lib/seo/site";
-import Head from "next/head";
 import Script from "next/script";
+import styles from "./layout.module.scss";
+import { Footer } from "@/components/layout/Footer/Footer";
+import { NavbarTransition } from "@/components/layout/Navbar/NavbarTransition";
 
 export const metadata: Metadata = {
   title: "Rampkit - Beautiful Color Ramps",
@@ -87,9 +89,12 @@ export default function RootLayout({
           dmSans.variable,
           assistant.variable,
           "blue",
+          styles.layout,
         )}
       >
+        <NavbarTransition />
         {children}
+        <Footer />
       </body>
     </html>
   );

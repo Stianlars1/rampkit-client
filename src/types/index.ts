@@ -1,5 +1,11 @@
 import { RadixColorTheme } from "@/types/radix";
 
+export type SearchParams = {
+  hex?: string;
+  scheme?: string;
+  harmonize?: string;
+};
+
 export type Scheme =
   | "monochromatic"
   | "analogous"

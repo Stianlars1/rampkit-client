@@ -1,10 +1,11 @@
 import { site } from "@/lib/seo/site";
 import { Metadata, ResolvingMetadata } from "next";
 import { RampKitApp } from "@/app/app";
+import { SearchParams } from "@/types";
 
 type Props = {
   params: Promise<Record<string, never>>;
-  searchParams: Promise<{ hex?: string; scheme?: string; harmonize?: string }>;
+  searchParams: Promise<SearchParams>;
 };
 
 export async function generateMetadata(

@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { ColorFormat, ExportOptions, PaletteData, StylePreset } from "@/types";
 import { Button } from "@/components/ui/Button/Button";
-import { ExportModal } from "@/components/ExportModal/ExportModal";
+import { ExportModal } from "@/components/ui/ExportModal/ExportModal";
 import { generateExportCode } from "@/lib/export-formats";
 import styles from "./ExportPanel.module.scss";
 import { useMetrics } from "@/hooks/useMetrics";
 import { EXPORT_FORMAT_GITHUB_ISSUES_URL } from "@/lib/utils/urls";
-import RequestExportOption from "@/components/RequestOption/requestOption";
+import RequestExportOption from "@/components/ui/RequestOption/requestOption";
 
 interface ExportPanelProps {
   data: PaletteData;

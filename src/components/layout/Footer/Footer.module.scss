@@ -32,11 +32,17 @@
       margin: 0;
     }
 
-    .brandLogo {
-      margin-right: 12px;
-      width: 32px;
-      height: 32px;
-      vertical-align: middle;
+    .brandLink {
+      .brandLogo {
+        margin-right: 12px;
+        width: 32px;
+        height: 32px;
+        vertical-align: middle;
+
+        @media (prefers-color-scheme: dark) {
+          filter: invert(1);
+        }
+      }
     }
   }
 
@@ -48,6 +54,11 @@
     .v1 {
       text-decoration: none;
       color: hsl(var(--foreground));
+    }
+
+    .icon {
+      width: 24px;
+      height: 24px;
     }
   }
 }

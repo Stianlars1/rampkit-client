@@ -248,7 +248,22 @@ ${darkModeRulesAnalogous}
 
 export function useThemeUpdater(paletteData: PaletteData | null) {
   useEffect(() => {
-    if (!paletteData) return;
+    if (typeof window === "undefined") return;
+
+    if (!paletteData) {
+      // Toggle true/false
+      const bodyElement = document.body;
+      if (bodyElement) {
+        bodyElement.removeAttribute("data-has-generated-theme");
+      }
+      return;
+    }
+
+    const bodyElement = document.body;
+
+    if (bodyElement) {
+      bodyElement.setAttribute("data-has-generated-theme", "true");
+    }
 
     const mapping = generateThemeMapping(paletteData);
     const cleanup = applyThemeToDocument(mapping);

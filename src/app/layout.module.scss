@@ -1,0 +1,20 @@
+.layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: var(--nav-height) 1fr auto;
+}
+
+.navbar {
+  grid-column: 1 / -1;
+  grid-row: 1 / 2;
+}
+
+.hero {
+  grid-column: 1 / -1;
+  grid-row: 2 / 3;
+}
+
+.footer {
+  grid-column: 1 / -1;
+  grid-row: 3 / 4;
+}

@@ -14,7 +14,7 @@ import {
   bumpVisitorOncePerSession,
 } from "@/lib/metrics/store";
 import type { ColorFormat, Scheme, StylePreset } from "@/types";
-import type { ExportFormat } from "@/components/ExportModal/ExportModal";
+import type { ExportFormat } from "@/components/ui/ExportModal/ExportModal";
 
 export function useMetrics() {
   useEffect(() => {

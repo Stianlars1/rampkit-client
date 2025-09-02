@@ -1,5 +1,5 @@
 import { PaletteData } from "@/types";
-import { ExportFormat } from "@/components/ExportModal/ExportModal";
+import { ExportFormat } from "@/components/ui/ExportModal/ExportModal";
 
 export async function generateDownloadFile(
   data: PaletteData,

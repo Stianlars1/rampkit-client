@@ -6,9 +6,9 @@ import { getDb } from "@/lib/firebase/firestore";
 import { doc, onSnapshot } from "firebase/firestore";
 import styles from "./StatsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
-import { AnalyticSvg } from "@/components/StatsPanel/analyticSvg";
+import { AnalyticSvg } from "@/components/ui/StatsPanel/analyticSvg";
 import { cx } from "@/lib/utils/cx";
-import { CrossSvg } from "@/components/StatsPanel/crossSvg";
+import { CrossSvg } from "@/components/ui/StatsPanel/crossSvg";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 
@@ -33,11 +33,6 @@ type MetricsDoc = {
 
 export function StatsPanel() {
   const [metrics, setMetrics] = useState<MetricsDoc | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleOpen = () => {
-    setIsOpen(!isOpen);
-  };
 
   useEffect(() => {
     const db = getDb();
@@ -54,8 +49,6 @@ export function StatsPanel() {
     };
   }, []);
 
-  if (!metrics) return null;
-
   const top = (map: CountMap) =>
     Object.entries(map)
       .sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0))
@@ -64,46 +57,57 @@ export function StatsPanel() {
   return (
     <>
       <Button
-        variant={"ghost"}
-        className={styles.iconButton}
+        popoverTarget={"STATS_PANEL"}
+        variant={"secondary"}
+        type={"button"}
+        size={"icon"}
         aria-label="See live stats"
-        onClick={handleOpen}
+        // Remove the onClick handler - popover API handles this
       >
-        {isOpen ? (
-          <CrossSvg className={styles.triggerIcon} />
-        ) : (
-          <AnalyticSvg className={styles.triggerIcon} />
-        )}
+        <AnalyticSvg className={styles.triggerIcon} />
       </Button>
 
-      <div
-        id={"stats-panel"}
-        className={cx(styles.panel, isOpen ? styles.isOpen : styles.isClosed)}
-      >
+      <div popover={"auto"} id={"STATS_PANEL"} className={cx(styles.panel)}>
+        <Button
+          size={"icon"}
+          variant={"outline"}
+          className={styles.closeButton}
+          popoverTarget={"STATS_PANEL"}
+          popoverTargetAction={"hide"}
+        >
+          <CrossSvg />
+        </Button>
         <h2>Live Stats</h2>
 
-        <div className={styles.grid}>
-          <Stat label="Visitors" value={metrics.visitors} />
-          <Stat label="Generated ramps" value={metrics.generate_clicks} />
-          <Stat label="Clicks export" value={metrics.export_clicks} />
-          <Stat label="Export downloads" value={metrics.export_downloads} />
-          <Stat label="Dev-tools copy" value={metrics.devtools_copy_clicks} />
-        </div>
+        {metrics && (
+          <>
+            <div className={styles.grid}>
+              <Stat label="Visitors" value={metrics.visitors} />
+              <Stat label="Generated ramps" value={metrics.generate_clicks} />
+              <Stat label="Clicks export" value={metrics.export_clicks} />
+              <Stat label="Export downloads" value={metrics.export_downloads} />
+              <Stat
+                label="Dev-tools copy"
+                value={metrics.devtools_copy_clicks}
+              />
+            </div>
 
-        <div className={styles.lists}>
-          <OptionList
-            title="Top export formats"
-            items={top(metrics.export_format_counts)}
-          />
-          <OptionList
-            title="Top presets"
-            items={top(metrics.devtools_preset_counts)}
-          />
-          <OptionList
-            title="Top color formats"
-            items={top(metrics.devtools_format_counts)}
-          />
-        </div>
+            <div className={styles.lists}>
+              <OptionList
+                title="Top export formats"
+                items={top(metrics.export_format_counts)}
+              />
+              <OptionList
+                title="Top presets"
+                items={top(metrics.devtools_preset_counts)}
+              />
+              <OptionList
+                title="Top color formats"
+                items={top(metrics.devtools_format_counts)}
+              />
+            </div>
+          </>
+        )}
       </div>
     </>
   );
