@@ -31,7 +31,7 @@ type MetricsDoc = {
   show_code_clicks: number;
 };
 
-export const StatsPanel = ({ iconSize }: { iconSize: number }) => {
+export const StatsPanel = ({ iconSize }: { iconSize?: number }) => {
   const [metrics, setMetrics] = useState<MetricsDoc | null>(null);
 
   useEffect(() => {
