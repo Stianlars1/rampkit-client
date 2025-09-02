@@ -1,53 +1,56 @@
-import { PaletteData, ExportOptions } from '@/types';
-import {hexToHSL, hexToRGB} from "@/lib/utils/color-utils";
+import { PaletteData, ExportOptions } from "@/types";
+import { hexToHSL, hexToRGB } from "@/lib/utils/color-utils";
 
-export function generateExportCode(data: PaletteData, options: ExportOptions): string {
-    switch (options.preset) {
-        case 'shadcn':
-            return generateShadcnCSS(data, options.format);
-        case 'css-variables':
-            return generateCSSVariables(data, options.format);
-        case 'radix':
-            return generateRadixCSS(data, options.format);
-        case 'tailwind':
-            return generateTailwindConfig(data, options.format);
-        case 'css-in-js':
-            return generateCSSInJS(data, options.format);
-        case 'scss':
-            return generateSCSS(data, options.format);
-        case 'material-ui':
-            return generateMaterialUI(data, options.format);
-        case 'chakra-ui':
-            return generateChakraUI(data, options.format);
-        default:
-            return generateShadcnCSS(data, options.format);
-    }
+export function generateExportCode(
+  data: PaletteData,
+  options: ExportOptions,
+): string {
+  switch (options.preset) {
+    case "shadcn":
+      return generateShadcnCSS(data, options.format);
+    case "css-variables":
+      return generateCSSVariables(data, options.format);
+    case "radix":
+      return generateRadixCSS(data, options.format);
+    case "tailwind":
+      return generateTailwindConfig(data, options.format);
+    case "css-in-js":
+      return generateCSSInJS(data, options.format);
+    case "scss":
+      return generateSCSS(data, options.format);
+    case "material-ui":
+      return generateMaterialUI(data, options.format);
+    case "chakra-ui":
+      return generateChakraUI(data, options.format);
+    default:
+      return generateShadcnCSS(data, options.format);
+  }
 }
 
 function formatColor(hex: string, format: string): string {
-    switch (format) {
-        case 'HSL_VALUES': {
-            const hsl = hexToHSL(hex);
-            return `${hsl.h} ${hsl.s}% ${hsl.l}%`;
-        }
-        case 'HSL': {
-            const hsl = hexToHSL(hex);
-            return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
-        }
-        case 'RGB': {
-            const rgb = hexToRGB(hex);
-            return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-        }
-        case 'HEX':
-        default:
-            return hex;
+  switch (format) {
+    case "HSL_VALUES": {
+      const hsl = hexToHSL(hex);
+      return `${hsl.h} ${hsl.s}% ${hsl.l}%`;
     }
+    case "HSL": {
+      const hsl = hexToHSL(hex);
+      return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+    }
+    case "RGB": {
+      const rgb = hexToRGB(hex);
+      return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+    }
+    case "HEX":
+    default:
+      return hex;
+  }
 }
 
 function generateShadcnCSS(data: PaletteData, format: string): string {
-    const formatFn = (hex: string) => formatColor(hex, format);
+  const formatFn = (hex: string) => formatColor(hex, format);
 
-    return `:root {
+  return `:root {
   --background: ${formatFn(data.lightBackground)};
   --foreground: ${formatFn(data.accentScale.light[11])};
   --primary: ${formatFn(data.accent)};
@@ -65,14 +68,14 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
   --ring: ${formatFn(data.accent)};
 
   /* Accent Scale - Light */
-${data.accentScale.light.map((color, i) =>
-        `  --accent-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+${data.accentScale.light
+  .map((color, i) => `  --accent-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
   
   /* Gray Scale - Light */
-${data.grayScale.light.map((color, i) =>
-        `  --gray-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+${data.grayScale.light
+  .map((color, i) => `  --gray-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
 }
 
 @media (prefers-color-scheme: dark) {
@@ -92,68 +95,68 @@ ${data.grayScale.light.map((color, i) =>
     --ring: ${formatFn(data.accent)};
 
     /* Accent Scale - Dark */
-${data.accentScale.dark.map((color, i) =>
-        `    --accent-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+${data.accentScale.dark
+  .map((color, i) => `    --accent-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
     
     /* Gray Scale - Dark */
-${data.grayScale.dark.map((color, i) =>
-        `    --gray-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+${data.grayScale.dark
+  .map((color, i) => `    --gray-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
   }
 }`;
 }
 
 function generateCSSVariables(data: PaletteData, format: string): string {
-    const formatFn = (hex: string) => formatColor(hex, format);
+  const formatFn = (hex: string) => formatColor(hex, format);
 
-    return `:root {
+  return `:root {
   /* Accent Colors */
-${data.accentScale.light.map((color, i) =>
-        `  --accent-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+${data.accentScale.light
+  .map((color, i) => `  --accent-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
   
   /* Gray Colors */
-${data.grayScale.light.map((color, i) =>
-        `  --gray-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+${data.grayScale.light
+  .map((color, i) => `  --gray-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     /* Accent Colors - Dark */
-${data.accentScale.dark.map((color, i) =>
-        `    --accent-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+${data.accentScale.dark
+  .map((color, i) => `    --accent-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
     
     /* Gray Colors - Dark */
-${data.grayScale.dark.map((color, i) =>
-        `    --gray-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+${data.grayScale.dark
+  .map((color, i) => `    --gray-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
   }
 }`;
 }
 
 function generateRadixCSS(data: PaletteData, format: string): string {
-    return generateCSSVariables(data, format);
+  return generateCSSVariables(data, format);
 }
 
 function generateTailwindConfig(data: PaletteData, format: string): string {
-    const formatFn = (hex: string) => formatColor(hex, format);
+  const formatFn = (hex: string) => formatColor(hex, format);
 
-    return `module.exports = {
+  return `module.exports = {
   theme: {
     extend: {
       colors: {
         accent: {
-${data.accentScale.light.map((color, i) =>
-        `          ${i + 1}: '${formatFn(color)}',`
-    ).join('\n')}
+${data.accentScale.light
+  .map((color, i) => `          ${i + 1}: '${formatFn(color)}',`)
+  .join("\n")}
         },
         gray: {
-${data.grayScale.light.map((color, i) =>
-        `          ${i + 1}: '${formatFn(color)}',`
-    ).join('\n')}
+${data.grayScale.light
+  .map((color, i) => `          ${i + 1}: '${formatFn(color)}',`)
+  .join("\n")}
         }
       }
     }
@@ -162,40 +165,40 @@ ${data.grayScale.light.map((color, i) =>
 }
 
 function generateCSSInJS(data: PaletteData, format: string): string {
-    const formatFn = (hex: string) => formatColor(hex, format);
+  const formatFn = (hex: string) => formatColor(hex, format);
 
-    return `export const colors = {
+  return `export const colors = {
   accent: {
-${data.accentScale.light.map((color, i) =>
-        `    ${i + 1}: '${formatFn(color)}',`
-    ).join('\n')}
+${data.accentScale.light
+  .map((color, i) => `    ${i + 1}: '${formatFn(color)}',`)
+  .join("\n")}
   },
   gray: {
-${data.grayScale.light.map((color, i) =>
-        `    ${i + 1}: '${formatFn(color)}',`
-    ).join('\n')}
+${data.grayScale.light
+  .map((color, i) => `    ${i + 1}: '${formatFn(color)}',`)
+  .join("\n")}
   }
 };`;
 }
 
 function generateSCSS(data: PaletteData, format: string): string {
-    const formatFn = (hex: string) => formatColor(hex, format);
+  const formatFn = (hex: string) => formatColor(hex, format);
 
-    return `// Accent Colors
-${data.accentScale.light.map((color, i) =>
-        `$accent-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}
+  return `// Accent Colors
+${data.accentScale.light
+  .map((color, i) => `$accent-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}
 
 // Gray Colors
-${data.grayScale.light.map((color, i) =>
-        `$gray-${i + 1}: ${formatFn(color)};`
-    ).join('\n')}`;
+${data.grayScale.light
+  .map((color, i) => `$gray-${i + 1}: ${formatFn(color)};`)
+  .join("\n")}`;
 }
 
 function generateMaterialUI(data: PaletteData, format: string): string {
-    const formatFn = (hex: string) => formatColor(hex, format);
+  const formatFn = (hex: string) => formatColor(hex, format);
 
-    return `import { createTheme } from '@mui/material/styles';
+  return `import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
@@ -203,14 +206,14 @@ const theme = createTheme({
       main: '${formatFn(data.accent)}',
     },
     accent: {
-${data.accentScale.light.map((color, i) =>
-        `      ${i + 1}: '${formatFn(color)}',`
-    ).join('\n')}
+${data.accentScale.light
+  .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
+  .join("\n")}
     },
     gray: {
-${data.grayScale.light.map((color, i) =>
-        `      ${i + 1}: '${formatFn(color)}',`
-    ).join('\n')}
+${data.grayScale.light
+  .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
+  .join("\n")}
     }
   }
 });
@@ -219,21 +222,21 @@ export default theme;`;
 }
 
 function generateChakraUI(data: PaletteData, format: string): string {
-    const formatFn = (hex: string) => formatColor(hex, format);
+  const formatFn = (hex: string) => formatColor(hex, format);
 
-    return `import { extendTheme } from '@chakra-ui/react';
+  return `import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
   colors: {
     accent: {
-${data.accentScale.light.map((color, i) =>
-        `      ${i + 1}: '${formatFn(color)}',`
-    ).join('\n')}
+${data.accentScale.light
+  .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
+  .join("\n")}
     },
     gray: {
-${data.grayScale.light.map((color, i) =>
-        `      ${i + 1}: '${formatFn(color)}',`
-    ).join('\n')}
+${data.grayScale.light
+  .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
+  .join("\n")}
     }
   }
 });

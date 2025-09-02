@@ -11,7 +11,7 @@ import Image from "next/image";
 
 export const Footer = () => {
   return (
-    <>
+    <div className={styles.wrapper}>
       <footer className={styles.footer}>
         <div className={styles.left}>
           <p>
@@ -38,6 +38,7 @@ export const Footer = () => {
             href={COLORPALETTE_URL}
             title={"ColorPalette.dev"}
             aria-label={"ColorPalette dot dev"}
+            className={styles.v1}
           >
             v1
           </Button>
@@ -78,6 +79,6 @@ export const Footer = () => {
           </Button>
         </div>
       </footer>
-    </>
+    </div>
   );
 };

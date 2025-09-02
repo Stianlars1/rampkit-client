@@ -4,7 +4,9 @@ import { hexToHSL } from "@/lib/utils/color-utils";
 
 interface ThemeMapping {
   light: Record<string, string>;
+  lightAnalogous: Record<string, string>;
   dark: Record<string, string>;
+  darkAnalogous: Record<string, string>;
 }
 
 function hexToHSLValues(hex: string): string {
@@ -52,6 +54,58 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
         {} as Record<string, string>,
       ),
     },
+    lightAnalogous: {
+      "--a-background": hexToHSLValues(data.analogous.lightBackground),
+      "--a-foreground": hexToHSLValues(data.analogous.accentScale.light[11]),
+      "--a-foreground-subtle": hexToHSLValues(
+        data.analogous.grayScale.light[10],
+      ),
+      "--a-card": hexToHSLValues(data.analogous.grayScale.light[1]),
+      "--a-card-foreground": hexToHSLValues(
+        data.analogous.accentScale.light[11],
+      ),
+      "--a-popover": hexToHSLValues(data.analogous.lightBackground),
+      "--a-popover-foreground": hexToHSLValues(
+        data.analogous.accentScale.light[11],
+      ),
+      "--a-primary": hexToHSLValues(data.analogous.accent),
+      "--a-primary-foreground": hexToHSLValues(
+        data.analogous.accentScale.light[11],
+      ),
+      "--a-secondary": hexToHSLValues(data.analogous.accentScale.light[2]),
+      "--a-secondary-foreground": hexToHSLValues(
+        data.analogous.accentScale.light[11],
+      ),
+      "--a-muted": hexToHSLValues(data.analogous.grayScale.light[2]),
+      "--a-muted-foreground": hexToHSLValues(
+        data.analogous.grayScale.light[10],
+      ),
+      "--a-accent": hexToHSLValues(data.analogous.accentScale.light[2]),
+      "--a-accent-foreground": hexToHSLValues(
+        data.analogous.accentScale.light[10],
+      ),
+      "--a-border": hexToHSLValues(data.analogous.grayScale.light[6]),
+      "--a-input": hexToHSLValues(data.analogous.grayScale.light[6]),
+      "--a-ring": hexToHSLValues(data.analogous.accent),
+
+      // Accent scale
+      ...data.analogous.accentScale.light.reduce(
+        (acc, color, index) => {
+          acc[`--a-accent-${index + 1}`] = hexToHSLValues(color);
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+
+      // Gray scale
+      ...data.analogous.grayScale.light.reduce(
+        (acc, color, index) => {
+          acc[`--a-gray-${index + 1}`] = hexToHSLValues(color);
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    },
     dark: {
       "--background": hexToHSLValues(data.darkBackground),
       "--foreground": hexToHSLValues(data.accentScale.dark[11]),
@@ -90,6 +144,56 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
         {} as Record<string, string>,
       ),
     },
+    darkAnalogous: {
+      "--a-background": hexToHSLValues(data.analogous.darkBackground),
+      "--a-foreground": hexToHSLValues(data.analogous.accentScale.dark[11]),
+      "--a-foreground-subtle": hexToHSLValues(
+        data.analogous.grayScale.dark[10],
+      ),
+      "--a-card": hexToHSLValues(data.analogous.grayScale.dark[1]),
+      "--a-card-foreground": hexToHSLValues(
+        data.analogous.accentScale.dark[11],
+      ),
+      "--a-popover": hexToHSLValues(data.analogous.grayScale.dark[2]),
+      "--a-popover-foreground": hexToHSLValues(
+        data.analogous.accentScale.dark[11],
+      ),
+      "--a-primary": hexToHSLValues(data.analogous.accent),
+      "--a-primary-foreground": hexToHSLValues(
+        data.analogous.accentScale.dark[0],
+      ),
+      "--a-secondary": hexToHSLValues(data.analogous.accentScale.dark[2]),
+      "--a-secondary-foreground": hexToHSLValues(
+        data.analogous.accentScale.dark[11],
+      ),
+      "--a-muted": hexToHSLValues(data.analogous.grayScale.dark[2]),
+      "--a-muted-foreground": hexToHSLValues(data.analogous.grayScale.dark[10]),
+      "--a-accent": hexToHSLValues(data.analogous.accentScale.dark[2]),
+      "--a-accent-foreground": hexToHSLValues(
+        data.analogous.accentScale.dark[10],
+      ),
+      "--a-border": hexToHSLValues(data.analogous.grayScale.dark[6]),
+      "--a-input": hexToHSLValues(data.analogous.grayScale.dark[6]),
+      "--a-ring": hexToHSLValues(data.analogous.accent),
+
+      // Accent scale
+      ...data.analogous.accentScale.dark.reduce(
+        (acc, color, index) => {
+          acc[`--a-accent-${index + 1}`] = hexToHSLValues(color);
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+
+      // Gray scale
+      ...data.analogous.grayScale.dark.reduce(
+        (acc, color, index) => {
+          acc[`--a-gray-${index + 1}`] = hexToHSLValues(color);
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    },
   };
 }
 
@@ -108,8 +212,15 @@ function applyThemeToDocument(mapping: ThemeMapping): () => void {
     .map(([property, value]) => `  ${property}: ${value};`)
     .join("\n");
 
+  const lightModeRulesAnalogous = Object.entries(mapping.lightAnalogous)
+    .map(([property, value]) => `  ${property}: ${value};`)
+    .join("\n");
+
   // Generate dark mode CSS
   const darkModeRules = Object.entries(mapping.dark)
+    .map(([property, value]) => `    ${property}: ${value};`)
+    .join("\n");
+  const darkModeRulesAnalogous = Object.entries(mapping.darkAnalogous)
     .map(([property, value]) => `    ${property}: ${value};`)
     .join("\n");
 
@@ -117,11 +228,13 @@ function applyThemeToDocument(mapping: ThemeMapping): () => void {
   themeStyle.textContent = `
 :root {
 ${lightModeRules}
+${lightModeRulesAnalogous}
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
 ${darkModeRules}
+${darkModeRulesAnalogous}
   }
 }`;
 

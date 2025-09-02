@@ -12,14 +12,15 @@
 }
 
 .expandButton {
-  margin: 0 auto;
+  margin: 0 auto 12px;
   text-align: left;
   width: fit-content;
   padding: 0;
+  height: unset;
 }
 
 .openIssueButton {
-  margin: 16px auto 12px;
+  margin: 12px auto 12px;
   width: fit-content;
   color: hsl(var(--muted-foreground));
 

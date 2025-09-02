@@ -40,6 +40,19 @@ export interface PaletteData {
   grayScaleAlpha: ColorScale;
   radixOriginalLight: RadixColorTheme;
   radixOriginalDark: RadixColorTheme;
+
+  analogous: {
+    accent: string;
+    gray: string;
+    lightBackground: string;
+    darkBackground: string;
+    accentScale: ColorScale;
+    grayScale: ColorScale;
+    accentScaleAlpha: ColorScale;
+    grayScaleAlpha: ColorScale;
+    radixAnalogousLight: RadixColorTheme;
+    radixAnalogousDark: RadixColorTheme;
+  };
 }
 
 export interface ExportOptions {

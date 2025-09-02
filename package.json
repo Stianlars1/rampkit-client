@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
+    "check-types": "tsc",
+    "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,less,md,scss,sass}\"",
+    "pr": "npm run lint && npm run check-types && npm run prettier"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -34,11 +37,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
     "check-types": "^11.2.3",
-    "eslint": "^9",
+    "eslint": "^9.34.0",
     "eslint-config-next": "15.5.2",
     "lint": "^0.8.19",
     "prettier": "^3.6.2",
-    "typescript": "^5"
+    "typescript": "^5.9.2"
   }
 }

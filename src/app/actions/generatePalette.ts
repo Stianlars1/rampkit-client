@@ -14,6 +14,9 @@ export function generatePalette({
   scheme,
 }: GeneratePalette): PaletteData {
   const baseColors = generateBaseColors(hex, scheme, { harmonized });
+  const baseColorsAnalogous = generateBaseColors(hex, "analogous", {
+    harmonized: true,
+  });
 
   const light = generateRadixColors({
     appearance: "light",
@@ -27,6 +30,19 @@ export function generatePalette({
     accent: baseColors.accent,
     gray: baseColors.gray,
     background: baseColors.darkBackground,
+  });
+
+  const lightAnalogous = generateRadixColors({
+    appearance: "light",
+    accent: baseColorsAnalogous.accent,
+    gray: baseColorsAnalogous.gray,
+    background: baseColorsAnalogous.lightBackground,
+  });
+  const darkAnalogous = generateRadixColors({
+    appearance: "dark",
+    accent: baseColorsAnalogous.accent,
+    gray: baseColorsAnalogous.gray,
+    background: baseColorsAnalogous.darkBackground,
   });
 
   return {
@@ -54,5 +70,31 @@ export function generatePalette({
 
     radixOriginalLight: light as RadixColorTheme,
     radixOriginalDark: dark as RadixColorTheme,
+
+    analogous: {
+      accent: baseColorsAnalogous.accent,
+      gray: baseColorsAnalogous.gray,
+      lightBackground: baseColorsAnalogous.lightBackground,
+      darkBackground: baseColorsAnalogous.darkBackground,
+      accentScale: {
+        light: lightAnalogous.accentScale,
+        dark: darkAnalogous.accentScale,
+      },
+      grayScale: {
+        light: lightAnalogous.grayScale,
+        dark: darkAnalogous.grayScale,
+      },
+      accentScaleAlpha: {
+        light: lightAnalogous.accentScaleAlpha,
+        dark: darkAnalogous.accentScaleAlpha,
+      },
+      grayScaleAlpha: {
+        light: lightAnalogous.grayScaleAlpha,
+        dark: darkAnalogous.grayScaleAlpha,
+      },
+
+      radixAnalogousLight: lightAnalogous as RadixColorTheme,
+      radixAnalogousDark: darkAnalogous as RadixColorTheme,
+    },
   };
 }
