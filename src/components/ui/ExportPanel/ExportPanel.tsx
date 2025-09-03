@@ -96,7 +96,7 @@ export function ExportPanel({ data }: ExportPanelProps) {
 
   return (
     <>
-      <div className={styles.container}>
+      <div id={"export"} className={styles.container}>
         <div className={styles.panelHeader}>
           <h2 className={styles.title}>Export Your Color Palette</h2>
           <p className={styles.subTitle}>

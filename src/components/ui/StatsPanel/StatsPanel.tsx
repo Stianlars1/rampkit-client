@@ -6,11 +6,11 @@ import { getDb } from "@/lib/firebase/firestore";
 import { doc, onSnapshot } from "firebase/firestore";
 import styles from "./StatsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
-import { AnalyticSvg } from "@/components/ui/StatsPanel/analyticSvg";
 import { cx } from "@/lib/utils/cx";
 import { CrossSvg } from "@/components/ui/StatsPanel/crossSvg";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
+import { ChartNoAxesCombined } from "lucide-react";
 
 type CountMap = Record<string, number>;
 gsap.registerPlugin(useGSAP);
@@ -57,14 +57,18 @@ export const StatsPanel = ({ iconSize }: { iconSize?: number }) => {
   return (
     <>
       <Button
+        id={"STATS_TRIGGER_BUTTON"}
         popoverTarget={"STATS_PANEL"}
-        variant={"secondary"}
+        variant={"blackwhite"}
         type={"button"}
         size={"icon"}
         aria-label="See live stats"
         style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
       >
-        <AnalyticSvg className={styles.triggerIcon} />
+        <ChartNoAxesCombined
+          id={"STATS_TRIGGER_BUTTON_ICON"}
+          className={styles.triggerIcon}
+        />
       </Button>
 
       <div popover={"auto"} id={"STATS_PANEL"} className={cx(styles.panel)}>

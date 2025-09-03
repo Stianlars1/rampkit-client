@@ -1,11 +1,9 @@
 "use client";
 import styles from "./page.module.scss";
 import { useEffect, useState } from "react";
-import { PaletteData, Scheme } from "@/types";
-import { useThemeUpdater } from "@/hooks/useThemeUpdater";
+import { Scheme } from "@/types";
 import { bumpVisitorOncePerSession } from "@/lib/metrics/store";
 import { generatePalette } from "@/app/actions/generatePalette";
-import { StatsPanel } from "@/components/ui/StatsPanel/StatsPanel";
 import { ColorInput } from "@/components/ui/ColorInput/ColorInput";
 import { LoadingTips } from "@/components/ui/LoadingTips/LoadingTips";
 import { Loader } from "@/components/ui/Loader/Loader";
@@ -14,13 +12,14 @@ import { ColorRamp } from "@/components/ui/ColorRamp/ColorRamp";
 import { ExportPanel } from "@/components/ui/ExportPanel/ExportPanel";
 import layoutStyles from "./layout.module.scss";
 import { cx } from "@/lib/utils/cx";
+import { usePaletteData } from "@/context/PaletteDataprovider";
 
 export const RampKitApp = () => {
-  const [paletteData, setPaletteData] = useState<PaletteData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useThemeUpdater(paletteData);
+  const { setPaletteData, paletteData } = usePaletteData();
+
   useEffect(() => {
     bumpVisitorOncePerSession().then();
   }, []);
@@ -84,10 +83,6 @@ export const RampKitApp = () => {
 
         {paletteData && (
           <>
-            <ThemeControls
-              onReset={handleResetTheme}
-              hasCustomTheme={!!paletteData}
-            />
             <div className={styles.results}>
               <ColorRamp data={paletteData} />
               <ExportPanel data={paletteData} />

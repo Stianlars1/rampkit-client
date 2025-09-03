@@ -64,3 +64,10 @@ export function isValidHex(hex: string): boolean {
   const clean = hex.trim().replace(/^#/, "");
   return /^[0-9A-F]{3}$|^[0-9A-F]{6}$/i.test(clean);
 }
+
+export const getColorFromCSS = (variableName: string): string => {
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(variableName)
+    .trim();
+  return `hsl(${value})`;
+};

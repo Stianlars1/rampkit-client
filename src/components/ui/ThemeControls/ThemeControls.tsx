@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/Button/Button";
 import styles from "./ThemeControls.module.scss";
+import { RotateCcw } from "lucide-react";
 
 interface ThemeControlsProps {
   onReset: () => void;
@@ -13,8 +14,13 @@ export function ThemeControls({ onReset, hasCustomTheme }: ThemeControlsProps) {
 
   return (
     <div className={styles.container}>
-      <Button onClick={onReset} variant="outline" size="sm">
-        Reset to Default Theme
+      <Button
+        id="RESET_PALETTE_BUTTON"
+        onClick={onReset}
+        variant="blackwhite"
+        size="icon"
+      >
+        <RotateCcw width={16} height={16} />
       </Button>
     </div>
   );

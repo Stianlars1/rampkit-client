@@ -2,7 +2,13 @@ import { ButtonHTMLAttributes, AnchorHTMLAttributes, ReactNode } from "react";
 import Link, { LinkProps } from "next/link";
 import styles from "./Button.module.scss";
 
-type Variants = "primary" | "secondary" | "outline" | "ghost" | "link";
+type Variants =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "link"
+  | "blackwhite";
 type Sizes = "sm" | "md" | "lg" | "icon";
 
 interface BaseProps {

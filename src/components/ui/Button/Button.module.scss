@@ -71,15 +71,31 @@
   justify-content: center;
   padding: 8px; /* no extra padding */
   border-radius: 4px; /* adjust if you want rounder/square */
-  background: hsl(var(--muted));
   box-sizing: content-box;
 
-  fill: hsl(var(--foreground));
+  &:hover {
+  }
+}
+
+.blackwhite {
+  background: hsl(0, 0%, 0%);
+  color: hsl(0, 0%, 100%);
+  border-color: hsl(0, 0%, 0%);
 
   &:hover {
-    background: hsl(var(--accent));
-    fill: hsl(var(--accent-foreground));
-    border-color: hsl(var(--primary) / 0.75);
+    background: hsl(0 0% 0% / 0.75);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .blackwhite {
+    background: hsl(0, 0%, 100%);
+    color: hsl(0, 0%, 0%);
+    border-color: hsl(0, 0%, 100%);
+
+    &:hover {
+      background: hsl(0 0% 100% / 0.85);
+    }
   }
 }
 

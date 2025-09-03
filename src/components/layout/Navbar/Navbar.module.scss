@@ -1,25 +1,66 @@
-// Navbar.module.scss
-.default {
-  width: 100%;
-  top: 0;
+.scrollWrapper {
+  position: fixed;
   left: 0;
-}
-
-.default,
-.scroller {
-  position: absolute;
+  width: 100vw;
+  top: 0;
   height: var(--nav-height);
+  background: hsl(var(--background) / 0.2);
+  border: 1px solid transparent;
+  z-index: 10000;
+  backdrop-filter: blur(10px);
+}
+// default
+.navbar {
+  width: min(var(--max-width), 100%);
+  margin: 0 auto;
 
+  height: var(--nav-height);
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px; // Add some padding
+  padding: 0 24px;
+
+  .leftWrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .brandLink {
+      .brandLogo {
+        vertical-align: middle;
+
+        @media (prefers-color-scheme: dark) {
+          filter: invert(1);
+        }
+      }
+    }
+
+    .exportButton {
+      margin: 0;
+    }
+  }
 
   .nav {
     display: flex;
     align-items: center;
+    gap: 8px;
   }
 }
+
+.navbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 10000;
+
+  .title {
+    opacity: 0;
+  }
+}
+
+/*
 
 .scroller {
   opacity: 0;
@@ -42,3 +83,4 @@
 .default {
   z-index: 2;
 }
+*/

@@ -12,7 +12,8 @@ import { site } from "@/lib/seo/site";
 import Script from "next/script";
 import styles from "./layout.module.scss";
 import { Footer } from "@/components/layout/Footer/Footer";
-import { NavbarTransition } from "@/components/layout/Navbar/NavbarTransition";
+import { Navbar } from "@/components/layout/Navbar/Navbar";
+import { PaletteDataprovider } from "@/context/PaletteDataprovider";
 
 export const metadata: Metadata = {
   title: "Rampkit - Beautiful Color Ramps",
@@ -71,6 +72,7 @@ export default function RootLayout({
       },
     ],
   };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -92,8 +94,10 @@ export default function RootLayout({
           styles.layout,
         )}
       >
-        <NavbarTransition />
-        {children}
+        <PaletteDataprovider>
+          <Navbar />
+          {children}
+        </PaletteDataprovider>
         <Footer />
       </body>
     </html>
