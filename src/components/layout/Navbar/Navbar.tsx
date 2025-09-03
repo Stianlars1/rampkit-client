@@ -34,9 +34,6 @@ export const Navbar = () => {
 
     // on resize, update the container width
     const handleResize = () => {
-      console.log("\nresizing");
-      console.log("innerwidth", window.innerWidth);
-      console.log("calculatefd width", window.innerWidth / 2 - 150);
       setContainerWidth(window.innerWidth / 2 - 175);
     };
 
