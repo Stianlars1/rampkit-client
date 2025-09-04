@@ -54,7 +54,7 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
   // Calculate best foreground steps for light theme
   const lightForegroundStep = getBestForegroundStep(
     data.lightBackground,
-    data.accentScale.light,
+    data.grayScale.light,
   );
   const lightPrimaryForegroundStep = getBestForegroundStep(
     data.accent,
@@ -76,7 +76,7 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
   // Calculate best foreground steps for dark theme
   const darkForegroundStep = getBestForegroundStep(
     data.darkBackground,
-    data.accentScale.dark,
+    data.grayScale.dark,
   );
   const darkPrimaryForegroundStep = getBestForegroundStep(
     data.accent,
@@ -97,7 +97,7 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
 
   return `:root {
   --background: ${formatFn(data.lightBackground)};
-  --foreground: ${formatFn(data.accentScale.light[lightForegroundStep])};
+  --foreground: ${formatFn(data.grayScale.light[lightForegroundStep])};
   --primary: ${formatFn(data.accent)};
   --primary-foreground: ${formatFn(data.accentScale.light[lightPrimaryForegroundStep])};
   --secondary: ${formatFn(data.accentScale.light[2])};
@@ -126,7 +126,7 @@ ${data.grayScale.light
 @media (prefers-color-scheme: dark) {
   :root {
     --background: ${formatFn(data.darkBackground)};
-    --foreground: ${formatFn(data.accentScale.dark[darkForegroundStep])};
+    --foreground: ${formatFn(data.grayScale.dark[darkForegroundStep])};
     --primary: ${formatFn(data.accent)};
     --primary-foreground: ${formatFn(data.accentScale.dark[darkPrimaryForegroundStep])};
     --secondary: ${formatFn(data.accentScale.dark[2])};

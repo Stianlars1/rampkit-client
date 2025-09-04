@@ -17,6 +17,11 @@
   width: fit-content;
   padding: 0;
   height: unset;
+  color: hsl(var(--primary-foreground));
+
+  &:hover {
+    color: hsl(var(--foreground));
+  }
 }
 
 .openIssueButton {

@@ -139,9 +139,7 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
   return {
     light: {
       "--background": hexToHSLValues(data.lightBackground),
-      "--foreground": hexToHSLValues(
-        data.accentScale.light[lightForegroundStep],
-      ),
+      "--foreground": hexToHSLValues(data.grayScale.light[lightForegroundStep]),
       "--foreground-subtle": hexToHSLValues(data.grayScale.light[10]),
       "--card": hexToHSLValues(data.grayScale.light[1]),
       "--card-foreground": hexToHSLValues(
@@ -192,7 +190,7 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
     lightAnalogous: {
       "--a-background": hexToHSLValues(data.analogous.lightBackground),
       "--a-foreground": hexToHSLValues(
-        data.analogous.accentScale.light[lightAnalogousForegroundStep],
+        data.analogous.grayScale.light[lightAnalogousForegroundStep],
       ),
       "--a-foreground-subtle": hexToHSLValues(
         data.analogous.grayScale.light[10],
@@ -245,7 +243,7 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
     },
     dark: {
       "--background": hexToHSLValues(data.darkBackground),
-      "--foreground": hexToHSLValues(data.accentScale.dark[darkForegroundStep]),
+      "--foreground": hexToHSLValues(data.grayScale.dark[darkForegroundStep]),
       "--foreground-subtle": hexToHSLValues(data.grayScale.dark[10]),
       "--card": hexToHSLValues(data.grayScale.dark[1]),
       "--card-foreground": hexToHSLValues(
@@ -296,7 +294,7 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
     darkAnalogous: {
       "--a-background": hexToHSLValues(data.analogous.darkBackground),
       "--a-foreground": hexToHSLValues(
-        data.analogous.accentScale.dark[darkAnalogousForegroundStep],
+        data.analogous.grayScale.dark[darkAnalogousForegroundStep],
       ),
       "--a-foreground-subtle": hexToHSLValues(
         data.analogous.grayScale.dark[10],
