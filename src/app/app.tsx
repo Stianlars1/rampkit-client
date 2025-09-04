@@ -82,12 +82,10 @@ export const RampKitApp = () => {
         </section>
 
         {paletteData && (
-          <>
-            <div className={styles.results}>
-              <ColorRamp data={paletteData} />
-              <ExportPanel data={paletteData} />
-            </div>
-          </>
+          <section className={styles.results}>
+            <ColorRamp data={paletteData} />
+            <ExportPanel data={paletteData} />
+          </section>
         )}
       </main>
     </div>

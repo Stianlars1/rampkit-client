@@ -379,17 +379,33 @@ function applyThemeToDocument(mapping: ThemeMapping): () => void {
 
   // Create complete stylesheet with both modes
   themeStyle.textContent = `
-:root {
+  :root {
 ${lightModeRules}
 ${lightModeRulesAnalogous}
 }
+  
+:root.light,
+html.light,
+.light {
+${lightModeRules}
+${lightModeRulesAnalogous}
+}
+
 
 @media (prefers-color-scheme: dark) {
   :root {
 ${darkModeRules}
 ${darkModeRulesAnalogous}
   }
-}`;
+}
+  
+:root.dark,
+html.dark,
+.dark {
+${darkModeRules}
+${darkModeRulesAnalogous}
+}
+`;
 
   // Return cleanup function
   return () => {

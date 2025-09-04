@@ -30,13 +30,13 @@
       .brandLogo {
         vertical-align: middle;
 
-        @media (prefers-color-scheme: dark) {
+        :global(.dark) & {
           filter: invert(1);
         }
       }
     }
 
-    .exportButton {
+    .navButton {
       margin: 0;
     }
   }
@@ -57,6 +57,15 @@
 
   .title {
     opacity: 0;
+
+    .titleInner {
+      font-family: var(--font-jetbrains);
+      color: hsl(var(--black));
+
+      :global(.dark) & {
+        color: hsl(var(--white));
+      }
+    }
   }
 }
 

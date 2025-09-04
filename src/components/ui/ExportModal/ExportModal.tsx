@@ -88,9 +88,14 @@ export function ExportModal({ data, isOpen, onClose }: ExportModalProps) {
       <div className={styles.modal}>
         <div className={styles.header}>
           <h2>Export Color Palette</h2>
-          <button className={styles.closeButton} onClick={onClose}>
+          <Button
+            size={"icon"}
+            variant={"blackwhite"}
+            className={styles.closeButton}
+            onClick={onClose}
+          >
             ×
-          </button>
+          </Button>
         </div>
 
         <div className={styles.content}>

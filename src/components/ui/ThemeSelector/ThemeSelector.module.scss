@@ -1,0 +1,88 @@
+// /src/components/ui/ThemeSelector/ThemeSelector.module.scss
+.themeSelector {
+  position: relative;
+  display: inline-block;
+}
+
+.triggerButton {
+  transition: all 0.2s ease;
+
+  &.open {
+    background: hsl(var(--accent-3));
+    border-color: hsl(var(--border));
+  }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 140px;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  padding: 4px;
+  z-index: 50;
+  animation: slideIn 0.15s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  color: hsl(var(--foreground));
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: hsl(var(--accent-2));
+  }
+
+  &.selected {
+    background: hsl(var(--accent-3));
+    color: hsl(var(--accent-11));
+  }
+}
+
+.optionIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: hsl(var(--muted-foreground));
+
+  .selected & {
+    color: hsl(var(--accent-10));
+  }
+}
+
+.optionLabel {
+  flex: 1;
+  text-align: left;
+}
+
+.checkmark {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: hsl(var(--accent-10));
+  font-weight: 600;
+}

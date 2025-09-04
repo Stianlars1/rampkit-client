@@ -31,7 +31,13 @@ type MetricsDoc = {
   show_code_clicks: number;
 };
 
-export const StatsPanel = ({ iconSize }: { iconSize?: number }) => {
+export const StatsPanel = ({
+  iconSize,
+  id,
+}: {
+  iconSize?: number;
+  id: string;
+}) => {
   const [metrics, setMetrics] = useState<MetricsDoc | null>(null);
 
   useEffect(() => {
@@ -57,13 +63,16 @@ export const StatsPanel = ({ iconSize }: { iconSize?: number }) => {
   return (
     <>
       <Button
-        id={"STATS_TRIGGER_BUTTON"}
+        id={id}
         popoverTarget={"STATS_PANEL"}
         variant={"blackwhite"}
         type={"button"}
         size={"icon"}
         aria-label="See live stats"
         style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
+        className={cx(
+          id === "STATS_TRIGGER_BUTTON_LEFT" && styles.triggerButtonLeft,
+        )}
       >
         <ChartNoAxesCombined
           id={"STATS_TRIGGER_BUTTON_ICON"}

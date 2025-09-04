@@ -39,7 +39,7 @@
         height: 32px;
         vertical-align: middle;
 
-        @media (prefers-color-scheme: dark) {
+        :global(.dark) & {
           filter: invert(1);
         }
       }
@@ -59,6 +59,8 @@
     .icon {
       width: 24px;
       height: 24px;
+      color: hsl(var(--foreground));
+      fill: hsl(var(--foreground));
     }
   }
 }

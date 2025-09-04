@@ -6,6 +6,7 @@ import {
   geistMono,
   geistSans,
   inter,
+  jetbrains,
 } from "@/lib/fonts/index";
 import { cx } from "@/lib/utils/cx";
 import { site } from "@/lib/seo/site";
@@ -14,6 +15,7 @@ import styles from "./layout.module.scss";
 import { Footer } from "@/components/layout/Footer/Footer";
 import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { PaletteDataprovider } from "@/context/PaletteDataprovider";
+import { ThemeProvider } from "@/context/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Rampkit - Beautiful Color Ramps",
@@ -90,15 +92,18 @@ export default function RootLayout({
           inter.variable,
           dmSans.variable,
           assistant.variable,
+          jetbrains.variable,
           "blue",
           styles.layout,
         )}
       >
-        <PaletteDataprovider>
-          <Navbar />
-          {children}
-        </PaletteDataprovider>
-        <Footer />
+        <ThemeProvider>
+          <PaletteDataprovider>
+            <Navbar />
+            {children}
+          </PaletteDataprovider>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

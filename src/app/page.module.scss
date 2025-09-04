@@ -9,7 +9,7 @@
     padding: 60px 20px;
     display: flex;
     flex-direction: column;
-    gap: 96px;
+    gap: var(--section-gap);
 
     .firstSection {
       display: grid;
@@ -82,7 +82,7 @@
 .results {
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: var(--section-gap);
 
   @media (max-width: 768px) {
     gap: 40px;

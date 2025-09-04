@@ -1,5 +1,5 @@
 import styles from "./Footer.module.scss";
-import { GithubIcon, RadixIcon, RampkitIcon } from "@/lib/icons/icons";
+import { GithubIcon, RadixIcon } from "@/lib/icons/icons";
 import {
   COLORPALETTE_URL,
   GITHUB_SOURCE_URL,
