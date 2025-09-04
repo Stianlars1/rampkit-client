@@ -19,6 +19,22 @@ export const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  // Get initial theme from document class (set by our script)
+  const getInitialTheme = (): { theme: ThemeMode; resolved: ResolvedTheme } => {
+    if (typeof window === "undefined") {
+      return { theme: "system", resolved: "dark" };
+    }
+
+    const hasLight = document.documentElement.classList.contains("light");
+    const hasDark = document.documentElement.classList.contains("dark");
+    const savedTheme = localStorage.getItem("theme") as ThemeMode | null;
+
+    const resolved: ResolvedTheme = hasLight ? "light" : "dark";
+    const theme: ThemeMode = savedTheme || "system";
+
+    return { theme, resolved };
+  };
+
   const [theme, setTheme] = useState<ThemeMode>("system");
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("dark");
   const [mounted, setMounted] = useState(false);
@@ -58,15 +74,13 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     root.setAttribute("data-theme", resolved);
   };
 
-  // Load saved theme or default to system
+  // Initialize with current state on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as ThemeMode | null;
-    const initialTheme = savedTheme || "system";
-    const initialResolvedTheme = resolveTheme(initialTheme);
+    const { theme: initialTheme, resolved: initialResolved } =
+      getInitialTheme();
 
     setTheme(initialTheme);
-    setResolvedTheme(initialResolvedTheme);
-    applyTheme(initialResolvedTheme);
+    setResolvedTheme(initialResolved);
     setMounted(true);
   }, []);
 
@@ -106,7 +120,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     updateTheme(newTheme);
   };
 
-  // Prevent hydration mismatch
+  // Prevent hydration mismatch by using actual detected theme
   if (!mounted) {
     return (
       <ThemeContext.Provider

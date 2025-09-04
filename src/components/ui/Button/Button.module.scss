@@ -78,24 +78,12 @@
 }
 
 .blackwhite {
-  background: hsl(0, 0%, 0%);
-  color: hsl(0, 0%, 100%);
-  border-color: hsl(0, 0%, 0%);
+  background: hsl(var(--blackwhite));
+  color: hsl(var(--blackwhite-foreground));
+  border-color: hsl(var(--blackwhite));
 
   &:hover {
-    background: hsl(0 0% 0% / 0.75);
-  }
-}
-
-:global(:root.dark) {
-  .blackwhite {
-    background: hsl(0, 0%, 100%);
-    color: hsl(0, 0%, 0%);
-    border-color: hsl(0, 0%, 100%);
-
-    &:hover {
-      background: hsl(0 0% 100% / 0.85);
-    }
+    background: hsl(var(--blackwhite) / 0.75);
   }
 }
 

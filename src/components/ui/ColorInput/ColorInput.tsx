@@ -50,7 +50,6 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
   const [showSettings, setShowSettings] = useState(false);
   const { trackGenerate } = useMetrics();
   const gsapContainerRef = useRef<HTMLDivElement>(null);
-  const sliderRef = useRef<HTMLSpanElement>(null);
 
   const handleGenerate = () => {
     if (!isValidHex(hex)) {

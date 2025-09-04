@@ -16,6 +16,7 @@ import { Footer } from "@/components/layout/Footer/Footer";
 import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { PaletteDataprovider } from "@/context/PaletteDataprovider";
 import { ThemeProvider } from "@/context/ThemeProvider";
+import { themeScript } from "@/lib/theme-script";
 
 export const metadata: Metadata = {
   title: "Rampkit - Beautiful Color Ramps",
@@ -83,6 +84,11 @@ export default function RootLayout({
           type="application/ld+json"
           suppressHydrationWarning={true}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+
+        <script
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+          suppressHydrationWarning
         />
       </head>
       <body

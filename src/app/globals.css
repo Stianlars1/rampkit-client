@@ -6,6 +6,9 @@
   --black: 0 0% 0%;
   --white: 0 0% 100%;
 
+  --blackwhite: 0 0% 100%;
+  --blackwhite-foreground: 0 0% 0%;
+
   /* Light theme variables (default) */
   --background: 0 0% 97%;
   --foreground: 217 69% 23%;
@@ -56,6 +59,9 @@
 /* System preference for dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
+    --blackwhite: 0 0% 100%;
+    --blackwhite-foreground: 0 0% 0%;
+
     --background: 0 0% 6%;
     --foreground: 217 100% 91%;
     --primary: 217 91% 60%;
@@ -105,6 +111,9 @@
 :root.light,
 html.light,
 .light {
+  --blackwhite: 0 0% 0%;
+  --blackwhite-foreground: 0 0% 100%;
+
   --background: 0 0% 97%;
   --foreground: 217 69% 23%;
   --primary: 217 91% 60%;
@@ -155,6 +164,9 @@ html.light,
 :root.dark,
 html.dark,
 .dark {
+  --blackwhite: 0 0% 100%;
+  --blackwhite-foreground: 0 0% 0%;
+
   --background: 0 0% 6%;
   --foreground: 217 100% 91%;
   --primary: 217 91% 60%;

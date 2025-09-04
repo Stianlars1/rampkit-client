@@ -64,47 +64,52 @@ export const Navbar = () => {
         },
       });
 
+      // Container Animation
+
+      timeline.fromTo(
+        containerRef.current,
+        {
+          width: "100vw",
+          borderRadius: "0",
+          padding: 0,
+          border: "1px solid transparent",
+        },
+        {
+          width: "400px",
+          borderRadius: "99999px",
+
+          top: "8px",
+          // center the element horizontally
+          x: containerWidth,
+          ease: "none",
+          border: "1px solid " + getColorFromCSS("--border"),
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: "top top",
+            end: `+=120`,
+            scrub: true,
+          },
+        },
+      );
+
+      // Text Animation
+      timeline.to(
+        titleRef.current,
+        {
+          opacity: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: "top -=120",
+            end: `+=120`,
+            scrub: true,
+          },
+        },
+        "<",
+      );
+
+      // Icon Fade ins
       timeline
-        .fromTo(
-          containerRef.current,
-          {
-            width: "100vw",
-            borderRadius: "0",
-            padding: 0,
-            border: "1px solid transparent",
-          },
-          {
-            width: "400px",
-            borderRadius: "99999px",
-
-            top: "8px",
-            // center the element horizontally
-            x: containerWidth,
-            ease: "none",
-            border: "1px solid " + getColorFromCSS("--border"),
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "top top",
-              end: `+=120`,
-              scrub: true,
-            },
-          },
-        )
-        .to(
-          titleRef.current,
-          {
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "top -=120",
-              end: `+=120`,
-              scrub: true,
-            },
-          },
-          "<",
-        )
-
         .to(
           "#STATS_TRIGGER_BUTTON",
           {
@@ -114,105 +119,12 @@ export const Navbar = () => {
           },
           "<",
         )
-        .to(
-          "#STATS_TRIGGER_BUTTON",
-          {
-            opacity: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "center top",
-              end: "top -=80",
-              markers: true,
-              scrub: true,
-            },
-          },
-          "<",
-        )
-        .to(
-          "#BRAND_LOGO_REF",
-          {
-            opacity: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "bottom top",
-              end: "top -=80",
-              scrub: true,
-            },
-          },
-          "<",
-        )
-        .to(
-          "#STATS_TRIGGER_BUTTON",
-          {
-            display: "none",
-            ease: "none",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "top -=60",
-              end: "top -=80",
-              scrub: true,
-            },
-          },
-          "<",
-        )
-        .to(
-          "#BRAND_LOGO_REF",
-          {
-            display: "none",
-            ease: "none",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "top -=60",
-              end: "top -=80",
-              scrub: true,
-            },
-          },
-          "<",
-        )
-        .to(
-          "#STATS_TRIGGER_BUTTON_LEFT",
-          {
-            display: "inline-block",
-            ease: "none",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "top -=80",
-              end: "top -=80",
-              scrub: true,
-            },
-          },
-          "<",
-        )
-        .to(
-          "#STATS_TRIGGER_BUTTON_LEFT",
-          {
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "top -=80",
-              end: "top -=100",
-              scrub: true,
-            },
-          },
-          "<",
-        )
+
         .to(
           "#EXPORT_BUTTON",
           {
             width: "16px",
             height: "16px",
-            ease: "none",
-          },
-          "<",
-        )
-        .to(
-          "#BRAND_LOGO_REF",
-          {
-            width: "34px",
-            height: "34px",
             ease: "none",
           },
           "<",
@@ -266,32 +178,24 @@ export const Navbar = () => {
         className={cx(styles.navbar, layoutStyles.navbar)}
       >
         <div className={styles.leftWrapper}>
-          <Link href={RAMPKIT_URL} className={styles.brandLink}>
-            <Image
-              id={"BRAND_LOGO_REF"}
-              ref={brandLogoRef}
-              src={"/logo/round/rampkit_round.svg"}
-              alt={"Logo"}
-              width={42}
-              height={42}
-              className={cx(
-                styles.brandLogo,
-                theme === "dark" && styles.darkLogo,
-              )}
-            />
-          </Link>
-          <StatsPanel id={"STATS_TRIGGER_BUTTON_LEFT"} />
+          {!hasGeneratedTheme && (
+            <Link href={RAMPKIT_URL} className={styles.brandLink}>
+              <Image
+                id={"BRAND_LOGO_REF"}
+                ref={brandLogoRef}
+                src={"/logo/round/rampkit_round.svg"}
+                alt={"Logo"}
+                width={42}
+                height={42}
+                className={cx(
+                  styles.brandLogo,
+                  theme === "dark" && styles.darkLogo,
+                )}
+              />
+            </Link>
+          )}
 
-          <ThemeControls
-            onReset={handleResetTheme}
-            hasCustomTheme={hasGeneratedTheme}
-          />
-        </div>
-        <h2 className={styles.title} ref={titleRef}>
-          <small className={styles.titleInner}>rampkit</small>
-        </h2>
-        <nav className={styles.nav}>
-          <StatsPanel id={"STATS_TRIGGER_BUTTON"} />
+          <StatsPanel id={"STATS_TRIGGER_BUTTON_LEFT"} />
 
           {hasGeneratedTheme && (
             <Button
@@ -304,6 +208,17 @@ export const Navbar = () => {
               <Download width={16} height={16} />
             </Button>
           )}
+
+          <ThemeControls
+            onReset={handleResetTheme}
+            hasCustomTheme={hasGeneratedTheme}
+          />
+        </div>
+        <h2 className={styles.title} ref={titleRef}>
+          <small className={styles.titleInner}>rampkit</small>
+        </h2>
+        <nav className={styles.nav}>
+          <StatsPanel id={"STATS_TRIGGER_BUTTON"} />
 
           <ThemeSelector />
         </nav>

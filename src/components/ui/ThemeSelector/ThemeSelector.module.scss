@@ -8,8 +8,9 @@
   transition: all 0.2s ease;
 
   &.open {
-    background: hsl(var(--accent-3));
-    border-color: hsl(var(--border));
+    background: hsl(var(--blackwhite) / 0.75);
+    border-color: hsl(var(--blackwhite));
+    scale: 0.92;
   }
 }
 
