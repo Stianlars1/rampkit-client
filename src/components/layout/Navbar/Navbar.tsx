@@ -179,7 +179,11 @@ export const Navbar = () => {
       >
         <div className={styles.leftWrapper}>
           {!hasGeneratedTheme && (
-            <Link href={RAMPKIT_URL} className={styles.brandLink}>
+            <Link
+              aria-label={"Click to refresh the website"}
+              href={RAMPKIT_URL}
+              className={styles.brandLink}
+            >
               <Image
                 id={"BRAND_LOGO_REF"}
                 ref={brandLogoRef}
@@ -204,6 +208,7 @@ export const Navbar = () => {
               variant={"blackwhite"}
               className={styles.navButton}
               onClick={handleGoToExport}
+              aria-label="Click to go to the export section"
             >
               <Download width={16} height={16} />
             </Button>

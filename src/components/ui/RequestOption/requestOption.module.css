@@ -17,10 +17,10 @@
   width: fit-content;
   padding: 0;
   height: unset;
-  color: hsl(var(--primary-foreground));
+  color: hsl(var(--accent-12));
 
   &:hover {
-    color: hsl(var(--foreground));
+    color: hsl(var(--foreground) / 0.75);
   }
 }
 
