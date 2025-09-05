@@ -75,7 +75,7 @@ export const Navbar = () => {
           border: "1px solid transparent",
         },
         {
-          width: "400px",
+          width: "350px",
           borderRadius: "99999px",
 
           top: "8px",
