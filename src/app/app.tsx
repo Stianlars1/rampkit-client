@@ -7,12 +7,12 @@ import { generatePalette } from "@/app/actions/generatePalette";
 import { ColorInput } from "@/components/ui/ColorInput/ColorInput";
 import { LoadingTips } from "@/components/ui/LoadingTips/LoadingTips";
 import { Loader } from "@/components/ui/Loader/Loader";
-import { ThemeControls } from "@/components/ui/ThemeControls/ThemeControls";
 import { ColorRamp } from "@/components/ui/ColorRamp/ColorRamp";
 import { ExportPanel } from "@/components/ui/ExportPanel/ExportPanel";
 import layoutStyles from "./layout.module.scss";
 import { cx } from "@/lib/utils/cx";
 import { usePaletteData } from "@/context/PaletteDataprovider";
+import Spline from "@splinetool/react-spline";
 
 export const RampKitApp = () => {
   const [loading, setLoading] = useState(false);
@@ -87,6 +87,12 @@ export const RampKitApp = () => {
             <ExportPanel data={paletteData} />
           </section>
         )}
+
+        <Spline
+          className={styles.splineBg}
+          style={{ pointerEvents: "none" }}
+          scene={"/scene.splinecode"}
+        />
       </main>
     </div>
   );

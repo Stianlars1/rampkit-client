@@ -1,3 +1,11 @@
+.splineBg {
+  position: fixed;
+  inset: -100px 0 0 0;
+  opacity: 0.15;
+  z-index: -100000;
+  pointer-events: none;
+}
+
 .container {
   display: flex;
   flex-direction: column;
