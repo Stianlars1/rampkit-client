@@ -1,10 +1,12 @@
 .container {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 24px;
   width: min(480px, 100%);
   margin: 0 auto;
   align-items: center;
+  z-index: 10;
 }
 
 .form {
@@ -93,6 +95,7 @@
   height: 48px;
   padding: 0;
   transition: all 0.2s;
+  backdrop-filter: blur(1px);
 
   .settingsIcon {
     width: 20px;
@@ -130,6 +133,7 @@
   padding: 20px;
   background: hsl(var(--muted) / 0.5);
   border: 1px solid hsl(var(--border));
+  backdrop-filter: blur(10px);
   border-radius: 12px;
   display: flex;
   flex-direction: column;

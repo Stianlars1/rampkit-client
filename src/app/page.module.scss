@@ -17,27 +17,86 @@
     }
 
     .header {
+      text-align: center;
+
       .title {
+        display: inline-block;
         text-align: center;
+        margin: 0 auto;
+        text-wrap: balance;
         font-size: 56px;
         font-weight: 700;
-        background: linear-gradient(
+        /*        background: linear-gradient(
           135deg,
           hsl(var(--primary)),
           hsl(var(--accent-foreground))
         );
         background-clip: text;
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        -webkit-text-fill-color: transparent;*/
+
+        color: hsl(var(--primary));
 
         letter-spacing: -3px;
       }
 
       .subtitle {
-        font-size: 18px;
+        font-size: 20px;
         color: hsl(var(--muted-foreground));
-        max-width: 480px;
+        max-width: 550px;
         margin: 0 auto;
+
+        // shadow for more depth when graphic assets sits behind
+        //text-shadow: 0 2px 4px hsl(var(--muted) / 0.1);
+
+        text-shadow:
+          0 -2px 5px hsl(var(--foreground) / 0.15),
+          0 1px 2px hsl(var(--foreground) / 0.35),
+          0 2px 2px hsl(var(--foreground) / 0.28),
+          0 6px 10px hsl(var(--foreground) / 0.2);
+
+        :global(:root.light) & {
+          text-shadow:
+            0 -1px 5px hsl(var(--background) / 0.2),
+            0 0.5px 2px hsl(var(--background) / 0.4);
+        }
+
+        @media (prefers-color-scheme: dark) {
+          text-shadow:
+            0 -2px 5px hsl(var(--background) / 0.15),
+            0 1px 2px hsl(var(--background) / 0.35),
+            0 2px 2px hsl(var(--background) / 0.28),
+            0 6px 10px hsl(var(--background) / 0.2);
+        }
+
+        :global(:root.dark) & {
+          text-shadow:
+            0 -2px 5px hsl(var(--background) / 0.15),
+            0 1px 2px hsl(var(--background) / 0.35),
+            0 2px 2px hsl(var(--background) / 0.28),
+            0 6px 10px hsl(var(--background) / 0.2);
+        }
+
+        /*
+
+        text-shadow:
+          0 1px 0 hsl(0 0% 0% / 0.45),
+          1px 0 0 hsl(0 0% 0% / 0.45),
+          -1px 0 0 hsl(0 0% 0% / 0.45),
+          0 -1px 0 hsl(0 0% 0% / 0.45),
+          0 3px 8px hsl(0 0% 0% / 0.25);
+
+        text-shadow:
+          0 1px 1px hsl(0 0% 100% / 0.55),
+          0 2px 6px hsl(0 0% 100% / 0.35);
+
+        color: hsl(var(--foreground));
+        !* shadow keyed to background tone *!
+        --ts: hsl(var(--background) / 0.85); !* base tone *!
+        text-shadow:
+          0 1px 1px color-mix(in hsl, var(--ts), black 35%),
+          0 3px 10px color-mix(in hsl, var(--ts), black 55%);
+        */
       }
     }
 

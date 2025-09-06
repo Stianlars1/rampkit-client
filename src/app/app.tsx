@@ -7,7 +7,6 @@ import { generatePalette } from "@/app/actions/generatePalette";
 import { ColorInput } from "@/components/ui/ColorInput/ColorInput";
 import { LoadingTips } from "@/components/ui/LoadingTips/LoadingTips";
 import { Loader } from "@/components/ui/Loader/Loader";
-import { ThemeControls } from "@/components/ui/ThemeControls/ThemeControls";
 import { ColorRamp } from "@/components/ui/ColorRamp/ColorRamp";
 import { ExportPanel } from "@/components/ui/ExportPanel/ExportPanel";
 import layoutStyles from "./layout.module.scss";
@@ -47,10 +46,6 @@ export const RampKitApp = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleResetTheme = () => {
-    setPaletteData(null);
   };
 
   return (

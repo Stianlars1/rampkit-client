@@ -18,6 +18,7 @@ import { PaletteDataprovider } from "@/context/PaletteDataprovider";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import { themeScript } from "@/lib/theme-script";
 import { BackgroundEffects } from "@/components/ui/BackgroundEffects/BackgroundEffects";
+import { GoogleAnalyticsProvider } from "@/lib/analytics/GoogleAnalyticsProvider";
 
 export const metadata: Metadata = {
   title: "Rampkit - Beautiful Color Ramps",
@@ -113,6 +114,7 @@ export default function RootLayout({
 
           <BackgroundEffects />
         </ThemeProvider>
+        <GoogleAnalyticsProvider />
       </body>
     </html>
   );

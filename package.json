@@ -20,6 +20,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@stianlarsen/copy-to-clipboard": "^1.0.4",
     "@types/cors": "^2.8.17",
+    "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "bezier-easing": "^2.1.0",
     "colorjs.io": "0.5.2",
     "firebase": "^12.2.1",

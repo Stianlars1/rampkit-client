@@ -6,7 +6,7 @@
   height: var(--nav-height);
   background: hsl(var(--background) / 0.2);
   border: 1px solid transparent;
-  z-index: 10000;
+  z-index: 1000000000000000;
   backdrop-filter: blur(10px);
 }
 // default
@@ -53,7 +53,7 @@
   left: 0;
   right: 0;
   top: 0;
-  z-index: 10000;
+  z-index: 100000000000;
 
   .title {
     opacity: 0;
