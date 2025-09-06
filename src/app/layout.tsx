@@ -17,7 +17,7 @@ import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { PaletteDataprovider } from "@/context/PaletteDataprovider";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import { themeScript } from "@/lib/theme-script";
-import { BackgroundEffects } from "@/components/ui/BackgroundEffects/BackgroundEffectsV2_opus";
+import { BackgroundEffects } from "@/components/ui/BackgroundEffects/BackgroundEffects";
 
 export const metadata: Metadata = {
   title: "Rampkit - Beautiful Color Ramps",

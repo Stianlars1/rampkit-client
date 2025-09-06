@@ -1,5 +1,3 @@
-// @/components/ui/BackgroundEffects/backgroundPresets.ts
-
 import TweenVars = gsap.TweenVars;
 
 /** Per-step function */
@@ -9,6 +7,7 @@ export interface BackgroundPreset {
   name: string;
   /** Final height (px) for each step. Drive height here, not in `to`. */
   getHeight: StepFn<number>;
+  getOpacity: StepFn<number>;
   /** Animation config; `from` is static TweenVars, `to` is computed per step */
   animation: {
     from: TweenVars;
@@ -16,129 +15,10 @@ export interface BackgroundPreset {
   };
 }
 export const backgroundPresets: BackgroundPreset[] = [
-  // === Your original "depth-cascade" converted (height via getHeight) ===
-  {
-    name: "depth-cascade",
-    getHeight: () => 100,
-    animation: {
-      from: {
-        opacity: 0,
-        force3D: true,
-        scale: 2,
-        z: 0,
-        x: 100,
-        y: -150,
-        filter: "blur(0px)",
-      },
-      to: (i) => ({
-        filter: "blur(0px)",
-        opacity: 1,
-        scale: 1,
-        x: 0,
-        y: 0,
-        z: 0,
-        rotateX: "1deg",
-        rotateY: "1deg",
-        rotateZ: "1deg",
-        duration: 1.5,
-        ease: "power3.inOut",
-        delay: 0.1 * i,
-      }),
-    },
-  },
-
   // === Your THREE additional blocks converted and named ===
   {
-    name: "far-depth-zoom",
-    getHeight: () => 500, // pick your final height target (was only in `from` originally)
-    animation: {
-      from: {
-        opacity: 0,
-        force3D: true,
-        scale: 3,
-        z: 500,
-        x: 100,
-        y: -150,
-        filter: "blur(4px)",
-      },
-      to: (i) => ({
-        filter: "blur(0px)",
-        opacity: 1,
-        scale: 4 - 0.1 * i,
-        x: 0,
-        y: 0,
-        rotateX: `${i * 2}deg`,
-        rotateY: `${i * 1.5}deg`,
-        rotateZ: `${i * 4}deg`,
-        z: 10 * i,
-        duration: 1.5,
-        ease: "power3.inOut",
-        delay: 0.1 * i,
-      }),
-    },
-  },
-
-  {
-    name: "near-depth-fan",
-    getHeight: () => 500,
-    animation: {
-      from: {
-        opacity: 1,
-        force3D: true,
-        scale: 1,
-        z: 500,
-        x: -10,
-        y: -50,
-        filter: "blur(2px)",
-      },
-      to: (i) => ({
-        filter: "blur(0px)",
-        scale: 4 - 0.1 * i,
-        x: 5 * i,
-        y: -10 * i,
-        rotateX: `${i * 2}deg`,
-        rotateY: `${i * 1.5}deg`,
-        rotateZ: `${i * 4}deg`,
-        z: 10 * i,
-        duration: 1.5,
-        ease: "power3.inOut",
-        delay: 0.1 * i,
-      }),
-    },
-  },
-
-  {
-    name: "reverse-depth-sweep",
-    getHeight: () => 500,
-    animation: {
-      from: {
-        opacity: 1,
-        force3D: true,
-        scale: 1,
-        z: -100,
-        x: 10,
-        y: 50,
-        filter: "blur(6px)",
-      },
-      to: (i) => ({
-        filter: "blur(0px)",
-        scale: 4 - 0.1 * i,
-        x: 5 * i,
-        y: -10 * i,
-        rotateX: `${i * 2}deg`,
-        rotateY: `${i * 1.5}deg`,
-        rotateZ: `${i * 4}deg`,
-        z: 10 * i,
-        duration: 1.5,
-        ease: "power3.inOut",
-        delay: 0.1 * i,
-      }),
-    },
-  },
-
-  // === The rest of your simpler, readable presets (unchanged, but typed) ===
-  {
     name: "cascade-grow",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i) => 150 + i * 25,
     animation: {
       from: {
@@ -147,27 +27,29 @@ export const backgroundPresets: BackgroundPreset[] = [
         x: -30,
         y: 20,
         z: -50,
-        filter: "blur(4px)",
+        filter: "blur(23px)",
         force3D: true,
       },
       to: (i, total) => ({
-        opacity: 1,
         scale: 1 + i * 0.05,
-        x: i * 8,
+        x: 0,
         y: -(i * 5),
         z: i * 15,
         rotateX: `${i * 2}deg`,
         rotateY: `${i * 1.5}deg`,
         rotateZ: `${i * 3}deg`,
         filter: "blur(0px)",
-        duration: 2,
+        duration: 1,
         ease: "power3.out",
         delay: 0.1 * i,
       }),
     },
   },
-  {
+  // === The rest of your simpler, readable presets (unchanged, but typed) ===
+
+  /*  {
     name: "cascade-shrink",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i) => 400 - i * 20,
     animation: {
       from: {
@@ -180,7 +62,6 @@ export const backgroundPresets: BackgroundPreset[] = [
         force3D: true,
       },
       to: (i) => ({
-        opacity: 1,
         scale: 1.5 - i * 0.05,
         x: -(i * 6),
         y: i * 8,
@@ -197,6 +78,7 @@ export const backgroundPresets: BackgroundPreset[] = [
   },
   {
     name: "wave",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i, total) => 200 + Math.sin((i / total) * Math.PI * 2) * 80,
     animation: {
       from: {
@@ -209,7 +91,6 @@ export const backgroundPresets: BackgroundPreset[] = [
         force3D: true,
       },
       to: (i, total) => ({
-        opacity: 1,
         scale: 1.2 + Math.sin((i / total) * Math.PI) * 0.3,
         x: Math.cos(i * 0.8) * 20,
         y: Math.sin(i * 0.6) * 15,
@@ -226,6 +107,7 @@ export const backgroundPresets: BackgroundPreset[] = [
   },
   {
     name: "mountain",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i, total) => {
       const center = total / 2;
       const distance = Math.abs(i - center);
@@ -242,7 +124,6 @@ export const backgroundPresets: BackgroundPreset[] = [
         force3D: true,
       },
       to: (i, total) => ({
-        opacity: 1,
         scale: 1 + (1 - Math.abs(i - total / 2) / (total / 2)) * 0.5,
         x: (i - 6) * 10,
         y: -(Math.abs(i - total / 2) * 3),
@@ -259,6 +140,7 @@ export const backgroundPresets: BackgroundPreset[] = [
   },
   {
     name: "spiral",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i, total) => 100 + Math.pow(i / total, 2) * 300,
     animation: {
       from: {
@@ -271,7 +153,6 @@ export const backgroundPresets: BackgroundPreset[] = [
         force3D: true,
       },
       to: (i, total) => ({
-        opacity: 1,
         scale: 0.8 + (i / total) * 1.5,
         x: Math.cos(i * 0.8) * (i * 8),
         y: Math.sin(i * 0.8) * (i * 8),
@@ -288,6 +169,7 @@ export const backgroundPresets: BackgroundPreset[] = [
   },
   {
     name: "stepped",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i) => 150 + Math.floor(i / 3) * 60,
     animation: {
       from: {
@@ -300,7 +182,6 @@ export const backgroundPresets: BackgroundPreset[] = [
         force3D: true,
       },
       to: (i) => ({
-        opacity: 1,
         scale: 1.2 + Math.floor(i / 3) * 0.1,
         x: (i % 3) * 15,
         y: -(Math.floor(i / 3) * 20),
@@ -317,6 +198,7 @@ export const backgroundPresets: BackgroundPreset[] = [
   },
   {
     name: "fan",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i) => 180 + i * 18,
     animation: {
       from: {
@@ -346,6 +228,7 @@ export const backgroundPresets: BackgroundPreset[] = [
   },
   {
     name: "zigzag",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i) => 200 + (i % 2 === 0 ? i * 15 : (11 - i) * 10),
     animation: {
       from: {
@@ -358,7 +241,6 @@ export const backgroundPresets: BackgroundPreset[] = [
         force3D: true,
       },
       to: (i) => ({
-        opacity: 1,
         scale: 1 + (i % 2 === 0 ? 0.2 : -0.1),
         x: i % 2 === 0 ? i * 8 : -(i * 6),
         y: -(i * 6),
@@ -375,6 +257,7 @@ export const backgroundPresets: BackgroundPreset[] = [
   },
   {
     name: "bounce",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i) => 250 + Math.abs(Math.sin(i * 0.5)) * 150,
     animation: {
       from: {
@@ -387,7 +270,6 @@ export const backgroundPresets: BackgroundPreset[] = [
         force3D: true,
       },
       to: (i) => ({
-        opacity: 1,
         scale: 1 + Math.abs(Math.sin(i * 0.5)) * 0.3,
         x: i * 6,
         y: Math.abs(Math.sin(i * 0.5)) * -20,
@@ -404,6 +286,7 @@ export const backgroundPresets: BackgroundPreset[] = [
   },
   {
     name: "accordion",
+    getOpacity: (index, totalSteps) => index / totalSteps,
     getHeight: (i) => 180 + i * 12,
     animation: {
       from: {
@@ -417,7 +300,6 @@ export const backgroundPresets: BackgroundPreset[] = [
         force3D: true,
       },
       to: (i) => ({
-        opacity: 1,
         scaleX: 1,
         scaleY: 1,
         x: i * 10,
@@ -433,6 +315,126 @@ export const backgroundPresets: BackgroundPreset[] = [
       }),
     },
   },
+
+  {
+    name: "far-depth-zoom",
+    getOpacity: (index, totalSteps) => index / totalSteps,
+    getHeight: () => 500, // pick your final height target (was only in `from` originally)
+    animation: {
+      from: {
+        opacity: 0,
+        force3D: true,
+        scale: 3,
+        z: 500,
+        x: 100,
+        y: -150,
+        filter: "blur(4px)",
+      },
+      to: (i) => ({
+        filter: "blur(0px)",
+        scale: 4 - 0.1 * i,
+        x: 0,
+        y: 0,
+        rotateX: `${i * 2}deg`,
+        rotateY: `${i * 1.5}deg`,
+        rotateZ: `${i * 4}deg`,
+        z: 10 * i,
+        duration: 1.5,
+        ease: "power3.inOut",
+        delay: 0.1 * i,
+      }),
+    },
+  },
+
+  {
+    name: "reverse-depth-sweep",
+    getOpacity: (index, totalSteps) => index / totalSteps,
+    getHeight: () => 500,
+    animation: {
+      from: {
+        opacity: 1,
+        force3D: true,
+        scale: 1,
+        z: -100,
+        x: 10,
+        y: 50,
+        filter: "blur(6px)",
+      },
+      to: (i) => ({
+        filter: "blur(0px)",
+        scale: 4 - 0.1 * i,
+        x: 5 * i,
+        y: -10 * i,
+        rotateX: `${i * 2}deg`,
+        rotateY: `${i * 1.5}deg`,
+        rotateZ: `${i * 4}deg`,
+        z: 10 * i,
+        duration: 1.5,
+        ease: "power3.inOut",
+        delay: 0.1 * i,
+      }),
+    },
+  },
+
+  {
+    name: "near-depth-fan",
+    getOpacity: (index, totalSteps) => index / totalSteps,
+    getHeight: () => 500,
+    animation: {
+      from: {
+        opacity: 1,
+        force3D: true,
+        scale: 1,
+        z: 500,
+        x: -10,
+        y: -50,
+        filter: "blur(2px)",
+      },
+      to: (i) => ({
+        filter: "blur(0px)",
+        scale: 4 - 0.1 * i,
+        x: 5 * i,
+        y: -10 * i,
+        rotateX: `${i * 2}deg`,
+        rotateY: `${i * 1.5}deg`,
+        rotateZ: `${i * 4}deg`,
+        z: 10 * i,
+        duration: 1.5,
+        ease: "power3.inOut",
+        delay: 0.1 * i,
+      }),
+    },
+  },
+
+  {
+    name: "reverse-depth-sweep",
+    getOpacity: (index, totalSteps) => index / totalSteps,
+    getHeight: () => 500,
+    animation: {
+      from: {
+        opacity: 1,
+        force3D: true,
+        scale: 1,
+        z: -100,
+        x: 10,
+        y: 50,
+        filter: "blur(6px)",
+      },
+      to: (i) => ({
+        filter: "blur(0px)",
+        scale: 4 - 0.1 * i,
+        x: 5 * i,
+        y: -10 * i,
+        rotateX: `${i * 2}deg`,
+        rotateY: `${i * 1.5}deg`,
+        rotateZ: `${i * 4}deg`,
+        z: 10 * i,
+        duration: 1.5,
+        ease: "power3.inOut",
+        delay: 0.1 * i,
+      }),
+    },
+  },*/
 ];
 
 // Simple random selector
