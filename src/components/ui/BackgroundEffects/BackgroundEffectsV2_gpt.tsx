@@ -1,3 +1,4 @@
+// /components/ui/BackgroundEffects/BackgroundEffects.tsx
 "use client";
 import styles from "./BackgroundEffects.module.scss";
 import { useGSAP } from "@gsap/react";
@@ -5,19 +6,18 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useMemo, useRef } from "react";
 import { getColorFromCSS } from "@/lib/utils/color-utils";
-import { PRESETS } from "./presets";
-import { resolve } from "./value";
+import { PRESETS, val } from "@/components/ui/BackgroundEffects/gpt_types";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export const BackgroundEffects = () => {
-  const steps = Array.from({ length: 12 }, (_, i) => i);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const steps = Array.from({ length: 12 });
 
-  // Pick a preset once per mount for “random but cohesive” result
+  // One preset per mount (random but cohesive)
   const preset = useMemo(() => {
-    const idx = crypto.getRandomValues(new Uint32Array(1))[0] % PRESETS.length;
-    return PRESETS[idx];
+    const r = crypto.getRandomValues(new Uint32Array(1))[0] % PRESETS.length;
+    return PRESETS[r];
   }, []);
 
   useGSAP(
@@ -27,23 +27,17 @@ export const BackgroundEffects = () => {
       const total = els.length;
 
       els.forEach((el, index) => {
-        const ctx = { index, total };
-
-        // Build from/to objects with resolved values
-        const from: Record<string, unknown> = {};
+        // Build objects by resolving functions with (index,total)
+        const from: Record<string, any> = {};
         for (const [k, v] of Object.entries(preset.from)) {
-          from[k] = resolve(v as unknown, ctx);
+          from[k] = val(v, index, total);
         }
-
-        const to: Record<string, unknown> = {};
+        const to: Record<string, any> = {};
         for (const [k, v] of Object.entries(preset.to)) {
-          // handled below for gsap timing keys as well
-          to[k] = resolve(v as unknown, ctx);
+          to[k] = val(v, index, total);
         }
-
-        // per-step “data” we always override
+        // Always set background color by step
         to.background = getColorFromCSS(`--accent-${index + 1}`);
-        to.height = resolve(preset.height, ctx);
 
         tl.fromTo(el, from, to, 0);
       });

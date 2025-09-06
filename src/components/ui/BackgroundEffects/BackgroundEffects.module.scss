@@ -25,6 +25,7 @@
     transform: rotateX(36deg) rotateY(19deg) rotate(343deg);
 
     .step {
+      opacity: 1;
       border-radius: 8px;
       will-change: transform;
     }
