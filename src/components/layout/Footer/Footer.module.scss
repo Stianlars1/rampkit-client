@@ -8,6 +8,8 @@
     hsl(var(--a-primary) / 0.25) 75%,
     hsl(var(--a-primary) / 0.5) 110%
   );
+
+  backdrop-filter: blur(6px);
 }
 .footer {
   width: min(var(--max-width), 100%);
