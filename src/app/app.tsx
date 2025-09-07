@@ -57,6 +57,9 @@ export const RampKitApp = () => {
             <p className={styles.subtitle}>
               Generate beautiful 12-step color ramps from any hex color
             </p>
+
+            <div className={styles.backgroundContrast_1} />
+            <div className={styles.backgroundContrast_2} />
           </div>
           <ColorInput onGenerate={handleGenerate} loading={loading} />
 

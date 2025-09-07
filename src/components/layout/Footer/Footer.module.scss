@@ -12,15 +12,28 @@
   backdrop-filter: blur(6px);
 }
 .footer {
+  position: relative;
   width: min(var(--max-width), 100%);
   margin: 0 auto;
-  border-top: 1px solid hsl(var(--border));
+  //border-top: 1px solid hsl(var(--border) / 0.5);
   padding: 20px;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 calc(100% - 1px) 0;
+    background: linear-gradient(
+      45deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--a-accent-9)) 90%
+    );
+    backdrop-filter: blur(2px);
+  }
 
   .left {
     text-align: left;
@@ -50,6 +63,7 @@
 
   .right {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 16px;
 
@@ -67,11 +81,40 @@
   }
 }
 
+@media screen and (max-width: 768px) {
+  .footer {
+    .right {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+  }
+}
+
 @media screen and (max-width: 400px) {
   .footer {
-    flex-direction: column;
-    gap: 16px;
+    padding: 16px 0 8px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+    .left {
+      > p {
+        align-items: center;
+
+        a {
+          display: none;
+          text-align: center;
+          margin: 0 auto;
+        }
+
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+
     .right {
+      display: flex;
     }
   }
 }

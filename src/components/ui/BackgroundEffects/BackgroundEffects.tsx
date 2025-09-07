@@ -30,12 +30,13 @@ export const BackgroundEffects = () => {
 
     if (hasGeneratedPalette) {
       stepElements.forEach((step, idx) => {
-        timeline.to(
+        timeline.fromTo(
           step,
+          { background: getColorFromCSS(`--accent-${idx + 1}`), opacity: 0.8 },
           {
             background: getColorFromCSS(`--accent-${idx + 1}`),
-            duration: 0.8,
-            stagger: 0.05,
+            duration: 1,
+            stagger: 0.1,
           },
           "<",
         );
@@ -46,7 +47,7 @@ export const BackgroundEffects = () => {
           step,
           {
             opacity: 0.06,
-            duration: 0.8,
+            duration: 1.5,
             stagger: 0.05,
             filter: "blur(10px)",
             //y: -idx * 2.5,
@@ -55,7 +56,7 @@ export const BackgroundEffects = () => {
             ease: "power2.inOut",
             rotateY: "5deg",
           },
-          0.3,
+          0.5,
         );
       });
       return;

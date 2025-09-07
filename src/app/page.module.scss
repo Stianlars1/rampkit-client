@@ -3,6 +3,10 @@
   flex-direction: column;
   align-items: center;
 
+  position: relative;
+
+  overflow: clip;
+
   .main {
     width: min(1200px, 100%);
     flex: 1;
@@ -14,10 +18,71 @@
     .firstSection {
       display: grid;
       row-gap: 32px;
+
+      position: relative;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0; /* sits above BackgroundEffects, below content */
+        pointer-events: none;
+        /*        background: radial-gradient(
+          55% 20% at 50% 37%,
+          hsl(var(--background) / 0.6) 0%,
+          hsl(var(--background) / 0.4) 10%,
+          hsl(var(--background) / 0.2) 20%,
+          hsl(var(--background) / 0.1) 40%,
+          hsl(var(--background) / 0) 50%,
+          transparent 60%
+        );*/
+        //backdrop-filter: blur(1px) saturate(115%);
+      }
     }
 
     .header {
+      position: relative;
       text-align: center;
+      z-index: 1;
+      //width: fit-content;
+      //margin: 0 auto;
+
+      .backgroundContrast_1 {
+        position: absolute;
+        inset: -100px -100px -100px - 100px;
+
+        z-index: -1;
+        background: linear-gradient(
+          to bottom,
+          transparent 0%,
+          hsl(var(--background) / 0.9) 48%,
+          transparent 100%
+        );
+        opacity: 0.9;
+      }
+
+      .backgroundContrast_2 {
+        position: absolute;
+        inset: 0;
+        /*        background: conic-gradient(
+          from 0deg at 100% 50%,
+          white,
+          transparent,
+          white
+        );*/
+
+        z-index: -1;
+        /*        background: conic-gradient(
+          from 90deg at 0% 50%,
+          white,
+          transparent,
+          transparent,
+          transparent,
+          transparent,
+          transparent,
+          white
+        );*/
+      }
 
       .title {
         display: inline-block;
@@ -38,6 +103,9 @@
         color: hsl(var(--primary));
 
         letter-spacing: -3px;
+        text-shadow:
+          0 2px 4px hsl(var(--background) / 0.2),
+          0 4px 8px hsl(var(--background) / 0.4);
       }
 
       .subtitle {
@@ -77,26 +145,10 @@
             0 6px 10px hsl(var(--background) / 0.2);
         }
 
-        /*
-
         text-shadow:
-          0 1px 0 hsl(0 0% 0% / 0.45),
-          1px 0 0 hsl(0 0% 0% / 0.45),
-          -1px 0 0 hsl(0 0% 0% / 0.45),
-          0 -1px 0 hsl(0 0% 0% / 0.45),
-          0 3px 8px hsl(0 0% 0% / 0.25);
-
-        text-shadow:
-          0 1px 1px hsl(0 0% 100% / 0.55),
-          0 2px 6px hsl(0 0% 100% / 0.35);
-
-        color: hsl(var(--foreground));
-        !* shadow keyed to background tone *!
-        --ts: hsl(var(--background) / 0.85); !* base tone *!
-        text-shadow:
-          0 1px 1px color-mix(in hsl, var(--ts), black 35%),
-          0 3px 10px color-mix(in hsl, var(--ts), black 55%);
-        */
+          0 1px 2px hsl(var(--background) / 0.9),
+          0 2px 4px hsl(var(--background) / 0.7),
+          0 4px 8px hsl(var(--background) / 0.5);
       }
     }
 
