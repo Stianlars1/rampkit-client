@@ -4,7 +4,7 @@ import layoutStyles from "./../../../app/layout.module.scss";
 import { cx } from "@/lib/utils/cx";
 import { StatsPanel } from "@/components/ui/StatsPanel/StatsPanel";
 import Link from "next/link";
-import { RAMPKIT_URL } from "@/lib/utils/urls";
+import { RAMPKIT_URL, ROUTE_TYPOGRAPH } from "@/lib/utils/urls";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -12,7 +12,7 @@ import { useGSAP } from "@gsap/react";
 import { useEffect, useRef, useState } from "react";
 import { ThemeControls } from "@/components/ui/ThemeControls/ThemeControls";
 import { usePaletteData } from "@/context/PaletteDataprovider";
-import { Download } from "lucide-react";
+import { Download, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/Button/Button";
 import { getColorFromCSS } from "@/lib/utils/color-utils";
 import { useRouter } from "next/navigation";
@@ -198,6 +198,19 @@ export const Navbar = () => {
               />
             </Link>
           )}
+
+          <Link
+            aria-label={"Click to go to the typography generator tool"}
+            href={ROUTE_TYPOGRAPH}
+            className={styles.brandLink}
+          >
+            <Link2
+              className={cx(
+                styles.brandLogo,
+                theme === "dark" && styles.darkLogo,
+              )}
+            />
+          </Link>
 
           <StatsPanel id={"STATS_TRIGGER_BUTTON_LEFT"} />
 

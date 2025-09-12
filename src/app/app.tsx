@@ -61,7 +61,11 @@ export const RampKitApp = () => {
             <div className={styles.backgroundContrast_1} />
             <div className={styles.backgroundContrast_2} />
           </div>
-          <ColorInput onGenerate={handleGenerate} loading={loading} />
+          <ColorInput
+            firstRenderHex={paletteData?.accent}
+            onGenerate={handleGenerate}
+            loading={loading}
+          />
 
           {error && (
             <div className={styles.error}>

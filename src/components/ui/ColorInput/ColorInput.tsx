@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/Input/Input";
 import { Button } from "@/components/ui/Button/Button";
 import { Scheme } from "@/types";
@@ -17,6 +17,7 @@ gsap.registerPlugin(useGSAP);
 interface ColorInputProps {
   onGenerate: (hex: string, scheme: Scheme, harmonizeColors: boolean) => void;
   loading?: boolean;
+  firstRenderHex?: string;
 }
 
 const schemes: { value: Scheme; label: string; description: string }[] = [
@@ -42,14 +43,23 @@ const schemes: { value: Scheme; label: string; description: string }[] = [
   },
 ];
 
-export function ColorInput({ onGenerate, loading }: ColorInputProps) {
-  const [hex, setHex] = useState("#3B82F6");
+export const default_accent_color = "#3B82F6";
+export function ColorInput({
+  onGenerate,
+  loading,
+  firstRenderHex,
+}: ColorInputProps) {
+  const [hex, setHex] = useState(firstRenderHex ?? default_accent_color);
   const [scheme, setScheme] = useState<Scheme>("analogous");
   const [error, setError] = useState("");
   const [harmonizeColors, setHarmonizeColors] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { trackGenerate } = useMetrics();
   const gsapContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setHex(firstRenderHex ?? default_accent_color);
+  }, [firstRenderHex]);
 
   const handleGenerate = () => {
     if (!isValidHex(hex)) {
@@ -87,6 +97,9 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
 
   const handleSettingsClick = () => setShowSettings(!showSettings);
 
+  const inputBg = isValidHex(hex) ? hex : default_accent_color;
+  console.log("hexx", hex);
+  console.log("inputBg", inputBg);
   return (
     <div className={styles.container}>
       <div className={styles.form}>
@@ -97,22 +110,27 @@ export function ColorInput({ onGenerate, loading }: ColorInputProps) {
             style={{ borderColor: isValidHex(hex) ? hex : undefined }}
           >
             <label
+              key={removeHexCharacter(hex)}
               htmlFor="color"
               className={styles.colorPicker}
-              style={{ backgroundColor: isValidHex(hex) ? hex : "#888888" }}
+              style={{
+                backgroundColor: inputBg,
+              }}
             />
             <input
               id="color"
               type="color"
-              value={isValidHex(hex) ? hex : "#888888"}
+              placeholder={removeHexCharacter(hex)}
+              value={isValidHex(hex) ? hex : default_accent_color}
               className={styles.hiddenColorInput}
               onChange={(e) => handleHexChange(e.target.value)}
               title="Click to open color picker"
             />
             <Input
               type="text"
-              placeholder="3B82F6"
-              value={removeHexCharacter(hex)}
+              key={hex}
+              placeholder={removeHexCharacter(hex)}
+              value={removeHexCharacter(hex ?? default_accent_color)}
               onChange={(e) => handleHexChange(e.target.value)}
               error={error}
               className={styles.colorInput}

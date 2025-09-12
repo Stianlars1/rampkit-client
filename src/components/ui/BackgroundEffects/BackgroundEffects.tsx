@@ -4,63 +4,80 @@ import styles from "./BackgroundEffects.module.scss";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useMemo, useRef, useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { getColorFromCSS } from "@/lib/utils/color-utils";
 import { getRandomPreset } from "./backgroundPresets";
-import { useHasGeneratedTheme } from "@/hooks/useHasGeneratedTheme";
 import { useTheme } from "@/context/ThemeProvider";
+import { useHasGeneratedTheme } from "@/hooks/useHasGeneratedTheme";
 
 gsap.registerPlugin([ScrollTrigger, useGSAP]);
 
-export const BackgroundEffects = () => {
+export const BackgroundEffects = ({
+  hasStoredPaletteData,
+}: {
+  hasStoredPaletteData: boolean;
+}) => {
   const hasGeneratedPalette = useHasGeneratedTheme();
   const { theme } = useTheme();
+
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stepCount = 12;
 
   // Stabilize preset - only regenerate on first palette generation
-  const preset = useMemo(() => {
-    return getRandomPreset();
-  }, []); // Remove hasGeneratedPalette dependency
+  const preset = getRandomPreset();
+  console.log("Selected preset:", preset.name);
 
-  // Memoize animation function to prevent recreation
   const createAnimation = useCallback(() => {
+    console.log("Creating background animation with preset:", preset.name);
     const timeline = gsap.timeline();
     const stepElements = gsap.utils.toArray<HTMLDivElement>(`.${styles.step}`);
 
-    if (hasGeneratedPalette) {
-      stepElements.forEach((step, idx) => {
-        timeline.fromTo(
-          step,
-          { background: getColorFromCSS(`--accent-${idx + 1}`), opacity: 0.8 },
-          {
-            background: getColorFromCSS(`--accent-${idx + 1}`),
-            duration: 1,
-            stagger: 0.1,
-          },
-          "<",
-        );
+    if (hasGeneratedPalette || hasStoredPaletteData) {
+      console.log("hasGeneratedPalette is true, running special animation");
+      const capturedColors = Array.from({ length: stepCount }, (_, index) =>
+        getColorFromCSS(`--accent-${index + 1}`),
+      );
+
+      // Step 1: Quick fade out
+      timeline.to(stepElements, {
+        opacity: 0,
+        duration: 0.2,
+        stagger: 0.04,
       });
 
-      stepElements.forEach((step, idx) => {
-        timeline.to(
-          step,
-          {
-            opacity: 0.06,
-            duration: 1.5,
-            stagger: 0.05,
-            filter: "blur(10px)",
-            //y: -idx * 2.5,
-            z: -idx * 25,
-            scale: 0.75,
-            ease: "power2.inOut",
-            rotateY: "5deg",
-          },
-          0.5,
-        );
+      // Step 2: Set captured colors immediately
+      timeline.set(stepElements, {
+        background: (index) => capturedColors[index],
+        filter: "blur(0px)",
+        opacity: 0,
       });
-      return;
+
+      // Step 3: Fade back in
+      timeline.to(stepElements, {
+        opacity: 1,
+        duration: 0.247,
+        stagger: 0.05,
+      });
+
+      // Step 4: Final transformation - explicitly maintain colors
+      timeline.to(
+        stepElements,
+        {
+          opacity: 0.06,
+          duration: 1.25,
+          filter: "blur(10px)",
+          z: (index) => -index * 25,
+          scale: 0.75,
+          ease: "power2.inOut",
+          rotateY: "5deg",
+          background: (index) => capturedColors[index], // Lock in the colors
+        },
+        "+=0.2",
+      );
+
+      return timeline;
     }
+    console.log("Final timeline for hasGeneratedPalette:", timeline);
 
     stepElements.forEach((step, index) => {
       const fromConfig = preset.animation.from(index, stepElements.length);
@@ -71,15 +88,13 @@ export const BackgroundEffects = () => {
       toConfig.opacity = preset.getOpacity(index, stepElements.length - 1);
       toConfig.height = preset.getHeight(index, stepElements.length);
 
-      // Reduce initial delays for faster visual start
-
       timeline.fromTo(step, fromConfig, toConfig, 0);
     });
-  }, [hasGeneratedPalette, theme, preset]);
+  }, [hasGeneratedPalette, hasStoredPaletteData, theme, preset]);
 
   useGSAP(createAnimation, {
     scope: wrapperRef,
-    dependencies: [hasGeneratedPalette, theme],
+    dependencies: [hasGeneratedPalette, hasStoredPaletteData, theme, preset],
   });
 
   return (

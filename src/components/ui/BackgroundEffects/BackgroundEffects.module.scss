@@ -34,7 +34,10 @@
     .step {
       opacity: 0;
       border-radius: 8px;
-      will-change: transform, opacity, background;
+      filter: blur(0px);
+      will-change:
+        transform, opacity, background, filter, box-shadow, saturation,
+        contrast, translateY, translateX, translateZ, rotate;
     }
   }
 }

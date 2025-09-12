@@ -1,0 +1,320 @@
+/* Typography generator (nested SCSS)
+   -------------------------------------------------------------- */
+
+/* ── Header ──────────────────────────────────────────────── */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .lead {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.8;
+  }
+}
+
+/* ── Main grid (controls + preview) ──────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+
+  /* Controls column */
+  .controls {
+    display: grid;
+    gap: 32px;
+    align-content: start;
+
+    .label {
+      display: grid;
+      gap: 4px;
+      font-size: 14px;
+    }
+
+    .smallLabel {
+      display: grid;
+      gap: 4px;
+      font-size: 13px;
+    }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .roleRow {
+      display: grid;
+      grid-template-columns: 1fr 160px;
+      align-items: center;
+      gap: 8px;
+
+      .roleLabel {
+        font-weight: 600;
+        text-transform: capitalize;
+      }
+    }
+
+    .help {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+
+      button {
+        padding: 8px 12px;
+        border: 1px solid hsl(0 0% 85% / 1);
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+      }
+    }
+  }
+
+  /* Preview column */
+  .preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    /* (legacy) hide old card container if present */
+    .previewCard {
+      display: none;
+    }
+
+    .cardTitle {
+      margin: 0 0 6px 0;
+    }
+
+    .meta {
+      margin: 0;
+      font-size: 12px;
+      opacity: 0.75;
+    }
+
+    .specimen {
+      margin-top: 12px;
+    }
+
+    .h {
+      text-wrap: balance;
+      margin: 0 0 6px 0;
+    }
+
+    .p {
+      margin: 12px 0;
+      line-height: 1.5;
+      hyphens: auto;
+    }
+
+    .a {
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+
+      &:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+      }
+    }
+
+    .ul {
+      margin: 8px 0 0 24px;
+    }
+
+    /* Clamp explainer */
+    .metaRow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin: 8px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      opacity: 0.85;
+
+      .metaCell {
+        padding: 6px 8px;
+        border: 1px solid hsl(0 0% 20%);
+        border-radius: 6px;
+        background: hsl(0 0% 10%);
+      }
+    }
+
+    .clampLine {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      padding: 8px 10px;
+      border: 1px dashed hsl(0 0% 25%);
+      border-radius: 6px;
+      background: hsl(0 0% 8%);
+      word-break: break-word;
+    }
+
+    /* Quick export panel (lives visually with preview) */
+    .quickExport {
+      border: 1px solid hsl(0 0% 90%);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+
+      .exportHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h3 {
+          margin: 0;
+          font-size: 1rem;
+        }
+      }
+
+      .tabRow {
+        display: flex;
+        gap: 6px;
+      }
+
+      .tab,
+      .tabActive {
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 12px;
+        border: 1px solid hsl(0 0% 85%);
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .tabActive {
+        background: #f3f3f3;
+      }
+
+      .exportCode {
+        margin: 0;
+        max-height: 340px;
+        overflow: auto;
+        background: #0b1020;
+        color: #eaeef7;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 12px;
+        line-height: 1.5;
+        font-family: monospace;
+      }
+
+      .exportActions {
+        display: flex;
+        gap: 8px;
+
+        button {
+          padding: 8px 12px;
+          border: 1px solid hsl(0 0% 85%);
+          border-radius: 8px;
+          background: white;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .controls,
+  .preview {
+  }
+
+  .glassyWrapper {
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.25);
+    border-radius: 8px;
+    padding: 24px 16px 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    overflow-x: clip;
+
+    .glassyTitle {
+      font-size: 14px;
+      position: absolute;
+      top: -13.5px;
+      left: 8px;
+      padding: 2px 8px;
+      background: hsl(var(--muted));
+      border-radius: 6px;
+      border: 1px solid hsl(var(--border));
+    }
+
+    background:
+      linear-gradient(
+        136deg,
+        hsl(var(--primary) / 0.05) 0%,
+        hsl(var(--primary) / 0.1) 50%,
+        hsl(var(--background) / 0.8) 100%
+      ),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+
+    backdrop-filter: blur(24px) saturate(180%);
+
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      overflow: clip;
+      border-radius: 32px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        hsl(var(--foreground) / 0.1) 50%,
+        transparent 100%
+      );
+      opacity: 0;
+      transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      border-color: hsl(var(--border) / 0.3);
+      box-shadow:
+        inset 0 1px 0 hsl(var(--foreground) / 0.01),
+        inset 0 -1px 0 hsl(var(--background) / 0.01),
+        0 32px 64px hsl(var(--background) / 0.015),
+        0 16px 32px hsl(var(--background) / 0.012);
+
+      &::before {
+        opacity: 0.5;
+        transform: translateX(150%);
+      }
+    }
+  }
+}
+
+/* Shared “exports” block (if you render it outside .preview) */
+.exports {
+  border: 1px dashed hsl(0 0% 85%);
+  padding: 8px;
+  border-radius: 8px;
+
+  .pre {
+    max-height: 320px;
+    overflow: auto;
+    background: #f7f7f7;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+}

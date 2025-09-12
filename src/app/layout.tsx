@@ -14,11 +14,9 @@ import Script from "next/script";
 import styles from "./layout.module.scss";
 import { Footer } from "@/components/layout/Footer/Footer";
 import { Navbar } from "@/components/layout/Navbar/Navbar";
-import { PaletteDataprovider } from "@/context/PaletteDataprovider";
-import { ThemeProvider } from "@/context/ThemeProvider";
 import { themeScript } from "@/lib/theme-script";
-import { BackgroundEffects } from "@/components/ui/BackgroundEffects/BackgroundEffects";
 import { GoogleAnalyticsProvider } from "@/lib/analytics/GoogleAnalyticsProvider";
+import { Providers } from "@/context/Providers";
 
 export const metadata: Metadata = {
   title: "Rampkit - Beautiful Color Ramps",
@@ -105,15 +103,12 @@ export default function RootLayout({
           styles.layout,
         )}
       >
-        <ThemeProvider>
-          <PaletteDataprovider>
-            <Navbar />
-            {children}
-          </PaletteDataprovider>
+        <Providers>
+          <Navbar />
+          {children}
           <Footer />
+        </Providers>
 
-          <BackgroundEffects />
-        </ThemeProvider>
         <GoogleAnalyticsProvider />
       </body>
     </html>

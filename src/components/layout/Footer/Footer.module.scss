@@ -81,17 +81,7 @@
   }
 }
 
-@media screen and (max-width: 768px) {
-  .footer {
-    .right {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-  }
-}
-
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 600px) {
   .footer {
     padding: 16px 0 8px;
     display: flex;

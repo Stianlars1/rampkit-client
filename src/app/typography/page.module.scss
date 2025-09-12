@@ -1,0 +1,13 @@
+.wrap {
+  width: min(var(--max-width), 100%);
+  margin: 40px auto 64px;
+  min-height: 100dvh;
+
+  grid-column: 1 / -1;
+  grid-row: 2 / 3;
+  padding: 0 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
