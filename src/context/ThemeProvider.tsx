@@ -1,8 +1,8 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 
-type ThemeMode = "light" | "dark" | "system";
-type ResolvedTheme = "light" | "dark";
+export type ThemeMode = "light" | "dark" | "system";
+export type ResolvedTheme = "light" | "dark";
 
 type ThemeContextType = {
   theme: ThemeMode;

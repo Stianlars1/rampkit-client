@@ -1,9 +1,10 @@
-// @/context/PaletteDataprovider.tsx
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 import { PaletteData } from "@/types";
 import { useThemeUpdater } from "@/hooks/useThemeUpdater";
 import { BackgroundEffects } from "@/components/ui/BackgroundEffects/BackgroundEffects";
+import { LoadingScreen } from "@/components/ui/LoadingScreen/LoadingScreen";
+import { useTheme } from "@/context/ThemeProvider";
 
 interface PaletteDataContext {
   paletteData: PaletteData | null;
@@ -23,27 +24,40 @@ export const PaletteDataprovider = ({
   children: React.ReactNode;
 }) => {
   const [paletteData, setPaletteDataState] = useState<PaletteData | null>(null);
-  const [hasStoredData, setHasStoredData] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
+  const [loadingComplete, setLoadingComplete] = useState(false);
+  const { theme, resolvedTheme } = useTheme();
   // Load from localStorage on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsedData = JSON.parse(stored);
-        setPaletteDataState(parsedData);
-        setHasStoredData(true);
+    // Simulate minimum loading time for better UX
+    const minLoadTime = 1500; // 1.5 seconds minimum
+    const startTime = Date.now();
+
+    const loadData = async () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsedData = JSON.parse(stored);
+          setPaletteDataState(parsedData);
+        }
+      } catch (error) {
+        console.error("Failed to load palette data from localStorage:", error);
+        localStorage.removeItem(STORAGE_KEY);
       }
-    } catch (error) {
-      console.error("Failed to load palette data from localStorage:", error);
-      // Clear invalid data
-      localStorage.removeItem(STORAGE_KEY);
-    } finally {
-      setIsLoading(false);
-    }
+
+      // Ensure minimum loading time
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, minLoadTime - elapsed);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, remaining);
+    };
+
+    loadData();
   }, []);
 
   // Custom setter that also persists to localStorage
@@ -63,14 +77,40 @@ export const PaletteDataprovider = ({
     }
   };
 
-  useThemeUpdater(paletteData);
+  const handleLoadingComplete = () => {
+    setShowLoadingScreen(false);
+    // Small delay to ensure smooth transition
+    setTimeout(() => {
+      setLoadingComplete(true);
+    }, 50);
+  };
 
+  useThemeUpdater(paletteData);
+  console.log("theme", theme);
+  console.log("resolved theme", resolvedTheme);
   return (
     <PaletteDataContext.Provider
       value={{ paletteData, setPaletteData, isLoading }}
     >
-      {children}
-      {!isLoading && <BackgroundEffects hasGeneratedPalette={!!paletteData} />}
+      {/* Loading Screen */}
+      {(isLoading || showLoadingScreen) && (
+        <LoadingScreen
+          theme={resolvedTheme}
+          isVisible={isLoading || showLoadingScreen}
+          onComplete={handleLoadingComplete}
+        />
+      )}
+
+      {/* Main Content - only show after loading is complete */}
+      {loadingComplete && (
+        <>
+          {children}
+          <BackgroundEffects
+            hasStoredPaletteData={!!paletteData}
+            loadingComplete={loadingComplete}
+          />
+        </>
+      )}
     </PaletteDataContext.Provider>
   );
 };

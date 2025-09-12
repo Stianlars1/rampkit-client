@@ -1,4 +1,3 @@
-// @/hooks/useHasGeneratedTheme.ts
 "use client";
 import { useEffect, useState } from "react";
 import { usePaletteData } from "@/context/PaletteDataprovider";
@@ -37,8 +36,6 @@ export const useHasGeneratedTheme = () => {
 
     return () => observer.disconnect();
   }, []);
-
-  console.log("hasGeneratedTheme", hasGeneratedTheme);
 
   return hasGeneratedTheme;
 };

@@ -12,7 +12,7 @@ import { useGSAP } from "@gsap/react";
 import { useEffect, useRef, useState } from "react";
 import { ThemeControls } from "@/components/ui/ThemeControls/ThemeControls";
 import { usePaletteData } from "@/context/PaletteDataprovider";
-import { Download, Link2 } from "lucide-react";
+import { Download, Link2, Type } from "lucide-react";
 import { Button } from "@/components/ui/Button/Button";
 import { getColorFromCSS } from "@/lib/utils/color-utils";
 import { useRouter } from "next/navigation";
@@ -204,7 +204,7 @@ export const Navbar = () => {
             href={ROUTE_TYPOGRAPH}
             className={styles.brandLink}
           >
-            <Link2
+            <Type
               className={cx(
                 styles.brandLogo,
                 theme === "dark" && styles.darkLogo,

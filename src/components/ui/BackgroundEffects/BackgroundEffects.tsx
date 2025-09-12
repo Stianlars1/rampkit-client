@@ -1,4 +1,3 @@
-// OptimizedBackgroundEffects.tsx
 "use client";
 import styles from "./BackgroundEffects.module.scss";
 import { useGSAP } from "@gsap/react";
@@ -14,29 +13,36 @@ gsap.registerPlugin([ScrollTrigger, useGSAP]);
 
 export const BackgroundEffects = ({
   hasStoredPaletteData,
+  loadingComplete,
 }: {
   hasStoredPaletteData: boolean;
+  loadingComplete: boolean;
 }) => {
   const hasGeneratedPalette = useHasGeneratedTheme();
   const { theme } = useTheme();
-
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stepCount = 12;
 
   // Stabilize preset - only regenerate on first palette generation
   const preset = getRandomPreset();
-  console.log("Selected preset:", preset.name);
 
   const createAnimation = useCallback(() => {
+    // Don't start animation until loading is complete
+    if (!loadingComplete) return;
+
     console.log("Creating background animation with preset:", preset.name);
     const timeline = gsap.timeline();
     const stepElements = gsap.utils.toArray<HTMLDivElement>(`.${styles.step}`);
 
+    const capturedColors = Array.from({ length: stepCount }, (_, index) =>
+      getColorFromCSS(`--accent-${index + 1}`),
+    );
+
     if (hasGeneratedPalette || hasStoredPaletteData) {
       console.log("hasGeneratedPalette is true, running special animation");
-      const capturedColors = Array.from({ length: stepCount }, (_, index) =>
-        getColorFromCSS(`--accent-${index + 1}`),
-      );
+
+      if (hasStoredPaletteData) {
+      }
 
       // Step 1: Quick fade out
       timeline.to(stepElements, {
@@ -63,9 +69,9 @@ export const BackgroundEffects = ({
       timeline.to(
         stepElements,
         {
+          filter: "blur(14px) saturate(180%)",
           opacity: 0.06,
           duration: 1.25,
-          filter: "blur(10px)",
           z: (index) => -index * 25,
           scale: 0.75,
           ease: "power2.inOut",
@@ -77,7 +83,6 @@ export const BackgroundEffects = ({
 
       return timeline;
     }
-    console.log("Final timeline for hasGeneratedPalette:", timeline);
 
     stepElements.forEach((step, index) => {
       const fromConfig = preset.animation.from(index, stepElements.length);
@@ -90,12 +95,27 @@ export const BackgroundEffects = ({
 
       timeline.fromTo(step, fromConfig, toConfig, 0);
     });
-  }, [hasGeneratedPalette, hasStoredPaletteData, theme, preset]);
+  }, [
+    hasGeneratedPalette,
+    hasStoredPaletteData,
+    theme,
+    preset,
+    loadingComplete,
+  ]);
 
   useGSAP(createAnimation, {
     scope: wrapperRef,
-    dependencies: [hasGeneratedPalette, hasStoredPaletteData, theme, preset],
+    dependencies: [
+      hasGeneratedPalette,
+      hasStoredPaletteData,
+      theme,
+      preset,
+      loadingComplete,
+    ],
   });
+
+  // Don't render until loading is complete
+  if (!loadingComplete) return null;
 
   return (
     <div ref={wrapperRef} className={styles.wrapper}>
