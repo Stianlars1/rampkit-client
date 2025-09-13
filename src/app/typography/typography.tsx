@@ -18,6 +18,7 @@ import {
   inter,
   jetbrains,
 } from "@/lib/fonts";
+import { GlassyWrapper } from "@/components/ui/GlassyWrapper/GlassyWrapper";
 
 // A compact type to hold the viewport and base size bounds for the fluid scale.
 // A helper type to hold viewport bounds
@@ -225,8 +226,7 @@ export default function TypographyTool() {
       {/* Grid layout for controls and preview */}
       <section className={styles.grid}>
         <div className={styles.controls}>
-          <div className={cx(styles.card, styles.glassyWrapper)}>
-            <h2 className={styles.glassyTitle}>Project</h2>
+          <GlassyWrapper className={cx(styles.card)} title={"Project"}>
             <label className={styles.label}>
               Name
               <input
@@ -234,9 +234,8 @@ export default function TypographyTool() {
                 onChange={(e) => setProjectName(e.target.value)}
               />
             </label>
-          </div>
-          <div className={cx(styles.card, styles.glassyWrapper)}>
-            <h2 className={styles.glassyTitle}>Typography</h2>
+          </GlassyWrapper>
+          <GlassyWrapper title={"Typography"} className={cx(styles.card)}>
             <label className={styles.label}>
               Font family
               <select
@@ -327,15 +326,9 @@ export default function TypographyTool() {
                 </label>
               </div>
             </div>
-          </div>
+          </GlassyWrapper>
 
-          <details
-            className={styles.advanced}
-            open={showAdvanced}
-            onToggle={(e) =>
-              setShowAdvanced((e.target as HTMLDetailsElement).open)
-            }
-          >
+          <GlassyWrapper title={"Advanced"}>
             <summary>Advanced (viewport range)</summary>
             <div className={styles.row2}>
               <div>
@@ -359,10 +352,9 @@ export default function TypographyTool() {
                 </label>
               </div>
             </div>
-          </details>
+          </GlassyWrapper>
         </div>
-        <div className={cx(styles.preview, styles.glassyWrapper)}>
-          <h2 className={styles.glassyTitle}>Preview</h2>
+        <GlassyWrapper title={"Preview"} className={cx(styles.preview)}>
           {/* Clamp explainer */}
           <div className={styles.metaRow}>
             <div className={styles.metaCell}>
@@ -449,7 +441,7 @@ export default function TypographyTool() {
           >
             Small print example.
           </small>
-        </div>
+        </GlassyWrapper>
       </section>
 
       {/* QuickExport: code and ZIP */}

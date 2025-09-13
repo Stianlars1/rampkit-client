@@ -19,6 +19,8 @@ export function ThemeControls({ onReset, hasCustomTheme }: ThemeControlsProps) {
         onClick={onReset}
         variant="blackwhite"
         size="icon"
+        aria-label="Reset to default theme"
+        title="Reset to Default Theme"
       >
         <RotateCcw width={16} height={16} />
       </Button>

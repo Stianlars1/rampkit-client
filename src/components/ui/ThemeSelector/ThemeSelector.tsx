@@ -58,6 +58,7 @@ export const ThemeSelector = () => {
         aria-label="Theme selector"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
+        title="Select Theme"
       >
         {currentIcon}
       </Button>

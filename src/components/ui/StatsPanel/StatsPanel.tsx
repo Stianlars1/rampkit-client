@@ -73,6 +73,7 @@ export const StatsPanel = ({
         className={cx(
           id === "STATS_TRIGGER_BUTTON_LEFT" && styles.triggerButtonLeft,
         )}
+        title="See Live Stats"
       >
         <ChartNoAxesCombined
           id={"STATS_TRIGGER_BUTTON_ICON"}

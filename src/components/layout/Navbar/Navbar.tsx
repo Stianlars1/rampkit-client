@@ -12,7 +12,7 @@ import { useGSAP } from "@gsap/react";
 import { useEffect, useRef, useState } from "react";
 import { ThemeControls } from "@/components/ui/ThemeControls/ThemeControls";
 import { usePaletteData } from "@/context/PaletteDataprovider";
-import { ArrowLeft, Download, Link2 } from "lucide-react";
+import { ArrowLeft, CaseSensitive, Download, Link2, Type } from "lucide-react";
 import { Button } from "@/components/ui/Button/Button";
 import { getColorFromCSS } from "@/lib/utils/color-utils";
 import { usePathname, useRouter } from "next/navigation";
@@ -233,8 +233,9 @@ export const Navbar = () => {
               aria-label={"Click to go to the typography generator tool"}
               href={ROUTE_TYPOGRAPH}
               className={cx(styles.link, styles.backLink)}
+              title={"Go to Typography Tool"}
             >
-              <Link2 />
+              <CaseSensitive />
             </Link>
           )}
 
@@ -248,6 +249,7 @@ export const Navbar = () => {
               className={styles.navButton}
               onClick={handleGoToExport}
               aria-label="Click to go to the export section"
+              title="Go to Export Section"
             >
               <Download width={16} height={16} />
             </Button>
