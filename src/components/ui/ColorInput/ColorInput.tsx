@@ -98,8 +98,6 @@ export function ColorInput({
   const handleSettingsClick = () => setShowSettings(!showSettings);
 
   const inputBg = isValidHex(hex) ? hex : default_accent_color;
-  console.log("hexx", hex);
-  console.log("inputBg", inputBg);
   return (
     <div className={styles.container}>
       <div className={styles.form}>

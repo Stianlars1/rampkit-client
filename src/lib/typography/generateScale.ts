@@ -10,7 +10,12 @@ export function generateFluidScale({
   ratio = 1.25,
   steps = ["xs", "sm", "md", "lg", "xl", "2xl", "3xl"],
 }: {
-  basePx: { minViewport: number; maxViewport: number; minSize: number; maxSize: number };
+  basePx: {
+    minViewport: number;
+    maxViewport: number;
+    minSize: number;
+    maxSize: number;
+  };
   ratio: number;
   steps?: string[];
 }) {

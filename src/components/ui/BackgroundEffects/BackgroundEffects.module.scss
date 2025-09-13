@@ -34,6 +34,7 @@
     .step {
       opacity: 0;
       border-radius: 8px;
+      filter: blur(0px) saturate(100%);
       will-change: transform, opacity, background, filter, saturate, translate;
     }
   }

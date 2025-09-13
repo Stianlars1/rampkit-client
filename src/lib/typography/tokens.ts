@@ -34,7 +34,9 @@ export function buildRoleMap({
   family: string;
   rootLeading: number;
 }) {
-  const stepRecord = Object.fromEntries(scale.steps.map((s) => [s.name, s.clamp]));
+  const stepRecord = Object.fromEntries(
+    scale.steps.map((s) => [s.name, s.clamp]),
+  );
   const role = (name: string) => stepRecord[name] ?? stepRecord["md"];
 
   return {
@@ -49,11 +51,19 @@ export function buildRoleMap({
         root: { value: rootLeading, type: "lineHeight" },
       },
       roles: {
-        display: { size: { value: role(defaultRoleMap.display), type: "fontSize" } },
-        headline: { size: { value: role(defaultRoleMap.headline), type: "fontSize" } },
-        title: { size: { value: role(defaultRoleMap.title), type: "fontSize" } },
+        display: {
+          size: { value: role(defaultRoleMap.display), type: "fontSize" },
+        },
+        headline: {
+          size: { value: role(defaultRoleMap.headline), type: "fontSize" },
+        },
+        title: {
+          size: { value: role(defaultRoleMap.title), type: "fontSize" },
+        },
         body: { size: { value: role(defaultRoleMap.body), type: "fontSize" } },
-        label: { size: { value: role(defaultRoleMap.label), type: "fontSize" } },
+        label: {
+          size: { value: role(defaultRoleMap.label), type: "fontSize" },
+        },
       },
     },
   };

@@ -15,8 +15,8 @@ gsap.registerPlugin([ScrollTrigger, useGSAP]);
 
 export const BackgroundEffects = () => {
   const hasGeneratedPalette = useHasGeneratedTheme();
-  const { theme } = useTheme();
-
+  const { resolvedTheme: theme } = useTheme();
+  const { paletteData } = usePaletteData();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stepCount = 12;
 
@@ -26,13 +26,10 @@ export const BackgroundEffects = () => {
   }, []); // Empty dependency array - only generate once
 
   const createAnimation = useCallback(() => {
-    console.log("Creating background animation with preset:", preset.name);
     const timeline = gsap.timeline();
     const stepElements = gsap.utils.toArray<HTMLDivElement>(`.${styles.step}`);
 
     if (hasGeneratedPalette) {
-      console.log("hasGeneratedPalette is true, running special animation");
-
       // Step 1: Quick fade out
       timeline.to(stepElements, {
         opacity: 0,
@@ -42,9 +39,14 @@ export const BackgroundEffects = () => {
 
       // Step 2: Set captured colors immediately
       timeline.set(stepElements, {
-        background: (index) => getColorFromCSS(`--accent-${index + 1}`),
+        background: (index) => {
+          return (
+            paletteData?.accentScale[theme][8] ??
+            getColorFromCSS(`--accent-${index + 1}`)
+          );
+        },
         opacity: 0,
-        filter: "blur(0px) saturate(1)",
+        filter: "blur(0px)",
       });
 
       // Step 3: Fade back in
@@ -74,14 +76,17 @@ export const BackgroundEffects = () => {
     }
 
     // Default animation for when no palette is generated
-    console.log("Running default animation with preset:", preset.name);
 
     stepElements.forEach((step, index) => {
       const fromConfig = preset.animation.from(index, stepElements.length);
       const toConfig = preset.animation.to(index, stepElements.length);
 
-      fromConfig.background = getColorFromCSS(`--accent-${index + 1}`);
-      toConfig.background = getColorFromCSS(`--accent-${index + 1}`);
+      fromConfig.background =
+        paletteData?.accentScale[theme][8] ??
+        getColorFromCSS(`--accent-${index + 1}`);
+      toConfig.background =
+        paletteData?.accentScale[theme][8] ??
+        getColorFromCSS(`--accent-${index + 1}`);
       toConfig.opacity = preset.getOpacity(index, stepElements.length - 1);
       toConfig.height = preset.getHeight(index, stepElements.length);
 
@@ -89,11 +94,16 @@ export const BackgroundEffects = () => {
     });
 
     return timeline;
-  }, [hasGeneratedPalette, theme, preset.name]); // Use preset.name instead of preset object
+  }, [hasGeneratedPalette, theme, preset.name, paletteData?.accent]); // Use preset.name instead of preset object
 
   useGSAP(createAnimation, {
     scope: wrapperRef,
-    dependencies: [hasGeneratedPalette, theme, preset.name],
+    dependencies: [
+      hasGeneratedPalette,
+      theme,
+      preset.name,
+      paletteData?.accent,
+    ],
   });
 
   return (
