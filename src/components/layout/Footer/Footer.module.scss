@@ -10,6 +10,24 @@
   );
 
   backdrop-filter: blur(6px);
+
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 calc(100% - 1px) 0;
+    background: linear-gradient(
+      45deg,
+      transparent 5%,
+      hsl(var(--primary)) 10%,
+      hsl(var(--primary)) 40%,
+      transparent 50%,
+      hsl(var(--a-accent-9)) 60%,
+      hsl(var(--a-accent-9)) 90%,
+      transparent 95%
+    );
+    backdrop-filter: blur(2px);
+  }
 }
 .footer {
   position: relative;
@@ -22,18 +40,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0 0 calc(100% - 1px) 0;
-    background: linear-gradient(
-      45deg,
-      hsl(var(--primary)) 0%,
-      hsl(var(--a-accent-9)) 90%
-    );
-    backdrop-filter: blur(2px);
-  }
 
   .left {
     text-align: left;

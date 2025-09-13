@@ -19,14 +19,12 @@ export const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  // Get initial theme from document class (set by our script)
   const getInitialTheme = (): { theme: ThemeMode; resolved: ResolvedTheme } => {
     if (typeof window === "undefined") {
       return { theme: "system", resolved: "dark" };
     }
 
     const hasLight = document.documentElement.classList.contains("light");
-    const hasDark = document.documentElement.classList.contains("dark");
     const savedTheme = localStorage.getItem("theme") as ThemeMode | null;
 
     const resolved: ResolvedTheme = hasLight ? "light" : "dark";

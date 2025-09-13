@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { PaletteData } from "@/types";
 import { hexToHSL } from "@/lib/utils/color-utils";
 import { getBestForegroundStep } from "@/lib/utils/color/contrast-utils";
+import { generatePalette } from "@/app/actions/generatePalette";
+import { default_accent_color } from "@/components/ui/ColorInput/ColorInput";
 
 interface ThemeMapping {
   light: Record<string, string>;
@@ -423,7 +425,14 @@ export function useThemeUpdater(paletteData: PaletteData | null) {
       if (bodyElement) {
         bodyElement.removeAttribute("data-has-generated-theme");
       }
-      return;
+
+      const defaultColorPalette = generatePalette({
+        hex: default_accent_color,
+        scheme: undefined,
+        harmonized: false,
+      });
+      const defaultMapping = generateThemeMapping(defaultColorPalette);
+      return applyThemeToDocument(defaultMapping);
     }
 
     const bodyElement = document.body;

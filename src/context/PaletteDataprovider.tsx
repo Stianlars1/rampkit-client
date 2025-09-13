@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { PaletteData } from "@/types";
 import { useThemeUpdater } from "@/hooks/useThemeUpdater";
 import { BackgroundEffects } from "@/components/ui/BackgroundEffects/BackgroundEffects";

@@ -1,17 +1,8 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import pageStyles from "./page.module.scss";
 import styles from "@/app/typography/typography.module.scss";
-import { useHasGeneratedTheme } from "@/hooks/useHasGeneratedTheme";
-
-const TypographyTool = dynamic(() => import("./typography"), {
-  ssr: false,
-});
+import TypographyTool from "@/app/typography/typography";
 
 export default function Page() {
-  const hasGeneratedTheme = useHasGeneratedTheme();
-
   return (
     <div className={pageStyles.wrap}>
       <header className={styles.header}>
@@ -22,15 +13,7 @@ export default function Page() {
         </p>
       </header>
 
-      {/* Optional: Show loading state or different content based on theme availability */}
-      {hasGeneratedTheme ? (
-        <TypographyTool />
-      ) : (
-        <div>
-          <TypographyTool />
-          {/* You could show a message like "Generate a theme first to see custom colors" */}
-        </div>
-      )}
+      <TypographyTool />
     </div>
   );
 }

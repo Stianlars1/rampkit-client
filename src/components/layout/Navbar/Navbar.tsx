@@ -43,7 +43,7 @@ export const Navbar = () => {
 
     // on resize, update the container width
     const handleResize = () => {
-      setContainerWidth(window.innerWidth / 2 - 175);
+      setContainerWidth(window.innerWidth / 2 - 190);
     };
 
     handleResize();
@@ -81,7 +81,7 @@ export const Navbar = () => {
           border: "1px solid transparent",
         },
         {
-          width: "350px",
+          width: "380px",
           borderRadius: "99999px",
 
           top: "8px",
