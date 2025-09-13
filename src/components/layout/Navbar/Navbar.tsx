@@ -15,7 +15,7 @@ import { usePaletteData } from "@/context/PaletteDataprovider";
 import { Download, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/Button/Button";
 import { getColorFromCSS } from "@/lib/utils/color-utils";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeProvider";
 import { ThemeSelector } from "@/components/ui/ThemeSelector/ThemeSelector";
 
@@ -32,6 +32,7 @@ export const Navbar = () => {
   const brandLogoRef = useRef<HTMLImageElement>(null);
   const router = useRouter();
   const [containerWidth, setContainerWidth] = useState(0);
+  const pathName = usePathname();
   useEffect(() => {
     // window.innerWidth / 2 - 150
 
@@ -157,9 +158,10 @@ export const Navbar = () => {
 
   const handleResetTheme = () => {
     const topEl = document.getElementById("top");
+    const replaceUrl = pathName.split("?")[0];
     if (topEl) {
       topEl.scrollIntoView({ behavior: "smooth" });
-      router.replace(RAMPKIT_URL);
+      router.replace(replaceUrl);
     }
     setPaletteData(null);
   };

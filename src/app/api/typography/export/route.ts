@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     zip.file(f.path, f.contents);
   }
 
-  const blob = await zip.generateAsync({ type: "nodebuffer" });
+  const blob = await zip.generateAsync({ type: "blob" });
   const filename = payload.zipName ?? "typography.zip";
   return new NextResponse(blob, {
     headers: {

@@ -1,4 +1,3 @@
-// @/context/PaletteDataprovider.tsx
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 import { PaletteData } from "@/types";
@@ -9,6 +8,7 @@ interface PaletteDataContext {
   paletteData: PaletteData | null;
   setPaletteData: (data: PaletteData | null) => void;
   isLoading: boolean;
+  hasStoredData: boolean;
 }
 
 const STORAGE_KEY = "rampkit-palette-data";
@@ -67,10 +67,10 @@ export const PaletteDataprovider = ({
 
   return (
     <PaletteDataContext.Provider
-      value={{ paletteData, setPaletteData, isLoading }}
+      value={{ paletteData, setPaletteData, hasStoredData, isLoading }}
     >
       {children}
-      {!isLoading && <BackgroundEffects hasGeneratedPalette={!!paletteData} />}
+      {!isLoading && <BackgroundEffects />}
     </PaletteDataContext.Provider>
   );
 };

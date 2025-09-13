@@ -21,6 +21,37 @@ export interface BackgroundPreset {
 
 export const backgroundPresets: BackgroundPreset[] = [
   {
+    name: "spiral",
+    getOpacity: (index, totalSteps) =>
+      getOpacityByVariant(index, totalSteps, "quadratic-ease-in"),
+    getHeight: (i, total) =>
+      getHeightByVariant(i, total, "quadratic-growth", 50, 150),
+    animation: {
+      from: (i, total) => ({
+        opacity: 0,
+        scale: 0.5,
+        x: 0,
+        y: 0,
+        z: -100,
+        filter: "blur(10px)",
+        force3D: true,
+      }),
+      to: (i, total) => ({
+        scale: 2 + i / total,
+        x: Math.cos(i * 0.4) * (i * 2),
+        y: Math.sin(i * 0.6) * (i * 4),
+        z: -i * 5,
+        rotateX: `${i * 8}deg`,
+        rotateY: `${i * 12}deg`,
+        rotateZ: `${i * 10}deg`,
+        filter: "blur(0px)",
+        duration: 2.5,
+        ease: "back.out(2)",
+        delay: 0.15 * i,
+      }),
+    },
+  },
+  {
     name: "near-depth-fan",
     getOpacity: (index, totalSteps) =>
       getOpacityByVariant(index, totalSteps, "sine-ease-in-out"),
@@ -209,37 +240,6 @@ export const backgroundPresets: BackgroundPreset[] = [
     },
   },
 
-  {
-    name: "spiral",
-    getOpacity: (index, totalSteps) =>
-      getOpacityByVariant(index, totalSteps, "quadratic-ease-in"),
-    getHeight: (i, total) =>
-      getHeightByVariant(i, total, "quadratic-growth", 50, 150),
-    animation: {
-      from: (i, total) => ({
-        opacity: 0,
-        scale: 0.5,
-        x: 0,
-        y: 0,
-        z: -100,
-        filter: "blur(10px)",
-        force3D: true,
-      }),
-      to: (i, total) => ({
-        scale: 2 + i / total,
-        x: Math.cos(i * 0.4) * (i * 2),
-        y: Math.sin(i * 0.6) * (i * 4),
-        z: -i * 5,
-        rotateX: `${i * 8}deg`,
-        rotateY: `${i * 12}deg`,
-        rotateZ: `${i * 10}deg`,
-        filter: "blur(0px) saturate(0.4)",
-        duration: 2.5,
-        ease: "back.out(2)",
-        delay: 0.15 * i,
-      }),
-    },
-  },
   {
     name: "mountain",
     getOpacity: (index, totalSteps) =>

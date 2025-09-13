@@ -38,7 +38,5 @@ export const useHasGeneratedTheme = () => {
     return () => observer.disconnect();
   }, []);
 
-  console.log("hasGeneratedTheme", hasGeneratedTheme);
-
   return hasGeneratedTheme;
 };
