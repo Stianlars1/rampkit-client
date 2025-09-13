@@ -4,7 +4,7 @@ import layoutStyles from "./../../../app/layout.module.scss";
 import { cx } from "@/lib/utils/cx";
 import { StatsPanel } from "@/components/ui/StatsPanel/StatsPanel";
 import Link from "next/link";
-import { RAMPKIT_URL, ROUTE_TYPOGRAPH } from "@/lib/utils/urls";
+import { RAMPKIT_URL, ROUTE_ROOT, ROUTE_TYPOGRAPH } from "@/lib/utils/urls";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -12,7 +12,7 @@ import { useGSAP } from "@gsap/react";
 import { useEffect, useRef, useState } from "react";
 import { ThemeControls } from "@/components/ui/ThemeControls/ThemeControls";
 import { usePaletteData } from "@/context/PaletteDataprovider";
-import { Download, Link2 } from "lucide-react";
+import { ArrowLeft, Download, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/Button/Button";
 import { getColorFromCSS } from "@/lib/utils/color-utils";
 import { usePathname, useRouter } from "next/navigation";
@@ -33,6 +33,11 @@ export const Navbar = () => {
   const router = useRouter();
   const [containerWidth, setContainerWidth] = useState(0);
   const pathName = usePathname();
+  const formattedPathname = pathName.split("?")[0].split("/")[1];
+  const isTypographPage = formattedPathname === "typography";
+  const isRootPage = formattedPathname === "";
+  console.log(pathName, formattedPathname, isRootPage, isTypographPage);
+
   useEffect(() => {
     // window.innerWidth / 2 - 150
 
@@ -121,6 +126,16 @@ export const Navbar = () => {
           "<",
         )
 
+        .to("#BACK_TO_RAMPKIT_LINK", {
+          width: "34px",
+          height: "34px",
+          ease: "none",
+        })
+        .to("#GO_TO_TYPO", {
+          width: "34px",
+          height: "34px",
+          ease: "none",
+        })
         .to(
           "#EXPORT_BUTTON",
           {
@@ -201,18 +216,27 @@ export const Navbar = () => {
             </Link>
           )}
 
-          <Link
-            aria-label={"Click to go to the typography generator tool"}
-            href={ROUTE_TYPOGRAPH}
-            className={styles.brandLink}
-          >
-            <Link2
-              className={cx(
-                styles.brandLogo,
-                theme === "dark" && styles.darkLogo,
-              )}
-            />
-          </Link>
+          {isTypographPage && (
+            <Link
+              id={"BACK_TO_RAMPKIT_LINK"}
+              aria-label={"Click to go back to generating hex palettes"}
+              href={RAMPKIT_URL}
+              className={cx(styles.link, styles.backLink)}
+            >
+              <ArrowLeft />
+            </Link>
+          )}
+
+          {isRootPage && (
+            <Link
+              id={"GO_TO_TYPO"}
+              aria-label={"Click to go to the typography generator tool"}
+              href={ROUTE_TYPOGRAPH}
+              className={cx(styles.link, styles.backLink)}
+            >
+              <Link2 />
+            </Link>
+          )}
 
           <StatsPanel id={"STATS_TRIGGER_BUTTON_LEFT"} />
 

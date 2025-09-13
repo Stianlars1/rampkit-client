@@ -26,6 +26,18 @@
     align-items: center;
     gap: 8px;
 
+    .link {
+      background: hsl(var(--foreground));
+      color: hsl(var(--background));
+      vertical-align: middle;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: calc(var(--radius) - 2px);
+    }
+
     .brandLink {
       .brandLogo {
         vertical-align: middle;

@@ -83,7 +83,7 @@ export const RampKitApp = () => {
           )}
         </section>
 
-        {paletteData && !hasStoredData && (
+        {paletteData && (
           <section className={styles.results}>
             <ColorRamp data={paletteData} />
             <ExportPanel data={paletteData} />
