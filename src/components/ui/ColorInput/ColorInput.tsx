@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/Input/Input";
 import { Button } from "@/components/ui/Button/Button";
 import { Scheme } from "@/types";
@@ -9,11 +9,8 @@ import { isValidHex } from "@/lib/utils/color-utils";
 import { useMetrics } from "@/hooks/useMetrics";
 import { Palette, Settings2, X } from "lucide-react";
 import { cx } from "@/lib/utils/cx";
-import { useGSAP } from "@gsap/react";
-import { gsap } from "gsap";
 import { Tooltip } from "radix-ui";
 
-gsap.registerPlugin(useGSAP);
 interface ColorInputProps {
   onGenerate: (hex: string, scheme: Scheme, harmonizeColors: boolean) => void;
   loading?: boolean;

@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { PaletteData } from "@/types";
 import { useThemeUpdater } from "@/hooks/useThemeUpdater";
-import { BackgroundEffects } from "@/components/ui/BackgroundEffects/BackgroundEffects";
+import BackgroundEffects from "@/components/ui/BackgroundEffects/BackgroundEffects";
 
 interface PaletteDataContext {
   paletteData: PaletteData | null;
@@ -55,6 +55,7 @@ export const PaletteDataprovider = ({
     try {
       if (data === null) {
         localStorage.removeItem(STORAGE_KEY);
+        setHasStoredData(false);
       } else {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       }

@@ -27,25 +27,14 @@
         inset: 0;
         z-index: 0; /* sits above BackgroundEffects, below content */
         pointer-events: none;
-        /*        background: radial-gradient(
-          55% 20% at 50% 37%,
-          hsl(var(--background) / 0.6) 0%,
-          hsl(var(--background) / 0.4) 10%,
-          hsl(var(--background) / 0.2) 20%,
-          hsl(var(--background) / 0.1) 40%,
-          hsl(var(--background) / 0) 50%,
-          transparent 60%
-        );*/
-        //backdrop-filter: blur(1px) saturate(115%);
       }
     }
 
+    /*
     .header {
       position: relative;
       text-align: center;
       z-index: 1;
-      //width: fit-content;
-      //margin: 0 auto;
 
       .backgroundContrast_1 {
         position: absolute;
@@ -64,24 +53,7 @@
       .backgroundContrast_2 {
         position: absolute;
         inset: 0;
-        /*        background: conic-gradient(
-          from 0deg at 100% 50%,
-          white,
-          transparent,
-          white
-        );*/
-
         z-index: -1;
-        /*        background: conic-gradient(
-          from 90deg at 0% 50%,
-          white,
-          transparent,
-          transparent,
-          transparent,
-          transparent,
-          transparent,
-          white
-        );*/
       }
 
       .title {
@@ -91,14 +63,6 @@
         text-wrap: balance;
         font-size: 56px;
         font-weight: 700;
-        /*        background: linear-gradient(
-          135deg,
-          hsl(var(--primary)),
-          hsl(var(--accent-foreground))
-        );
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;*/
 
         color: hsl(var(--primary));
 
@@ -113,15 +77,6 @@
         color: hsl(var(--muted-foreground));
         max-width: 550px;
         margin: 0 auto;
-
-        // shadow for more depth when graphic assets sits behind
-        //text-shadow: 0 2px 4px hsl(var(--muted) / 0.1);
-
-        text-shadow:
-          0 -2px 5px hsl(var(--foreground) / 0.15),
-          0 1px 2px hsl(var(--foreground) / 0.35),
-          0 2px 2px hsl(var(--foreground) / 0.28),
-          0 6px 10px hsl(var(--foreground) / 0.2);
 
         :global(:root.light) & {
           text-shadow:
@@ -151,6 +106,7 @@
           0 4px 8px hsl(var(--background) / 0.5);
       }
     }
+    */
 
     .loadingInfo {
       display: flex;
@@ -193,4 +149,76 @@
   display: flex;
   flex-direction: column;
   gap: var(--section-gap);
+}
+
+.header {
+  position: relative;
+  text-align: center;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+
+  .title {
+    display: inline-block;
+    text-align: center;
+    margin: 0 auto;
+    text-wrap: balance;
+    font-size: 56px;
+    font-weight: 700;
+    color: hsl(var(--primary));
+    letter-spacing: -3px;
+    position: relative;
+
+    // Blurred background text effect
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 10px -10px;
+
+      // Positioning and layering
+      z-index: -1;
+
+      // Blur and scale effect
+      filter: blur(13px);
+      transform: scale(1.1);
+      border-radius: 9999px;
+
+      // Color for the background text (adjust as needed)
+      background: hsl(var(--background) / 0.85);
+    }
+  }
+
+  .subtitle {
+    font-size: 20px;
+    color: hsl(var(--muted-foreground));
+    width: fit-content;
+    margin: 0 auto;
+    position: relative;
+    text-wrap: balance;
+    display: inline-block;
+
+    // Blurred background text effect for subtitle
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -5px -20px;
+
+      z-index: -1;
+
+      // Blur and scale effect
+      filter: blur(9px);
+
+      // Color for the background text
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        hsl(var(--background) / 0.4) 10%,
+        hsl(var(--background) / 0.95) 35%,
+        hsl(var(--background) / 1) 100%
+      );
+      border-radius: 99999px;
+
+      pointer-events: none;
+    }
+  }
 }

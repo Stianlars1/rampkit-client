@@ -18,7 +18,7 @@
     margin: 0;
     font-size: 1rem;
     opacity: 0.8;
-    color: hsl(var(--foreground-subtle));
+    color: hsl(var(--muted-foreground));
   }
 }
 
@@ -52,6 +52,10 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
+
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
     }
 
     .roleRow {
@@ -90,6 +94,10 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    a {
+      color: hsl(var(--foreground));
+    }
 
     /* (legacy) hide old card container if present */
     .previewCard {
@@ -144,6 +152,10 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
       opacity: 0.85;
+
+      @media (max-width: 600px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
 
       .metaCell {
         padding: 6px 8px;

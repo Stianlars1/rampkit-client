@@ -36,11 +36,8 @@ export const Navbar = () => {
   const formattedPathname = pathName.split("?")[0].split("/")[1];
   const isTypographPage = formattedPathname === "typography";
   const isRootPage = formattedPathname === "";
-  console.log(pathName, formattedPathname, isRootPage, isTypographPage);
 
   useEffect(() => {
-    // window.innerWidth / 2 - 150
-
     // on resize, update the container width
     const handleResize = () => {
       setContainerWidth(window.innerWidth / 2 - 190);
@@ -115,6 +112,22 @@ export const Navbar = () => {
       );
 
       // Icon Fade ins
+      if (isTypographPage) {
+        timeline.to("#BACK_TO_RAMPKIT_LINK", {
+          width: "34px",
+          height: "34px",
+          ease: "none",
+        });
+      }
+
+      if (isRootPage) {
+        timeline.to("#GO_TO_TYPO", {
+          width: "34px",
+          height: "34px",
+          ease: "none",
+        });
+      }
+
       timeline
         .to(
           "#STATS_TRIGGER_BUTTON",
@@ -126,16 +139,6 @@ export const Navbar = () => {
           "<",
         )
 
-        .to("#BACK_TO_RAMPKIT_LINK", {
-          width: "34px",
-          height: "34px",
-          ease: "none",
-        })
-        .to("#GO_TO_TYPO", {
-          width: "34px",
-          height: "34px",
-          ease: "none",
-        })
         .to(
           "#EXPORT_BUTTON",
           {

@@ -52,13 +52,18 @@ export const RampKitApp = () => {
       <main className={styles.main}>
         <section className={styles.firstSection}>
           <div className={styles.header}>
-            <h1 className={styles.title}>Rampkit</h1>
-            <p className={styles.subtitle}>
+            <h1 className={styles.title} data-text="Rampkit">
+              Rampkit
+            </h1>
+            <p
+              className={styles.subtitle}
+              data-text="Generate beautiful 12-step color ramps from any hex color"
+            >
               Generate beautiful 12-step color ramps from any hex color
             </p>
 
-            <div className={styles.backgroundContrast_1} />
-            <div className={styles.backgroundContrast_2} />
+            {/*            <div className={styles.backgroundContrast_1} />
+            <div className={styles.backgroundContrast_2} />*/}
           </div>
           <ColorInput
             firstRenderHex={paletteData?.accent}

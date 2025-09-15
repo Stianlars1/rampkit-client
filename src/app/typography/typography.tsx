@@ -219,10 +219,7 @@ export default function TypographyTool() {
   const bodyClamp = clampLine(bodyMin, bodyMax);
 
   return (
-    <div
-      className={cx(styles.wrap, defaultStyles.hero)}
-      style={{ fontFamily: previewFontFamily }}
-    >
+    <div className={cx(styles.wrap)} style={{ fontFamily: previewFontFamily }}>
       {/* Grid layout for controls and preview */}
       <section className={styles.grid}>
         <div className={styles.controls}>

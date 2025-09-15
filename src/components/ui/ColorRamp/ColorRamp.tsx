@@ -4,7 +4,12 @@ import { PaletteData } from "@/types";
 import styles from "./ColorRamp.module.scss";
 import { hexToHSL } from "@/lib/utils/color-utils";
 import { copy } from "@stianlarsen/copy-to-clipboard";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
+import { cx } from "@/lib/utils/cx";
+
+gsap.registerPlugin(useGSAP);
 
 interface ColorRampProps {
   data: PaletteData;
@@ -12,7 +17,84 @@ interface ColorRampProps {
 
 export function ColorRamp({ data }: ColorRampProps) {
   const [copiedHex, setCopiedHex] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const accentRampRef = useRef<HTMLDivElement>(null);
+  const grayRampRef = useRef<HTMLDivElement>(null);
+  useGSAP(
+    () => {
+      if (
+        !containerRef.current ||
+        !accentRampRef.current ||
+        !grayRampRef.current
+      ) {
+        return;
+      }
 
+      const accentSteps = gsap.utils.toArray(`.rampkit_color_ramp_accent`);
+      const graySteps = gsap.utils.toArray(`.rampkit_color_ramp_gray`);
+
+      const timeline = gsap.timeline({ defaults: { ease: "power1.out" } });
+
+      timeline.fromTo(
+        accentRampRef.current,
+        {
+          y: 15,
+          opacity: 0,
+        },
+        {
+          y: 0,
+          opacity: 1,
+        },
+      );
+
+      timeline.fromTo(
+        accentSteps,
+        {
+          opacity: 0,
+        },
+        {
+          opacity: 1,
+
+          duration: 0.24,
+          stagger: 0.025,
+        },
+        "<",
+      );
+
+      timeline.fromTo(
+        grayRampRef.current,
+        {
+          opacity: 0,
+          y: 15,
+        },
+        {
+          opacity: 1,
+          y: 0,
+        },
+      );
+
+      timeline.fromTo(
+        graySteps,
+        {
+          opacity: 0,
+        },
+        {
+          scrollTrigger: {
+            trigger: grayRampRef.current,
+            // start when bottom of trigger has passed bottom of viewport
+            start: "center bottom",
+            // end when bottom is 100px above bottom of viewport
+            end: "bottom+=50 bottom",
+            scrub: true,
+          },
+          opacity: 1,
+          duration: 0.24,
+          stagger: 0.025,
+        },
+      );
+    },
+    { scope: containerRef, dependencies: [] },
+  );
   const renderColorStep = (
     color: string,
     index: number,
@@ -36,7 +118,12 @@ export function ColorRamp({ data }: ColorRampProps) {
     return (
       <button
         key={`${type}-${index}`}
-        className={styles.colorStep}
+        className={cx(
+          styles.colorStep,
+          `rampkit_color_ramp_${type}`,
+          styles[`colorStep_${type}`],
+          `rampkit_color_ramp_${type}_${index + 1}`,
+        )}
         style={{ background: color }}
         onClick={handleCopy}
         title={`Copy ${color}`}
@@ -59,8 +146,8 @@ export function ColorRamp({ data }: ColorRampProps) {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.section}>
+    <div ref={containerRef} className={styles.container}>
+      <div ref={accentRampRef} className={styles.section}>
         <h3 className={styles.sectionTitle}>Accent Colors</h3>
         <div className={styles.lightRamp}>
           <span className={styles.modeLabel}>Light</span>
@@ -80,7 +167,7 @@ export function ColorRamp({ data }: ColorRampProps) {
         </div>
       </div>
 
-      <div className={styles.section}>
+      <div ref={grayRampRef} className={styles.section}>
         <h3 className={styles.sectionTitle}>Gray Colors</h3>
         <div className={styles.lightRamp}>
           <span className={styles.modeLabel}>Light</span>

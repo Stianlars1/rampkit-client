@@ -9,7 +9,7 @@
   flex-direction: column;
   gap: 16px;
 
-  overflow-x: clip;
+  overflow: visible;
 
   .glassyTitle {
     font-size: 14px;
@@ -44,42 +44,6 @@
   }
 
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    overflow: clip;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      hsl(var(--foreground) / 0.1) 50%,
-      transparent 100%
-    );
-    opacity: 0;
-    transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  &:hover {
-    box-shadow:
-      inset 0 -1px 0 hsl(var(--background) / 0.01),
-      0 32px 64px hsl(var(--background) / 0.015),
-      0 16px 32px hsl(var(--background) / 0.012);
-    z-index: 1;
-
-    &::before {
-      opacity: 0.5;
-      transform: translateX(100%);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-  }
 
   label {
     font-size: 14px;

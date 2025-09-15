@@ -4,7 +4,7 @@ import styles from "./BackgroundEffects.module.scss";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useCallback, useMemo, useRef } from "react";
+import { memo, useCallback, useMemo, useRef } from "react";
 import { getColorFromCSS } from "@/lib/utils/color-utils";
 import { getRandomPreset } from "./backgroundPresets";
 import { useTheme } from "@/context/ThemeProvider";
@@ -13,7 +13,7 @@ import { useHasGeneratedTheme } from "@/hooks/useHasGeneratedTheme";
 
 gsap.registerPlugin([ScrollTrigger, useGSAP]);
 
-export const BackgroundEffects = () => {
+const BackgroundEffects = memo(() => {
   const { resolvedTheme: theme } = useTheme();
   const { paletteData, hasStoredData } = usePaletteData();
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -30,60 +30,14 @@ export const BackgroundEffects = () => {
 
     if (paletteData) {
       if (hasStoredData) {
-        stepElements.forEach((stepElement) => {
-          timeline.set(stepElement, {
-            filter: "blur(0px) saturate(100%)",
-            opacity: 0,
-          });
-        });
-
-        stepElements.forEach((step, index) => {
-          const toConfig = preset.animation.to(index, stepElements.length);
-
-          toConfig.background = paletteData
-            ? paletteData!.accentScale[theme][index]
-            : getColorFromCSS(`--accent-${index + 1}`);
-          toConfig.opacity = preset.getOpacity(index, stepElements.length - 1);
-          toConfig.height = preset.getHeight(index, stepElements.length);
-          toConfig.filter = "blur(0px) saturate(50%)";
-          toConfig.duration = 0.24;
-          toConfig.delay = 0.1 * index;
-          toConfig.ease = "power1.out";
-
-          timeline.to(step, toConfig, 0);
-        });
-
-        return timeline.to(stepElements, {
-          opacity: 0.06,
-          duration: 1.25,
-          filter: "blur(10px)",
-          z: (index) => -index * 25,
-          scale: 0.75,
-          ease: "power2.inOut",
-          rotateY: "5deg",
-          background: (index) => {
-            console.log("\n\npaletteData", paletteData);
-            console.log("getcolor", getColorFromCSS(`--accent-${index + 1}`));
-            console.log(
-              "Setting background for step",
-              index + 1,
-              "to",
-              paletteData?.accentScale[theme][index] ??
-                getColorFromCSS(`--accent-${index + 1}`),
-            );
-
-            return (
-              paletteData?.accentScale[theme][index] ??
-              getColorFromCSS(`--accent-${index + 1}`)
-            );
-          },
-        });
+        return;
       }
+
       // Step 1: Quick fade out
       timeline.to(stepElements, {
         opacity: 0,
-        duration: 0.2,
-        stagger: 0.04,
+        duration: 0.15,
+        stagger: 0.02,
       });
 
       // Step 2: Set captured colors immediately
@@ -94,15 +48,15 @@ export const BackgroundEffects = () => {
             getColorFromCSS(`--accent-${index + 1}`)
           );
         },
+        filter: "blur(0px)",
         opacity: 0,
       });
 
       // Step 3: Fade back in
       timeline.to(stepElements, {
-        opacity: 1,
+        opacity: (index: number) => preset.getOpacity(index, stepCount),
         duration: 0.15,
-        stagger: 0.01,
-        filter: "blur(0px)",
+        stagger: 0.02,
       });
 
       // Step 4: Final transformation - explicitly maintain colors
@@ -115,16 +69,6 @@ export const BackgroundEffects = () => {
         ease: "power2.inOut",
         rotateY: "5deg",
         background: (index) => {
-          console.log("\n\npaletteData", paletteData);
-          console.log("getcolor", getColorFromCSS(`--accent-${index + 1}`));
-          console.log(
-            "Setting background for step",
-            index + 1,
-            "to",
-            paletteData?.accentScale[theme][index] ??
-              getColorFromCSS(`--accent-${index + 1}`),
-          );
-
           return (
             paletteData?.accentScale[theme][index] ??
             getColorFromCSS(`--accent-${index + 1}`)
@@ -171,4 +115,6 @@ export const BackgroundEffects = () => {
       </div>
     </div>
   );
-};
+});
+BackgroundEffects.displayName = "BackgroundEffects";
+export default BackgroundEffects;

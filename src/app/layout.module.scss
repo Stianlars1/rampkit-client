@@ -2,7 +2,9 @@
 .layout {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: var(--nav-height) 1fr auto;
+  grid-template-rows:
+    var(--nav-height) 1fr
+    auto;
 }
 
 .navbar {
@@ -21,4 +23,12 @@
 .footer {
   grid-column: 1 / -1;
   grid-row: 3 / 4;
+}
+
+@media (max-width: 600px) {
+  .layout {
+    grid-template-rows:
+      var(--nav-height) minmax(calc(100dvh - var(--nav-height)), 100%)
+      auto;
+  }
 }
