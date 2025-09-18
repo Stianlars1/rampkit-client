@@ -100,12 +100,13 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
   return `:root {
   --background: ${formatFn(data.lightBackground)};
   --foreground: ${formatFn(data.grayScale.light[lightForegroundStep])};
+  --foreground-subtle: ${formatFn(data.grayScale.light[9])};
   --primary: ${formatFn(data.accent)};
   --primary-foreground: ${formatFn(data.accentScale.light[lightPrimaryForegroundStep])};
   --secondary: ${formatFn(data.accentScale.light[2])};
   --secondary-foreground: ${formatFn(data.accentScale.light[lightSecondaryForegroundStep])};
   --muted: ${formatFn(data.grayScale.light[2])};
-  --muted-foreground: ${formatFn(data.grayScale.light[lightMutedForegroundStep])};
+  --muted-foreground: ${formatFn(data.grayScale.light[10])};
   --accent: ${formatFn(data.accentScale.light[2])};
   --accent-foreground: ${formatFn(data.accentScale.light[lightAccentForegroundStep])};
   --destructive: 0 62.8% 30.6%;
@@ -129,12 +130,13 @@ ${data.grayScale.light
   :root {
     --background: ${formatFn(data.darkBackground)};
     --foreground: ${formatFn(data.grayScale.dark[darkForegroundStep])};
+    --foreground-subtle: ${formatFn(data.grayScale.dark[9])};
     --primary: ${formatFn(data.accent)};
     --primary-foreground: ${formatFn(data.accentScale.dark[darkPrimaryForegroundStep])};
     --secondary: ${formatFn(data.accentScale.dark[2])};
     --secondary-foreground: ${formatFn(data.accentScale.dark[darkSecondaryForegroundStep])};
     --muted: ${formatFn(data.grayScale.dark[2])};
-    --muted-foreground: ${formatFn(data.grayScale.dark[darkMutedForegroundStep])};
+    --muted-foreground: ${formatFn(data.grayScale.dark[10])};
     --accent: ${formatFn(data.accentScale.dark[2])};
     --accent-foreground: ${formatFn(data.accentScale.dark[darkAccentForegroundStep])};
     --border: ${formatFn(data.grayScale.dark[6])};

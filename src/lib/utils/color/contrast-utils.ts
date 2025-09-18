@@ -39,5 +39,5 @@ export function getBestForegroundStep(
     isSubtle ? colorScale[10] : colorScale[11],
   );
 
-  return step0Contrast > step11Contrast ? 0 : 11;
+  return step0Contrast > step11Contrast ? 0 : isSubtle ? 10 : 11;
 }
