@@ -67,6 +67,7 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
   const lightMutedForegroundStep = getBestForegroundStep(
     data.grayScale.light[2],
     data.grayScale.light,
+    true,
   );
   const lightAccentForegroundStep = getBestForegroundStep(
     data.accentScale.light[2],
@@ -89,6 +90,7 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
   const darkMutedForegroundStep = getBestForegroundStep(
     data.grayScale.dark[2],
     data.grayScale.dark,
+    true,
   );
   const darkAccentForegroundStep = getBestForegroundStep(
     data.accentScale.dark[2],

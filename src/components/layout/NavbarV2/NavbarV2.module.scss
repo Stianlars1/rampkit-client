@@ -1,0 +1,45 @@
+.navbar {
+  width: min(var(--max-width), 100%);
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .leftWrapper,
+  .rightWrapper {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.link {
+  background: hsl(var(--blackwhite));
+  color: hsl(var(--background));
+  vertical-align: middle;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(var(--radius) - 2px);
+}
+
+.brandLogo {
+  vertical-align: middle;
+
+  path {
+    fill: hsl(var(--blackwhite));
+  }
+
+  rect {
+    fill: white;
+
+    :global(.dark) & {
+      filter: invert(1);
+    }
+  }
+}
+.darkLogo {
+  fill: red;
+}

@@ -31,9 +31,13 @@ function getContrastRatio(color1: string, color2: string): number {
 export function getBestForegroundStep(
   backgroundHex: string,
   colorScale: string[],
+  isSubtle: boolean = false,
 ): number {
   const step0Contrast = getContrastRatio(backgroundHex, colorScale[0]);
-  const step11Contrast = getContrastRatio(backgroundHex, colorScale[11]);
+  const step11Contrast = getContrastRatio(
+    backgroundHex,
+    isSubtle ? colorScale[10] : colorScale[11],
+  );
 
   return step0Contrast > step11Contrast ? 0 : 11;
 }

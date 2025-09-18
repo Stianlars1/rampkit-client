@@ -36,7 +36,7 @@ export const StatsPanel = ({
   id,
 }: {
   iconSize?: number;
-  id: string;
+  id?: string;
 }) => {
   const [metrics, setMetrics] = useState<MetricsDoc | null>(null);
 

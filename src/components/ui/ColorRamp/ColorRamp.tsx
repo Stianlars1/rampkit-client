@@ -84,7 +84,7 @@ export function ColorRamp({ data }: ColorRampProps) {
             // start when bottom of trigger has passed bottom of viewport
             start: "center bottom",
             // end when bottom is 100px above bottom of viewport
-            end: "bottom+=50 bottom",
+            end: "bottom+=50 bottom-=50",
             scrub: true,
           },
           opacity: 1,
