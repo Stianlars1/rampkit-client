@@ -2,13 +2,16 @@
 
 import { useMemo, useState } from "react";
 import styles from "./QuickExport.module.scss";
-import { emitCSS } from "@/lib/typography/emit/css";
-import { emitSCSS } from "@/lib/typography/emit/scss";
-import { emitDTCG } from "@/lib/typography/emit/dtcg";
-import { emitReactModule } from "@/lib/typography/emit/react";
-import { emitReactStyles } from "@/lib/typography/emit/reactStyles";
-import { exportAllAsZip } from "@/lib/typography/exportAll";
 import { CodePreview } from "@stianlarsen/react-code-preview";
+import {
+  emitCSS,
+  emitDTCG,
+  emitReactModule,
+  emitReactStyles,
+  exportAllAsZip,
+  RoleMap,
+} from "@/lib/typography/exporters";
+import { emitSCSS } from "@/lib/typography/emit/scss";
 
 export function QuickExport({
   projectName,
@@ -19,17 +22,15 @@ export function QuickExport({
   projectName: string;
   tokens: any;
   filesForZip: { path: string; contents: string }[];
-  roleMap: Record<"display" | "headline" | "title" | "body" | "label", string>;
+  roleMap: RoleMap;
 }) {
   const [tab, setTab] = useState<
     "css" | "scss" | "react-tsx" | "react-scss" | "tokens"
   >("css");
   const [copied, setCopied] = useState(false);
 
-  const computedRoleMap: Record<
-    "display" | "headline" | "title" | "body" | "label",
-    string
-  > = roleMap ?? {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const computedRoleMap: RoleMap = roleMap ?? {
     display: "display",
     headline: "headline",
     title: "title",
@@ -40,18 +41,12 @@ export function QuickExport({
   const cssVars = useMemo(() => {
     return codeBlock(
       emitCSS({
-        family: tokens.typography.font.family.sans.value,
-        roles: {
-          display: tokens.typography.roles.display,
-          headline: tokens.typography.roles.headline,
-          title: tokens.typography.roles.title,
-          body: tokens.typography.roles.body,
-          label: tokens.typography.roles.label,
-        },
+        tokens: tokens,
+        projectName: projectName,
         roleMap: computedRoleMap,
       }),
     );
-  }, [tokens, computedRoleMap]);
+  }, [tokens, projectName, computedRoleMap]);
 
   const scssUtils = useMemo(
     () => codeBlock(emitSCSS(computedRoleMap)),

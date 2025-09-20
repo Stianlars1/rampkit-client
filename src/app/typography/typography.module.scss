@@ -382,3 +382,18 @@
     display: block;
   }
 }
+
+.switchLabel {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: hsl(var(--primary));
+  }
+}

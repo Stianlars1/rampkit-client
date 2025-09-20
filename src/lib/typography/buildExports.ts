@@ -1,77 +1,31 @@
-import { emitCSS } from "./emit/css";
-import { emitSCSS } from "./emit/scss";
-import { emitDTCG } from "./emit/dtcg";
-import { emitReactModule } from "./emit/react";
-import { emitReactStyles } from "./emit/reactStyles";
-import { emitTailwindPlugin } from "./emit/tailwind";
+// Builds a ZIP payload using the emitters above, keeping your classic React+SCSS pairing.
 
-export function buildExports({
-  tokens,
-  projectName,
-  roleMap,
-}: {
+import {
+  emitCSS,
+  emitReactModule,
+  emitReactStyles,
+  emitDTCG,
+  RoleMap,
+} from "./exporters";
+
+type FileOut = { path: string; contents: string };
+
+export function buildExports(opts: {
   tokens: any;
   projectName: string;
-  roleMap?: Record<"display" | "headline" | "title" | "body" | "label", string>;
-}) {
-  const files: { path: string; contents: string }[] = [];
-  const outputType = tokens.typography.outputType?.value || "static";
+  roleMap: RoleMap;
+}): FileOut[] {
+  const { tokens, projectName, roleMap } = opts;
 
-  files.push({
-    path: `${projectName}/tokens/typography.tokens.json`,
-    contents: emitDTCG(tokens),
-  });
+  const css = emitCSS({ tokens, roleMap, projectName });
+  const reactModule = emitReactModule();
+  const reactStyles = emitReactStyles();
+  const dtcg = emitDTCG(tokens);
 
-  files.push({
-    path: `${projectName}/styles/typography.css`,
-    contents: emitCSS({
-      family: tokens.typography.font.family.sans.value,
-      roles: {
-        display: tokens.typography.roles.display,
-        headline: tokens.typography.roles.headline,
-        title: tokens.typography.roles.title,
-        body: tokens.typography.roles.body,
-        label: tokens.typography.roles.label,
-      },
-      roleMap: roleMap || {
-        display: "display",
-        headline: "headline",
-        title: "title",
-        body: "body",
-        label: "label",
-      },
-      outputType,
-    }),
-  });
-
-  files.push({
-    path: `${projectName}/styles/typography.utilities.scss`,
-    contents: emitSCSS(
-      roleMap || {
-        display: "display",
-        headline: "headline",
-        title: "title",
-        body: "body",
-        label: "label",
-      },
-      outputType,
-    ),
-  });
-
-  files.push({
-    path: `${projectName}/components/typography.tsx`,
-    contents: emitReactModule(),
-  });
-
-  files.push({
-    path: `${projectName}/components/typography.module.scss`,
-    contents: emitReactStyles(),
-  });
-
-  files.push({
-    path: `${projectName}/tailwind/typography.plugin.js`,
-    contents: emitTailwindPlugin(),
-  });
-
-  return files;
+  return [
+    { path: `${projectName}/typography.css`, contents: css },
+    { path: `${projectName}/typography.module.scss`, contents: reactStyles },
+    { path: `${projectName}/typography.react.tsx`, contents: reactModule },
+    { path: `${projectName}/tokens.dtcg.json`, contents: dtcg },
+  ];
 }

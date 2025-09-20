@@ -1,9 +1,7 @@
 "use client";
 import defaultStyles from "./page.module.scss";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./typography.module.scss";
-import { defaultRatios, RatioKey } from "@/lib/typography/scales";
-import { buildExports } from "@/lib/typography/buildExports";
 import { QuickExport } from "./QuickExport";
 import { cx } from "@/lib/utils/cx";
 import {
@@ -15,21 +13,18 @@ import {
   jetbrains,
 } from "@/lib/fonts";
 import {
-  OutputType,
-  ContentType,
-  ResponsiveRatioPreset,
-  responsiveRatioPresets,
-} from "@/lib/typography/outputTypes";
-import {
   calculateFluidSize,
   calculateStaticSize,
-  calculateResponsiveSize,
-} from "@/lib/typography/calculateSizes";
-import { formatSize } from "@/lib/typography/formatSize";
+  defaultRatios,
+  formatSize,
+  OutputType,
+  RatioKey,
+} from "@/lib/typography/core";
+import { buildExports } from "@/lib/typography/buildExports";
 
 type Range = { minViewport: number; maxViewport: number };
-
 const DEFAULT_RANGE: Range = { minViewport: 360, maxViewport: 1280 };
+
 const fontFamilyPreviewOptions = [
   { name: "Inter", style: inter.style },
   { name: "Geist Sans", style: geistSans.style },
@@ -39,48 +34,64 @@ const fontFamilyPreviewOptions = [
   { name: "Jetbrains Mono", style: jetbrains.style },
 ];
 
-export default function TypographyTool() {
-  // Core project state
-  const [projectName, setProjectName] = useState("typography");
+/** Single source of truth for responsive scaling */
+type ScalingProfile =
+  | "product"
+  | "content"
+  | "balanced"
+  | "marketing"
+  | "extreme";
+const scalingProfiles: Record<
+  ScalingProfile,
+  { mobile: number; desktop: number; h1Cap: number }
+> = {
+  product: { mobile: 1.12, desktop: 1.25, h1Cap: 36 },
+  content: { mobile: 1.15, desktop: 1.3, h1Cap: 40 },
+  balanced: { mobile: 1.2, desktop: 1.333, h1Cap: 44 },
+  marketing: { mobile: 1.25, desktop: 1.5, h1Cap: 52 },
+  extreme: { mobile: 1.333, desktop: 1.618, h1Cap: 60 },
+};
 
-  // Output type configuration
+export default function TypographyTool() {
+  // Project / output
+  const [projectName, setProjectName] = useState("typography");
   const [outputType, setOutputType] = useState<OutputType>("responsive");
 
-  // Font configuration
+  // Font & units
   const [fontFamily, setFontFamily] = useState(
     'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
   );
   const [previewFontFamily, setPreviewFontFamily] = useState(
     fontFamilyPreviewOptions[0].style.fontFamily,
   );
-
-  // Scale configuration
-  const [ratioKey, setRatioKey] = useState<RatioKey>("perfectFifth");
   const [unit, setUnit] = useState<"px" | "rem">("px");
 
-  // Static sizing
+  // Static / Fluid knobs
+  const [ratioKey, setRatioKey] = useState<RatioKey>("perfectFifth");
   const [staticBaseSize, setStaticBaseSize] = useState(16);
 
-  // Fluid sizing
+  // Responsive / Fluid shared knobs
   const [bodyMin, setBodyMin] = useState(16);
   const [bodyMax, setBodyMax] = useState(18);
   const [minViewport, setMinViewport] = useState(DEFAULT_RANGE.minViewport);
   const [maxViewport, setMaxViewport] = useState(DEFAULT_RANGE.maxViewport);
 
-  // Mobile-responsive configuration
-  const [contentType, setContentType] = useState<ContentType>("balanced");
-  const [responsiveRatioPreset, setResponsiveRatioPreset] =
-    useState<ResponsiveRatioPreset>("balanced");
+  // Mobile optimization
+  const [optimizeMobile, setOptimizeMobile] = useState(true);
+  const [mobileH1Cap, setMobileH1Cap] = useState(44);
+  const [capTouched, setCapTouched] = useState(false); // tracks manual override
+
+  // Profiles
+  const [profile, setProfile] = useState<ScalingProfile>("balanced");
+  const [useCustomRatios, setUseCustomRatios] = useState(false);
   const [customMobileRatio, setCustomMobileRatio] = useState(1.2);
   const [customDesktopRatio, setCustomDesktopRatio] = useState(1.333);
-  const [useCustomRatios, setUseCustomRatios] = useState(false);
 
-  // Typography configuration
+  // Typographic misc
   const [lhRoot, setLhRoot] = useState(1.5);
-  const [measureCh, setMeasureCh] = useState(65);
   const [previewText, setPreviewText] = useState("");
 
-  // UI state
+  // UI
   const [activePanel, setActivePanel] = useState<"controls" | "export">(
     "controls",
   );
@@ -91,199 +102,111 @@ export default function TypographyTool() {
       ? `${previewText} jumps over the lazy dog. link example.`
       : "The quick brown fox jumps over the lazy dog. link example.";
 
-  // Enhanced heading size computation with mobile-responsive support
-  function computeHeadingSizes(): {
-    h1: { calculation: any; formatted: string };
-    h2: { calculation: any; formatted: string };
-    h3: { calculation: any; formatted: string };
-    h4: { calculation: any; formatted: string };
-    h5: { calculation: any; formatted: string };
-    h6: { calculation: any; formatted: string };
-  } {
-    const ratio = defaultRatios[ratioKey];
+  // Seed the mobile cap from profile until user edits it
+  useEffect(() => {
+    if (!capTouched) setMobileH1Cap(scalingProfiles[profile].h1Cap);
+  }, [profile, capTouched]);
+
+  // Ratios
+  const currentMobileRatio = useCustomRatios
+    ? customMobileRatio
+    : scalingProfiles[profile].mobile;
+
+  const currentDesktopRatio = useCustomRatios
+    ? customDesktopRatio
+    : scalingProfiles[profile].desktop;
+
+  // Per-step mobile caps (H1=step 6 … H6=step 1)
+  const capForStepPx = (step: number) =>
+    mobileH1Cap / Math.pow(Math.max(currentMobileRatio, 1.05), 6 - step);
+
+  // ---------- Size computation ----------
+  function computeHeadingSizes(): Record<
+    "h1" | "h2" | "h3" | "h4" | "h5" | "h6",
+    { calculation: any; formatted: string }
+  > {
+    const mkStatic = (step: number, ratio: number) =>
+      calculateStaticSize({ baseSize: staticBaseSize, ratio }, step);
 
     if (outputType === "static") {
-      const h1calc = calculateStaticSize(
-        { baseSize: staticBaseSize, ratio },
-        6,
-      );
-      const h2calc = calculateStaticSize(
-        { baseSize: staticBaseSize, ratio },
-        5,
-      );
-      const h3calc = calculateStaticSize(
-        { baseSize: staticBaseSize, ratio },
-        4,
-      );
-      const h4calc = calculateStaticSize(
-        { baseSize: staticBaseSize, ratio },
-        3,
-      );
-      const h5calc = calculateStaticSize(
-        { baseSize: staticBaseSize, ratio },
-        2,
-      );
-      const h6calc = calculateStaticSize(
-        { baseSize: staticBaseSize, ratio },
-        1,
-      );
-
-      return {
-        h1: { calculation: h1calc, formatted: formatSize(h1calc, unit) },
-        h2: { calculation: h2calc, formatted: formatSize(h2calc, unit) },
-        h3: { calculation: h3calc, formatted: formatSize(h3calc, unit) },
-        h4: { calculation: h4calc, formatted: formatSize(h4calc, unit) },
-        h5: { calculation: h5calc, formatted: formatSize(h5calc, unit) },
-        h6: { calculation: h6calc, formatted: formatSize(h6calc, unit) },
+      const R = defaultRatios[ratioKey];
+      const mk = (s: number) => {
+        const calc = mkStatic(s, R);
+        return { calculation: calc, formatted: formatSize(calc, unit) };
       };
-    } else if (outputType === "fluid") {
-      const h1Max = bodyMax * Math.pow(ratio, 6);
-      const h2Max = bodyMax * Math.pow(ratio, 5);
-      const h3Max = bodyMax * Math.pow(ratio, 4);
-      const h4Max = bodyMax * Math.pow(ratio, 3);
-      const h5Max = bodyMax * Math.pow(ratio, 2);
-      const h6Max = bodyMax * Math.pow(ratio, 1);
-
-      const h1Min = bodyMin * Math.pow(ratio, 6);
-      const h2Min = bodyMin * Math.pow(ratio, 5);
-      const h3Min = bodyMin * Math.pow(ratio, 4);
-      const h4Min = bodyMin * Math.pow(ratio, 3);
-      const h5Min = bodyMin * Math.pow(ratio, 2);
-      const h6Min = bodyMin * Math.pow(ratio, 1);
-
-      const h1calc = calculateFluidSize({
-        minViewport,
-        maxViewport,
-        minSize: h1Min,
-        maxSize: h1Max,
-      });
-      const h2calc = calculateFluidSize({
-        minViewport,
-        maxViewport,
-        minSize: h2Min,
-        maxSize: h2Max,
-      });
-      const h3calc = calculateFluidSize({
-        minViewport,
-        maxViewport,
-        minSize: h3Min,
-        maxSize: h3Max,
-      });
-      const h4calc = calculateFluidSize({
-        minViewport,
-        maxViewport,
-        minSize: h4Min,
-        maxSize: h4Max,
-      });
-      const h5calc = calculateFluidSize({
-        minViewport,
-        maxViewport,
-        minSize: h5Min,
-        maxSize: h5Max,
-      });
-      const h6calc = calculateFluidSize({
-        minViewport,
-        maxViewport,
-        minSize: h6Min,
-        maxSize: h6Max,
-      });
-
       return {
-        h1: { calculation: h1calc, formatted: formatSize(h1calc, unit) },
-        h2: { calculation: h2calc, formatted: formatSize(h2calc, unit) },
-        h3: { calculation: h3calc, formatted: formatSize(h3calc, unit) },
-        h4: { calculation: h4calc, formatted: formatSize(h4calc, unit) },
-        h5: { calculation: h5calc, formatted: formatSize(h5calc, unit) },
-        h6: { calculation: h6calc, formatted: formatSize(h6calc, unit) },
-      };
-    } else {
-      // Mobile-first responsive logic
-      const ratios = useCustomRatios
-        ? { mobile: customMobileRatio, desktop: customDesktopRatio }
-        : responsiveRatioPresets[responsiveRatioPreset];
-
-      const h1calc = calculateResponsiveSize({
-        minViewport,
-        maxViewport,
-        mobileRatio: ratios.mobile,
-        desktopRatio: ratios.desktop,
-        baseSize: bodyMin,
-        step: 6,
-        contentType,
-      });
-      const h2calc = calculateResponsiveSize({
-        minViewport,
-        maxViewport,
-        mobileRatio: ratios.mobile,
-        desktopRatio: ratios.desktop,
-        baseSize: bodyMin,
-        step: 5,
-        contentType,
-      });
-      const h3calc = calculateResponsiveSize({
-        minViewport,
-        maxViewport,
-        mobileRatio: ratios.mobile,
-        desktopRatio: ratios.desktop,
-        baseSize: bodyMin,
-        step: 4,
-        contentType,
-      });
-      const h4calc = calculateResponsiveSize({
-        minViewport,
-        maxViewport,
-        mobileRatio: ratios.mobile,
-        desktopRatio: ratios.desktop,
-        baseSize: bodyMin,
-        step: 3,
-        contentType,
-      });
-      const h5calc = calculateResponsiveSize({
-        minViewport,
-        maxViewport,
-        mobileRatio: ratios.mobile,
-        desktopRatio: ratios.desktop,
-        baseSize: bodyMin,
-        step: 2,
-        contentType,
-      });
-      const h6calc = calculateResponsiveSize({
-        minViewport,
-        maxViewport,
-        mobileRatio: ratios.mobile,
-        desktopRatio: ratios.desktop,
-        baseSize: bodyMin,
-        step: 1,
-        contentType,
-      });
-
-      return {
-        h1: { calculation: h1calc, formatted: formatSize(h1calc, unit) },
-        h2: { calculation: h2calc, formatted: formatSize(h2calc, unit) },
-        h3: { calculation: h3calc, formatted: formatSize(h3calc, unit) },
-        h4: { calculation: h4calc, formatted: formatSize(h4calc, unit) },
-        h5: { calculation: h5calc, formatted: formatSize(h5calc, unit) },
-        h6: { calculation: h6calc, formatted: formatSize(h6calc, unit) },
+        h1: mk(6),
+        h2: mk(5),
+        h3: mk(4),
+        h4: mk(3),
+        h5: mk(2),
+        h6: mk(1),
       };
     }
+
+    if (outputType === "fluid") {
+      const R = defaultRatios[ratioKey];
+      const mk = (step: number) => {
+        const maxSize = bodyMax * Math.pow(R, step);
+        const rawMin = bodyMin * Math.pow(R, step);
+        const minSize = optimizeMobile
+          ? Math.min(rawMin, capForStepPx(step))
+          : rawMin;
+        const calc = calculateFluidSize({
+          minViewport,
+          maxViewport,
+          minSize,
+          maxSize,
+        });
+        return { calculation: calc, formatted: formatSize(calc, unit) };
+      };
+      return {
+        h1: mk(6),
+        h2: mk(5),
+        h3: mk(4),
+        h4: mk(3),
+        h5: mk(2),
+        h6: mk(1),
+      };
+    }
+
+    // Responsive (recommended): profile/custom ratios + mobile caps
+    const mk = (step: number) => {
+      const minRaw = bodyMin * Math.pow(currentMobileRatio, step);
+      const minSize = optimizeMobile
+        ? Math.min(minRaw, capForStepPx(step))
+        : minRaw;
+      const baseMax = Math.max(bodyMax, bodyMin);
+      const maxSize = baseMax * Math.pow(currentDesktopRatio, step);
+      const calc = calculateFluidSize({
+        minViewport,
+        maxViewport,
+        minSize,
+        maxSize,
+      });
+      return { calculation: calc, formatted: formatSize(calc, unit) };
+    };
+
+    return { h1: mk(6), h2: mk(5), h3: mk(4), h4: mk(3), h5: mk(2), h6: mk(1) };
   }
 
   const headingSizes = useMemo(
     () => computeHeadingSizes(),
     [
       outputType,
-      staticBaseSize,
+      ratioKey,
       bodyMin,
       bodyMax,
-      ratioKey,
       unit,
       minViewport,
       maxViewport,
-      contentType,
-      responsiveRatioPreset,
+      optimizeMobile,
+      // responsive inputs
+      profile,
+      useCustomRatios,
       customMobileRatio,
       customDesktopRatio,
-      useCustomRatios,
+      mobileH1Cap, // <-- direct dependency so changes re-run
     ],
   );
 
@@ -294,23 +217,14 @@ export default function TypographyTool() {
         0,
       );
       return { calculation: calc, formatted: formatSize(calc, unit) };
-    } else if (outputType === "responsive") {
-      const calc = calculateFluidSize({
-        minViewport,
-        maxViewport,
-        minSize: bodyMin,
-        maxSize: bodyMax,
-      });
-      return { calculation: calc, formatted: formatSize(calc, unit) };
-    } else {
-      const calc = calculateFluidSize({
-        minViewport,
-        maxViewport,
-        minSize: bodyMin,
-        maxSize: bodyMax,
-      });
-      return { calculation: calc, formatted: formatSize(calc, unit) };
     }
+    const calc = calculateFluidSize({
+      minViewport,
+      maxViewport,
+      minSize: bodyMin,
+      maxSize: bodyMax,
+    });
+    return { calculation: calc, formatted: formatSize(calc, unit) };
   }, [
     outputType,
     staticBaseSize,
@@ -321,55 +235,57 @@ export default function TypographyTool() {
     maxViewport,
   ]);
 
+  // Tokens (export will reflect the clamp strings that include your cap)
   const tokens = useMemo(() => {
     return {
       $schema: "https://design-tokens.github.io/schema.json",
       typography: {
-        font: {
-          family: {
-            sans: { value: fontFamily, type: "fontFamily" },
-          },
-        },
-        lineHeight: {
-          root: { value: lhRoot, type: "lineHeight" },
-        },
+        font: { family: { sans: { value: fontFamily, type: "fontFamily" } } },
+        lineHeight: { root: { value: lhRoot, type: "lineHeight" } },
         outputType: { value: outputType, type: "string" },
-        contentType: { value: contentType, type: "string" },
         roles: {
           display: {
-            size: {
-              value: headingSizes.h1.calculation.value,
-              type: "fontSize",
-            },
+            size: { value: headingSizes.h1.formatted, type: "fontSize" },
           },
           headline: {
-            size: {
-              value: headingSizes.h2.calculation.value,
-              type: "fontSize",
-            },
+            size: { value: headingSizes.h2.formatted, type: "fontSize" },
           },
           title: {
-            size: {
-              value: headingSizes.h3.calculation.value,
-              type: "fontSize",
-            },
+            size: { value: headingSizes.h3.formatted, type: "fontSize" },
           },
-          body: {
-            size: {
-              value: bodySize.calculation.value,
-              type: "fontSize",
-            },
-          },
+          body: { size: { value: bodySize.formatted, type: "fontSize" } },
           label: {
-            size: {
-              value: headingSizes.h6.calculation.value,
-              type: "fontSize",
-            },
+            size: { value: headingSizes.h6.formatted, type: "fontSize" },
+          },
+        },
+        meta: {
+          viewport: { min: minViewport, max: maxViewport },
+          responsive: {
+            profile,
+            useCustomRatios,
+            mobileRatio: currentMobileRatio,
+            desktopRatio: currentDesktopRatio,
+            optimizeMobile,
+            mobileH1Cap,
           },
         },
       },
     };
-  }, [fontFamily, lhRoot, headingSizes, bodySize, outputType, contentType]);
+  }, [
+    fontFamily,
+    lhRoot,
+    headingSizes,
+    bodySize,
+    outputType,
+    minViewport,
+    maxViewport,
+    profile,
+    useCustomRatios,
+    currentMobileRatio,
+    currentDesktopRatio,
+    optimizeMobile,
+    mobileH1Cap,
+  ]);
 
   const identityRoleMap = useMemo(
     () => ({
@@ -387,17 +303,7 @@ export default function TypographyTool() {
     [tokens, projectName, identityRoleMap],
   );
 
-  const getCurrentRatios = () => {
-    if (outputType === "responsive") {
-      return useCustomRatios
-        ? { mobile: customMobileRatio, desktop: customDesktopRatio }
-        : responsiveRatioPresets[responsiveRatioPreset];
-    }
-    return null;
-  };
-
-  const currentRatios = getCurrentRatios();
-
+  // --------------------------- UI -------------------------------------------
   return (
     <>
       {/* Sidebar Controls */}
@@ -431,7 +337,7 @@ export default function TypographyTool() {
         <div className={styles.sidebarContent}>
           {activePanel === "controls" ? (
             <div className={styles.controlsPanel}>
-              {/* Project Settings */}
+              {/* Project */}
               <section className={styles.controlSection}>
                 <h3 className={styles.sectionTitle}>Project</h3>
                 <div className={styles.controlGroup}>
@@ -447,12 +353,12 @@ export default function TypographyTool() {
                 </div>
               </section>
 
-              {/* Output Configuration */}
+              {/* Output type */}
               <section className={styles.controlSection}>
-                <h3 className={styles.sectionTitle}>Output Configuration</h3>
+                <h3 className={styles.sectionTitle}>Output</h3>
                 <div className={styles.controlGroup}>
                   <label className={styles.controlLabel}>
-                    <span className={styles.labelText}>Output Type</span>
+                    <span className={styles.labelText}>Type</span>
                     <select
                       className={styles.select}
                       value={outputType}
@@ -461,99 +367,55 @@ export default function TypographyTool() {
                       }
                     >
                       <option value="responsive">
-                        Responsive (Mobile-First)
+                        Responsive (Mobile-first)
                       </option>
-                      <option value="static">Static (base × ratio)</option>
-                      <option value="fluid">Fluid (clamp)</option>
+                      <option value="fluid">Fluid (Clamp)</option>
+                      <option value="static">Static (Base × Ratio)</option>
                     </select>
                     <span className={styles.helpText}>
-                      {outputType === "responsive" &&
-                        "Mobile-optimized with adaptive scaling ratios"}
-                      {outputType === "static" &&
-                        "Fixed sizes multiplied by scale ratio"}
-                      {outputType === "fluid" &&
-                        "Responsive sizes using CSS clamp()"}
+                      Responsive is recommended: smaller ratios on mobile,
+                      larger on desktop.
                     </span>
                   </label>
                 </div>
               </section>
 
-              {/* Mobile-Responsive Configuration */}
+              {/* Responsive controls */}
               {outputType === "responsive" && (
                 <section className={styles.controlSection}>
-                  <h3 className={styles.sectionTitle}>
-                    Mobile-Responsive Settings
-                  </h3>
+                  <h3 className={styles.sectionTitle}>Scaling</h3>
                   <div className={styles.controlGroup}>
                     <label className={styles.controlLabel}>
-                      <span className={styles.labelText}>Content Type</span>
+                      <span className={styles.labelText}>Scaling profile</span>
                       <select
                         className={styles.select}
-                        value={contentType}
-                        onChange={(e) =>
-                          setContentType(e.target.value as ContentType)
-                        }
-                      >
-                        <option value="marketing">
-                          Marketing (High Contrast)
-                        </option>
-                        <option value="balanced">Balanced (Recommended)</option>
-                        <option value="content">
-                          Content/Blog (Conservative)
-                        </option>
-                        <option value="product">
-                          Product/App (Minimal Contrast)
-                        </option>
-                      </select>
-                      <span className={styles.helpText}>
-                        {contentType === "marketing" &&
-                          "Larger headings for landing pages and marketing sites"}
-                        {contentType === "balanced" &&
-                          "Good balance between hierarchy and mobile usability"}
-                        {contentType === "content" &&
-                          "Optimized for reading and content-heavy sites"}
-                        {contentType === "product" &&
-                          "Minimal scaling for dashboards and applications"}
-                      </span>
-                    </label>
-
-                    <label className={styles.controlLabel}>
-                      <span className={styles.labelText}>
-                        Responsive Scaling
-                      </span>
-                      <select
-                        className={styles.select}
-                        value={
-                          useCustomRatios ? "custom" : responsiveRatioPreset
-                        }
+                        value={useCustomRatios ? "custom" : profile}
                         onChange={(e) => {
                           if (e.target.value === "custom") {
                             setUseCustomRatios(true);
                           } else {
                             setUseCustomRatios(false);
-                            setResponsiveRatioPreset(
-                              e.target.value as ResponsiveRatioPreset,
-                            );
+                            setProfile(e.target.value as ScalingProfile);
                           }
                         }}
                       >
-                        <option value="conservative">
-                          Conservative (1.125 → 1.25)
+                        <option value="product">Product/App (minimal)</option>
+                        <option value="content">
+                          Content/Blog (conservative)
                         </option>
-                        <option value="balanced">Balanced (1.2 → 1.333)</option>
-                        <option value="dramatic">Dramatic (1.25 → 1.5)</option>
+                        <option value="balanced">Balanced (recommended)</option>
+                        <option value="marketing">
+                          Marketing (bigger headings)
+                        </option>
                         <option value="extreme">Extreme (1.333 → 1.618)</option>
-                        <option value="custom">Custom Ratios</option>
+                        <option value="custom">Custom</option>
                       </select>
-                      <span className={styles.helpText}>
-                        Mobile ratio → Desktop ratio scaling
-                      </span>
                     </label>
 
                     {useCustomRatios && (
                       <div className={styles.splitGroup}>
                         <label className={styles.controlLabel}>
-                          <span className={styles.labelText}>Mobile Ratio</span>
+                          <span className={styles.labelText}>Mobile ratio</span>
                           <input
                             className={styles.input}
                             type="number"
@@ -565,13 +427,10 @@ export default function TypographyTool() {
                               setCustomMobileRatio(+e.target.value)
                             }
                           />
-                          <span className={styles.helpText}>
-                            1.05 - 1.5 recommended
-                          </span>
                         </label>
                         <label className={styles.controlLabel}>
                           <span className={styles.labelText}>
-                            Desktop Ratio
+                            Desktop ratio
                           </span>
                           <input
                             className={styles.input}
@@ -584,9 +443,6 @@ export default function TypographyTool() {
                               setCustomDesktopRatio(+e.target.value)
                             }
                           />
-                          <span className={styles.helpText}>
-                            1.1 - 2.0 recommended
-                          </span>
                         </label>
                       </div>
                     )}
@@ -594,7 +450,7 @@ export default function TypographyTool() {
                 </section>
               )}
 
-              {/* Typography Settings */}
+              {/* Typography */}
               <section className={styles.controlSection}>
                 <h3 className={styles.sectionTitle}>Typography</h3>
                 <div className={styles.controlGroup}>
@@ -618,7 +474,7 @@ export default function TypographyTool() {
 
                   {(outputType === "static" || outputType === "fluid") && (
                     <label className={styles.controlLabel}>
-                      <span className={styles.labelText}>Scale Ratio</span>
+                      <span className={styles.labelText}>Scale ratio</span>
                       <select
                         className={styles.select}
                         value={ratioKey}
@@ -640,13 +496,13 @@ export default function TypographyTool() {
                       value={unit}
                       onChange={(e) => setUnit(e.target.value as "px" | "rem")}
                     >
-                      <option value="px">Pixels (px)</option>
-                      <option value="rem">Root Em (rem)</option>
+                      <option value="px">px</option>
+                      <option value="rem">rem</option>
                     </select>
                   </label>
 
                   <label className={styles.controlLabel}>
-                    <span className={styles.labelText}>Line Height</span>
+                    <span className={styles.labelText}>Root line-height</span>
                     <input
                       className={styles.input}
                       type="number"
@@ -658,14 +514,14 @@ export default function TypographyTool() {
                 </div>
               </section>
 
-              {/* Size Settings */}
+              {/* Sizes */}
               <section className={styles.controlSection}>
-                <h3 className={styles.sectionTitle}>Size Settings</h3>
+                <h3 className={styles.sectionTitle}>Sizes</h3>
                 <div className={styles.controlGroup}>
                   {outputType === "static" && (
                     <label className={styles.controlLabel}>
                       <span className={styles.labelText}>
-                        Base Size ({unit})
+                        Base size ({unit})
                       </span>
                       <input
                         className={styles.input}
@@ -689,7 +545,7 @@ export default function TypographyTool() {
                       <div className={styles.splitGroup}>
                         <label className={styles.controlLabel}>
                           <span className={styles.labelText}>
-                            Min Size ({unit})
+                            Min size ({unit})
                           </span>
                           <input
                             className={styles.input}
@@ -708,7 +564,7 @@ export default function TypographyTool() {
                         </label>
                         <label className={styles.controlLabel}>
                           <span className={styles.labelText}>
-                            Max Size ({unit})
+                            Max size ({unit})
                           </span>
                           <input
                             className={styles.input}
@@ -726,10 +582,11 @@ export default function TypographyTool() {
                           />
                         </label>
                       </div>
+
                       <div className={styles.splitGroup}>
                         <label className={styles.controlLabel}>
                           <span className={styles.labelText}>
-                            Min Viewport (px)
+                            Min viewport (px)
                           </span>
                           <input
                             className={styles.input}
@@ -740,7 +597,7 @@ export default function TypographyTool() {
                         </label>
                         <label className={styles.controlLabel}>
                           <span className={styles.labelText}>
-                            Max Viewport (px)
+                            Max viewport (px)
                           </span>
                           <input
                             className={styles.input}
@@ -750,27 +607,64 @@ export default function TypographyTool() {
                           />
                         </label>
                       </div>
+
+                      <div
+                        className={styles.controlLabel}
+                        style={{ marginTop: 6 }}
+                      >
+                        <label className={styles.switchLabel}>
+                          <input
+                            type="checkbox"
+                            checked={optimizeMobile}
+                            onChange={(e) =>
+                              setOptimizeMobile(e.target.checked)
+                            }
+                          />
+                          Optimize for mobile (cap heading sizes at min
+                          viewport)
+                        </label>
+                        {optimizeMobile && (
+                          <div className={styles.splitGroup}>
+                            <label className={styles.controlLabel}>
+                              <span className={styles.labelText}>
+                                Max H1 on mobile (px)
+                              </span>
+                              <input
+                                className={styles.input}
+                                type="number"
+                                min={24}
+                                max={96}
+                                value={mobileH1Cap}
+                                onChange={(e) => {
+                                  setCapTouched(true);
+                                  setMobileH1Cap(+e.target.value);
+                                }}
+                              />
+                              <span className={styles.helpText}>
+                                36–48 works best on real devices
+                              </span>
+                            </label>
+                          </div>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>
               </section>
 
-              {/* Preview Text */}
+              {/* Preview text */}
               <section className={styles.controlSection}>
-                <h3 className={styles.sectionTitle}>Preview Text</h3>
+                <h3 className={styles.sectionTitle}>Preview text</h3>
                 <div className={styles.controlGroup}>
                   <label className={styles.controlLabel}>
-                    <span className={styles.labelText}>Custom Text</span>
+                    <span className={styles.labelText}>Custom text</span>
                     <input
                       className={styles.input}
                       type="text"
                       value={previewText}
                       onChange={(e) => setPreviewText(e.target.value)}
-                      placeholder="Enter custom preview text..."
+                      placeholder="Enter custom preview text…"
                     />
-                    <span className={styles.helpText}>
-                      Leave empty for default "The quick brown fox" text
-                    </span>
                   </label>
                 </div>
               </section>
@@ -788,51 +682,23 @@ export default function TypographyTool() {
         </div>
       </aside>
 
-      {/* Main Preview Area */}
+      {/* Main Preview */}
       <main className={cx(styles.main, defaultStyles.hero)}>
         <div
           className={styles.previewContainer}
           style={{ fontFamily: previewFontFamily }}
         >
-          {/* Live Stats Bar */}
+          {/* Stats */}
           <div className={styles.statsBar}>
             <div className={styles.stat}>
               <span className={styles.statLabel}>Mode</span>
               <span className={styles.statValue}>{outputType}</span>
             </div>
-            {outputType === "responsive" && currentRatios && (
-              <>
-                <div className={styles.stat}>
-                  <span className={styles.statLabel}>Content</span>
-                  <span className={styles.statValue}>{contentType}</span>
-                </div>
-                <div className={styles.stat}>
-                  <span className={styles.statLabel}>Mobile</span>
-                  <span className={styles.statValue}>
-                    {currentRatios.mobile.toFixed(2)}
-                  </span>
-                </div>
-                <div className={styles.stat}>
-                  <span className={styles.statLabel}>Desktop</span>
-                  <span className={styles.statValue}>
-                    {currentRatios.desktop.toFixed(2)}
-                  </span>
-                </div>
-              </>
-            )}
-            {(outputType === "static" || outputType === "fluid") && (
-              <div className={styles.stat}>
-                <span className={styles.statLabel}>Ratio</span>
-                <span className={styles.statValue}>
-                  {defaultRatios[ratioKey]}
-                </span>
-              </div>
-            )}
             <div className={styles.stat}>
               <span className={styles.statLabel}>Base</span>
               <span className={styles.statValue}>{bodySize.formatted}</span>
             </div>
-            {(outputType === "fluid" || outputType === "responsive") && (
+            {outputType !== "static" && (
               <div className={styles.stat}>
                 <span className={styles.statLabel}>Viewport</span>
                 <span className={styles.statValue}>
@@ -842,234 +708,71 @@ export default function TypographyTool() {
             )}
           </div>
 
-          {/* Typography Specimens */}
+          {/* Specimens */}
           <div className={styles.specimens}>
-            <div className={styles.specimenGroup}>
-              <div className={styles.specimen}>
-                <div className={styles.specimenMeta}>
-                  <span className={styles.specimenLabel}>H1 Display</span>
-                  <code className={styles.specimenCode}>
-                    {outputType === "static"
-                      ? parseFloat(headingSizes.h1.formatted).toFixed(2)
-                      : headingSizes.h1.formatted}{" "}
-                    {outputType === "static" ? "px" : ""}
-                  </code>
+            {([6, 5, 4, 3, 2, 1] as const).map((step) => {
+              const map: any = {
+                6: "h1",
+                5: "h2",
+                4: "h3",
+                3: "h4",
+                2: "h5",
+                1: "h6",
+              };
+              const hs = (headingSizes as any)[map[step]];
+              const Tag = map[step] as any;
+              return (
+                <div key={step} className={styles.specimen}>
+                  <div className={styles.specimenMeta}>
+                    <span className={styles.specimenLabel}>
+                      {map[step].toUpperCase()}
+                    </span>
+                    <code className={styles.specimenCode}>
+                      {outputType === "static"
+                        ? parseFloat(hs.formatted).toFixed(2) + " px"
+                        : hs.formatted}
+                    </code>
+                  </div>
+                  <Tag
+                    className={styles.specimenText}
+                    style={{
+                      fontSize: hs.formatted as any,
+                      lineHeight: step >= 5 ? 1.15 : step >= 3 ? 1.22 : 1.3,
+                      fontWeight: step >= 4 ? 700 : 600,
+                      letterSpacing:
+                        step >= 5
+                          ? "-0.02em"
+                          : step === 4
+                            ? "-0.01em"
+                            : "normal",
+                    }}
+                  >
+                    {getDisplayText()}
+                  </Tag>
                 </div>
-                <h1
-                  className={styles.specimenText}
-                  style={{
-                    fontSize: headingSizes.h1.formatted as any,
-                    lineHeight: 1.1,
-                    fontWeight: 700,
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  {getDisplayText()}
-                </h1>
-              </div>
+              );
+            })}
 
-              <div className={styles.specimen}>
-                <div className={styles.specimenMeta}>
-                  <span className={styles.specimenLabel}>H2 Headline</span>
-                  <code className={styles.specimenCode}>
-                    {outputType === "static"
-                      ? parseFloat(headingSizes.h2.formatted).toFixed(2)
-                      : headingSizes.h2.formatted}{" "}
-                    {outputType === "static" ? "px" : ""}
-                  </code>
-                </div>
-                <h2
-                  className={styles.specimenText}
-                  style={{
-                    fontSize: headingSizes.h2.formatted as any,
-                    lineHeight: 1.2,
-                    fontWeight: 600,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {getDisplayText()}
-                </h2>
+            <div className={styles.specimen}>
+              <div className={styles.specimenMeta}>
+                <span className={styles.specimenLabel}>Body</span>
+                <code className={styles.specimenCode}>
+                  {bodySize.formatted}
+                </code>
               </div>
-
-              <div className={styles.specimen}>
-                <div className={styles.specimenMeta}>
-                  <span className={styles.specimenLabel}>H3 Title</span>
-                  <code className={styles.specimenCode}>
-                    {outputType === "static"
-                      ? parseFloat(headingSizes.h3.formatted).toFixed(2)
-                      : headingSizes.h3.formatted}{" "}
-                    {outputType === "static" ? "px" : ""}
-                  </code>
-                </div>
-                <h3
-                  className={styles.specimenText}
-                  style={{
-                    fontSize: headingSizes.h3.formatted,
-                    lineHeight: 1.25,
-                    fontWeight: 600,
-                  }}
-                >
-                  {getDisplayText()}
-                </h3>
-              </div>
-
-              <div className={styles.specimen}>
-                <div className={styles.specimenMeta}>
-                  <span className={styles.specimenLabel}>H4 Subtitle</span>
-                  <code className={styles.specimenCode}>
-                    {outputType === "static"
-                      ? parseFloat(headingSizes.h4.formatted).toFixed(2)
-                      : headingSizes.h4.formatted}{" "}
-                    {outputType === "static" ? "px" : ""}
-                  </code>
-                </div>
-                <h4
-                  className={styles.specimenText}
-                  style={{
-                    fontSize: headingSizes.h4.formatted as any,
-                    lineHeight: 1.3,
-                    fontWeight: 600,
-                  }}
-                >
-                  {getDisplayText()}
-                </h4>
-              </div>
-
-              <div className={styles.specimen}>
-                <div className={styles.specimenMeta}>
-                  <span className={styles.specimenLabel}>H5 Heading</span>
-                  <code className={styles.specimenCode}>
-                    {outputType === "static"
-                      ? parseFloat(headingSizes.h5.formatted).toFixed(2)
-                      : headingSizes.h5.formatted}{" "}
-                    {outputType === "static" ? "px" : ""}
-                  </code>
-                </div>
-                <h5
-                  className={styles.specimenText}
-                  style={{
-                    fontSize: headingSizes.h5.formatted as any,
-                    lineHeight: 1.35,
-                    fontWeight: 600,
-                  }}
-                >
-                  {getDisplayText()}
-                </h5>
-              </div>
-
-              <div className={styles.specimen}>
-                <div className={styles.specimenMeta}>
-                  <span className={styles.specimenLabel}>H6 Label</span>
-                  <code className={styles.specimenCode}>
-                    {outputType === "static"
-                      ? parseFloat(headingSizes.h6.formatted).toFixed(2)
-                      : headingSizes.h6.formatted}{" "}
-                    {outputType === "static" ? "px" : ""}
-                  </code>
-                </div>
-                <h6
-                  className={styles.specimenText}
-                  style={{
-                    fontSize: headingSizes.h6.formatted as any,
-                    lineHeight: 1.4,
-                    fontWeight: 500,
-                  }}
-                >
-                  {getDisplayText()}
-                </h6>
-              </div>
-
-              <div className={styles.specimen}>
-                <div className={styles.specimenMeta}>
-                  <span className={styles.specimenLabel}>Body Text</span>
-                  <code className={styles.specimenCode}>
-                    {bodySize.formatted}
-                  </code>
-                </div>
-                <p
-                  className={styles.specimenText}
-                  style={{
-                    fontSize: bodySize.formatted as any,
-                    lineHeight: lhRoot,
-                  }}
-                >
-                  {getBodyText().split(" link example.")[0]}{" "}
-                  <a href="#" className={styles.link}>
-                    link example
-                  </a>
-                  .
-                </p>
-              </div>
-
-              <div className={styles.specimen}>
-                <div className={styles.specimenMeta}>
-                  <span className={styles.specimenLabel}>Small Text</span>
-                  <code className={styles.specimenCode}>
-                    {formatSize(
-                      outputType === "static"
-                        ? calculateStaticSize(
-                            {
-                              baseSize: staticBaseSize,
-                              ratio: defaultRatios[ratioKey],
-                            },
-                            -1,
-                          )
-                        : outputType === "responsive"
-                          ? calculateResponsiveSize({
-                              minViewport,
-                              maxViewport,
-                              mobileRatio: currentRatios?.mobile || 1.2,
-                              desktopRatio: currentRatios?.desktop || 1.333,
-                              baseSize: bodyMin,
-                              step: -1,
-                              contentType,
-                            })
-                          : calculateFluidSize({
-                              minViewport,
-                              maxViewport,
-                              minSize: bodyMin * 0.875,
-                              maxSize: bodyMax * 0.875,
-                            }),
-                      unit,
-                    )}
-                  </code>
-                </div>
-                <small
-                  className={styles.specimenText}
-                  style={{
-                    fontSize: formatSize(
-                      outputType === "static"
-                        ? calculateStaticSize(
-                            {
-                              baseSize: staticBaseSize,
-                              ratio: defaultRatios[ratioKey],
-                            },
-                            -1,
-                          )
-                        : outputType === "responsive"
-                          ? calculateResponsiveSize({
-                              minViewport,
-                              maxViewport,
-                              mobileRatio: currentRatios?.mobile || 1.2,
-                              desktopRatio: currentRatios?.desktop || 1.333,
-                              baseSize: bodyMin,
-                              step: -1,
-                              contentType,
-                            })
-                          : calculateFluidSize({
-                              minViewport,
-                              maxViewport,
-                              minSize: bodyMin * 0.875,
-                              maxSize: bodyMax * 0.875,
-                            }),
-                      unit,
-                    ) as any,
-                    lineHeight: 1.4,
-                  }}
-                >
-                  Small print example for captions and labels.
-                </small>
-              </div>
+              <p
+                className={styles.specimenText}
+                style={{
+                  fontSize: bodySize.formatted as any,
+                  lineHeight: lhRoot,
+                }}
+              >
+                {getBodyText().split(" link example.")[0]}{" "}
+                <a href="#" className={styles.link}>
+                  link example
+                </a>
+                .
+              </p>
             </div>
           </div>
         </div>
