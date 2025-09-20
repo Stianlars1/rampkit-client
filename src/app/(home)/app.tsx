@@ -12,11 +12,12 @@ import { ExportPanel } from "@/components/ui/ExportPanel/ExportPanel";
 import layoutStyles from "./layout.module.scss";
 import { cx } from "@/lib/utils/cx";
 import { usePaletteData } from "@/context/PaletteDataprovider";
+import BackgroundEffects from "@/components/ui/BackgroundEffects/BackgroundEffects";
 
 export const RampKitApp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { setPaletteData, paletteData } = usePaletteData();
+  const { setPaletteData, paletteData, isLoading } = usePaletteData();
 
   useEffect(() => {
     bumpVisitorOncePerSession().then();
@@ -94,6 +95,7 @@ export const RampKitApp = () => {
           </section>
         )}
       </main>
+      {!isLoading && <BackgroundEffects />}
     </div>
   );
 };

@@ -1,8 +1,3 @@
-// Defines the common ratio presets used when generating a musical type scale.
-// These ratios are derived from musical intervals and widely used in
-// typographic scales to achieve a pleasing progression between sizes.  The
-// values here originate from the Utopia type scale recommendations.
-
 export type RatioKey =
   | "minorSecond"
   | "majorSecond"
@@ -10,7 +5,8 @@ export type RatioKey =
   | "majorThird"
   | "perfectFourth"
   | "augFourth"
-  | "perfectFifth";
+  | "perfectFifth"
+  | "goldenRatio";
 
 export const defaultRatios: Record<RatioKey, number> = {
   minorSecond: 1.067,
@@ -20,4 +16,5 @@ export const defaultRatios: Record<RatioKey, number> = {
   perfectFourth: 1.333,
   augFourth: 1.414,
   perfectFifth: 1.5,
+  goldenRatio: 1.618,
 };

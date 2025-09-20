@@ -71,7 +71,6 @@ export const PaletteDataprovider = ({
       value={{ paletteData, setPaletteData, hasStoredData, isLoading }}
     >
       {children}
-      {!isLoading && <BackgroundEffects />}
     </PaletteDataContext.Provider>
   );
 };

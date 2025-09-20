@@ -1,0 +1,14 @@
+.rampkitLogo {
+  display: inline-block;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  shape-rendering: geometricPrecision;
+
+  * {
+    transition: fill 0.2s ease-in-out;
+  }
+}

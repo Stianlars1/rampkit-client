@@ -19,7 +19,10 @@ const themeOptions: ThemeOption[] = [
   { value: "system", label: "System", icon: <Monitor size={16} /> },
 ];
 
-export const ThemeSelector = () => {
+interface ThemeSelectorProps {
+  buttonSize?: number;
+}
+export const ThemeSelector = ({ buttonSize }: ThemeSelectorProps) => {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -54,6 +57,11 @@ export const ThemeSelector = () => {
         size="icon"
         variant="blackwhite"
         className={cx(styles.triggerButton, isOpen && styles.open)}
+        style={
+          buttonSize
+            ? { width: `${buttonSize}px`, height: `${buttonSize}px` }
+            : {}
+        }
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Theme selector"
         aria-expanded={isOpen}

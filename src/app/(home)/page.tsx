@@ -1,6 +1,6 @@
 import { site } from "@/lib/seo/site";
 import { Metadata, ResolvingMetadata } from "next";
-import { RampKitApp } from "@/app/app";
+import { RampKitApp } from "@/app/(home)/app";
 import { SearchParams } from "@/types";
 
 type Props = {

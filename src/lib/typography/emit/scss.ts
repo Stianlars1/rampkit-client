@@ -1,14 +1,14 @@
-// Emits a SCSS utility module for the typography roles.  Each class
-// references the CSS variables defined in the exported CSS file.  These
-// utilities can be imported into your own SCSS modules and composed with
-// other classes.
-
 export function emitSCSS(
   roleMap?: Record<"display" | "headline" | "title" | "body" | "label", string>,
+  outputType: string = "static",
 ) {
-  // Mixin definitions using CSS variables.  Role names map directly to
-  // classes; these mixins can be imported into user code.
-  const mixins = `// Typography mixins
+  const scssComment =
+    outputType === "static"
+      ? "// Static typography utilities using fixed sizes"
+      : "// Fluid typography utilities using CSS clamp()";
+
+  const mixins = `${scssComment}
+// Typography mixins
 @mixin t-display {
   font-size: var(--size-display);
   line-height: 1.2;
@@ -40,8 +40,6 @@ export function emitSCSS(
   letter-spacing: 0.02em;
 }`;
 
-  // Utility classes referencing the mixins.  These can be used
-  // directly in markup.
   const classes = `
 // Typography utility classes
 .t-display {
@@ -64,10 +62,6 @@ export function emitSCSS(
   @include t-label;
 }`;
 
-  // Semantic element mapping, if provided.  Map heading and text elements
-  // to their corresponding role sizes using the provided roleMap.  This
-  // is optional; if roleMap is undefined, the caller may choose to
-  // append its own mappings or rely on CSS defaults.
   const elementMapping = roleMap
     ? `
 // Semantic element styles

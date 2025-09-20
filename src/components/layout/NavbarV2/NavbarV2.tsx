@@ -1,6 +1,6 @@
 "use client";
 import styles from "./NavbarV2.module.scss";
-import layoutStyles from "./../../../app/layout.module.scss";
+import layoutStyles from "../../../app/(home)/layout.module.scss";
 import { cx } from "@/lib/utils/cx";
 import { StatsPanel } from "@/components/ui/StatsPanel/StatsPanel";
 import Link from "next/link";

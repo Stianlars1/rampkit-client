@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/Button/Button";
 import Image from "next/image";
 import { cx } from "@/lib/utils/cx";
 import Link from "next/link";
-import layoutStyles from "./../../../app/layout.module.scss";
+import layoutStyles from "../../../app/(home)/layout.module.scss";
 
 export const Footer = () => {
   return (

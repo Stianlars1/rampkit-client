@@ -1,9 +1,12 @@
 // layout.module.scss
 .layout {
+  flex: 1;
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows:
-    var(--nav-height) 1fr
+    var(--nav-height)
+    1fr
     auto;
 }
 

@@ -1,14 +1,10 @@
 "use client";
-
+import defaultStyles from "./page.module.scss";
 import { useMemo, useState } from "react";
 import styles from "./typography.module.scss";
 import { defaultRatios, RatioKey } from "@/lib/typography/scales";
 import { buildExports } from "@/lib/typography/buildExports";
 import { QuickExport } from "./QuickExport";
-import defaultStyles from "../layout.module.scss";
-// We import defaultRoleMap for legacy fallback but will override
-// role mappings with an identity mapping (display → display, etc.).
-import { defaultRoleMap } from "@/lib/typography/tokens";
 import { cx } from "@/lib/utils/cx";
 import {
   assistant,
@@ -19,12 +15,16 @@ import {
   jetbrains,
 } from "@/lib/fonts";
 import { GlassyWrapper } from "@/components/ui/GlassyWrapper/GlassyWrapper";
+import { OutputType } from "@/lib/typography/outputTypes";
+import {
+  calculateFluidSize,
+  calculateStaticSize,
+} from "@/lib/typography/calculateSizes";
+import { formatSize } from "@/lib/typography/formatSize";
+import { CornerCropMarks } from "@/assets/frames/CornerCropMarks";
 
-// A compact type to hold the viewport and base size bounds for the fluid scale.
-// A helper type to hold viewport bounds
 type Range = { minViewport: number; maxViewport: number };
 
-// Default viewport range.  Users can adjust this in the Advanced panel.
 const DEFAULT_RANGE: Range = { minViewport: 360, maxViewport: 1280 };
 const fontFamilyPreviewOptions = [
   { name: "Inter", style: inter.style },
@@ -36,108 +36,188 @@ const fontFamilyPreviewOptions = [
 ];
 
 export default function TypographyTool() {
-  /*
-   * Configuration state
-   *
-   * We expose only the essential knobs: font family, scale ratio, units,
-   * base sizes (min/max), line height and measure.  An Advanced panel
-   * lets users tweak the viewport range used by clamp().  Additionally,
-   * the preview shows all heading levels (h1–h6) as well as body and
-   * small text.  Users can toggle between pixel and rem units.
-   */
-
-  // Project name for exports
+  // State management remains the same
   const [projectName, setProjectName] = useState("typography");
-  // Font family (comma-separated)
+  const [outputType, setOutputType] = useState<OutputType>("static");
   const [fontFamily, setFontFamily] = useState(
     'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
   );
   const [previewFontFamily, setPreviewFontFamily] = useState(
     fontFamilyPreviewOptions[0].style.fontFamily,
   );
-  // Ratio key selects a numeric ratio from defaultRatios
-  const [ratioKey, setRatioKey] = useState<RatioKey>("perfectFourth");
-  // Selected unit for sizes (px or rem)
+  const [ratioKey, setRatioKey] = useState<RatioKey>("perfectFifth");
   const [unit, setUnit] = useState<"px" | "rem">("px");
-  // Base font sizes at min and max viewport (in px).  We store these in
-  // pixels internally; conversions to rem happen via the fmt() helper.
+  const [staticBaseSize, setStaticBaseSize] = useState(16);
   const [bodyMin, setBodyMin] = useState(16);
   const [bodyMax, setBodyMax] = useState(18);
-  // Root line-height
-  const [lhRoot, setLhRoot] = useState(1.5);
-  // Measure (max line length in characters)
-  const [measureCh, setMeasureCh] = useState(65);
-  // Viewport bounds for clamp
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [minViewport, setMinViewport] = useState(DEFAULT_RANGE.minViewport);
   const [maxViewport, setMaxViewport] = useState(DEFAULT_RANGE.maxViewport);
+  const [lhRoot, setLhRoot] = useState(1.5);
+  const [measureCh, setMeasureCh] = useState(65);
+  const [previewText, setPreviewText] = useState("");
+  const [activePanel, setActivePanel] = useState<"controls" | "export">(
+    "controls",
+  );
 
-  // Helper to convert px values to the currently selected unit.  When
-  // units are px, values are formatted with three decimals.  When units
-  // are rem, values are divided by 16 (1rem = 16px) and formatted with
-  // three decimals.
-  const fmt = (px: number): string =>
-    unit === "px" ? `${px.toFixed(3)}px` : `${(px / 16).toFixed(3)}rem`;
+  const getDisplayText = () => previewText || "The quick brown fox";
+  const getBodyText = () =>
+    previewText
+      ? `${previewText} jumps over the lazy dog. link example.`
+      : "The quick brown fox jumps over the lazy dog. link example.";
 
-  /**
-   * Compute a clamp() string for a range of sizes across a viewport range.  This
-   * returns an object containing the clamp line and slope/intercept for the
-   * underlying linear function.  The slope is computed in px/vw and then
-   * converted for the chosen unit.
-   */
-  function clampLine(minPx: number, maxPx: number): { line: string } {
-    // Compute slope of the linear function in px per viewport pixel
-    const slope = (maxPx - minPx) / (maxViewport - minViewport);
-    const intercept = minPx - slope * minViewport;
-    // slope in vw (1vw = 1% of viewport width)
-    const slopeVW = slope * 100;
-    // Format intercept according to selected unit
-    const interceptStr =
-      unit === "px"
-        ? `${intercept.toFixed(3)}px`
-        : `${(intercept / 16).toFixed(3)}rem`;
-    const minStr = fmt(minPx);
-    const maxStr = fmt(maxPx);
-    return {
-      line: `clamp(${minStr}, ${interceptStr} + ${slopeVW.toFixed(3)}vw, ${maxStr})`,
-    };
-  }
-
-  // Compute heading sizes relative to bodyMax (for preview and tokens).  We use
-  // the ratio to scale up for h1–h3 and scale down for h6 and h5.
-  function computeHeadingSizes(basePx: number): {
-    h1: number;
-    h2: number;
-    h3: number;
-    h4: number;
-    h5: number;
-    h6: number;
+  // Compute heading sizes function remains the same
+  function computeHeadingSizes(): {
+    h1: { calculation: any; formatted: string };
+    h2: { calculation: any; formatted: string };
+    h3: { calculation: any; formatted: string };
+    h4: { calculation: any; formatted: string };
+    h5: { calculation: any; formatted: string };
+    h6: { calculation: any; formatted: string };
   } {
     const ratio = defaultRatios[ratioKey];
-    // The base size corresponds to h4.  We scale up for h1–h3 and
-    // scale down for h5–h6.  These factors loosely follow a modular
-    // scale sequence but can be tuned for aesthetic preference.
-    const h4 = basePx;
-    const h3 = h4 * ratio;
-    const h2 = h3 * ratio;
-    const h1 = h2 * ratio;
-    const h5 = h4 * 0.85;
-    const h6 = h4 * 0.7;
-    return { h1, h2, h3, h4, h5, h6 };
+
+    if (outputType === "static") {
+      const h1calc = calculateStaticSize(
+        { baseSize: staticBaseSize, ratio },
+        6,
+      );
+      const h2calc = calculateStaticSize(
+        { baseSize: staticBaseSize, ratio },
+        5,
+      );
+      const h3calc = calculateStaticSize(
+        { baseSize: staticBaseSize, ratio },
+        4,
+      );
+      const h4calc = calculateStaticSize(
+        { baseSize: staticBaseSize, ratio },
+        3,
+      );
+      const h5calc = calculateStaticSize(
+        { baseSize: staticBaseSize, ratio },
+        2,
+      );
+      const h6calc = calculateStaticSize(
+        { baseSize: staticBaseSize, ratio },
+        1,
+      );
+
+      return {
+        h1: { calculation: h1calc, formatted: formatSize(h1calc, unit) },
+        h2: { calculation: h2calc, formatted: formatSize(h2calc, unit) },
+        h3: { calculation: h3calc, formatted: formatSize(h3calc, unit) },
+        h4: { calculation: h4calc, formatted: formatSize(h4calc, unit) },
+        h5: { calculation: h5calc, formatted: formatSize(h5calc, unit) },
+        h6: { calculation: h6calc, formatted: formatSize(h6calc, unit) },
+      };
+    } else {
+      const h1Max = bodyMax * Math.pow(ratio, 6);
+      const h2Max = bodyMax * Math.pow(ratio, 5);
+      const h3Max = bodyMax * Math.pow(ratio, 4);
+      const h4Max = bodyMax * Math.pow(ratio, 3);
+      const h5Max = bodyMax * Math.pow(ratio, 2);
+      const h6Max = bodyMax * Math.pow(ratio, 1);
+
+      const h1Min = bodyMin * Math.pow(ratio, 6);
+      const h2Min = bodyMin * Math.pow(ratio, 5);
+      const h3Min = bodyMin * Math.pow(ratio, 4);
+      const h4Min = bodyMin * Math.pow(ratio, 3);
+      const h5Min = bodyMin * Math.pow(ratio, 2);
+      const h6Min = bodyMin * Math.pow(ratio, 1);
+
+      const h1calc = calculateFluidSize({
+        minViewport,
+        maxViewport,
+        minSize: h1Min,
+        maxSize: h1Max,
+      });
+
+      const h2calc = calculateFluidSize({
+        minViewport,
+        maxViewport,
+        minSize: h2Min,
+        maxSize: h2Max,
+      });
+
+      const h3calc = calculateFluidSize({
+        minViewport,
+        maxViewport,
+        minSize: h3Min,
+        maxSize: h3Max,
+      });
+
+      const h4calc = calculateFluidSize({
+        minViewport,
+        maxViewport,
+        minSize: h4Min,
+        maxSize: h4Max,
+      });
+
+      const h5calc = calculateFluidSize({
+        minViewport,
+        maxViewport,
+        minSize: h5Min,
+        maxSize: h5Max,
+      });
+
+      const h6calc = calculateFluidSize({
+        minViewport,
+        maxViewport,
+        minSize: h6Min,
+        maxSize: h6Max,
+      });
+
+      return {
+        h1: { calculation: h1calc, formatted: formatSize(h1calc, unit) },
+        h2: { calculation: h2calc, formatted: formatSize(h2calc, unit) },
+        h3: { calculation: h3calc, formatted: formatSize(h3calc, unit) },
+        h4: { calculation: h4calc, formatted: formatSize(h4calc, unit) },
+        h5: { calculation: h5calc, formatted: formatSize(h5calc, unit) },
+        h6: { calculation: h6calc, formatted: formatSize(h6calc, unit) },
+      };
+    }
   }
 
-  // Precompute sizes at min and max viewport for headings and body
-  const headsMin = useMemo(
-    () => computeHeadingSizes(bodyMin),
-    [bodyMin, ratioKey],
-  );
-  const headsMax = useMemo(
-    () => computeHeadingSizes(bodyMax),
-    [bodyMax, ratioKey],
+  const headingSizes = useMemo(
+    () => computeHeadingSizes(),
+    [
+      outputType,
+      staticBaseSize,
+      bodyMin,
+      bodyMax,
+      ratioKey,
+      unit,
+      minViewport,
+      maxViewport,
+    ],
   );
 
-  // Build a tokens object manually.  Each role gets a clamp string derived
-  // from the heading/body sizes.  The schema matches DTCG.
+  const bodySize = useMemo(() => {
+    if (outputType === "static") {
+      const calc = calculateStaticSize(
+        { baseSize: staticBaseSize, ratio: 1 },
+        0,
+      );
+      return { calculation: calc, formatted: formatSize(calc, unit) };
+    } else {
+      const calc = calculateFluidSize({
+        minViewport,
+        maxViewport,
+        minSize: bodyMin,
+        maxSize: bodyMax,
+      });
+      return { calculation: calc, formatted: formatSize(calc, unit) };
+    }
+  }, [
+    outputType,
+    staticBaseSize,
+    bodyMin,
+    bodyMax,
+    unit,
+    minViewport,
+    maxViewport,
+  ]);
+
   const tokens = useMemo(() => {
     return {
       $schema: "https://design-tokens.github.io/schema.json",
@@ -150,54 +230,43 @@ export default function TypographyTool() {
         lineHeight: {
           root: { value: lhRoot, type: "lineHeight" },
         },
+        outputType: { value: outputType, type: "string" },
         roles: {
           display: {
             size: {
-              value: clampLine(headsMin.h1, headsMax.h1).line,
+              value: headingSizes.h1.calculation.value,
               type: "fontSize",
             },
           },
           headline: {
             size: {
-              value: clampLine(headsMin.h2, headsMax.h2).line,
+              value: headingSizes.h2.calculation.value,
               type: "fontSize",
             },
           },
           title: {
             size: {
-              value: clampLine(headsMin.h3, headsMax.h3).line,
+              value: headingSizes.h3.calculation.value,
               type: "fontSize",
             },
           },
           body: {
-            size: { value: clampLine(bodyMin, bodyMax).line, type: "fontSize" },
+            size: {
+              value: bodySize.calculation.value,
+              type: "fontSize",
+            },
           },
           label: {
             size: {
-              value: clampLine(headsMin.h6, headsMax.h6).line,
+              value: headingSizes.h6.calculation.value,
               type: "fontSize",
             },
           },
         },
       },
     };
-  }, [
-    fontFamily,
-    lhRoot,
-    unit,
-    ratioKey,
-    headsMin,
-    headsMax,
-    bodyMin,
-    bodyMax,
-    minViewport,
-    maxViewport,
-  ]);
+  }, [fontFamily, lhRoot, headingSizes, bodySize, outputType]);
 
-  // Precompute files for ZIP export (uses design tokens + default role map)
-  // Provide an identity role map (display → display, etc.) so that
-  // exported CSS maps h1 → display, h2 → headline, etc.  We avoid
-  // referencing scale step names like "3xl" here.
   const identityRoleMap = useMemo(
     () => ({
       display: "display",
@@ -214,240 +283,509 @@ export default function TypographyTool() {
     [tokens, projectName, identityRoleMap],
   );
 
-  // Meta information for the body clamp.  This is used to show the
-  // full clamp() expression for the body size.
-  const bodyClamp = clampLine(bodyMin, bodyMax);
-
   return (
-    <div className={cx(styles.wrap)} style={{ fontFamily: previewFontFamily }}>
-      {/* Grid layout for controls and preview */}
-      <section className={styles.grid}>
-        <div className={styles.controls}>
-          <GlassyWrapper className={cx(styles.card)} title={"Project"}>
-            <label className={styles.label}>
-              Name
-              <input
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-              />
-            </label>
-          </GlassyWrapper>
-          <GlassyWrapper title={"Typography"} className={cx(styles.card)}>
-            <label className={styles.label}>
-              Font family
-              <select
-                value={previewFontFamily}
-                onChange={(e) => {
-                  setFontFamily(e.target.value);
-                  setPreviewFontFamily(e.target.value);
-                }}
-              >
-                {fontFamilyPreviewOptions.map((opt) => (
-                  <option key={opt.name} value={opt.style.fontFamily}>
-                    {opt.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={styles.label}>
-              Scale ratio
-              <select
-                value={ratioKey}
-                onChange={(e) => setRatioKey(e.target.value as RatioKey)}
-              >
-                {Object.entries(defaultRatios).map(([k, v]) => (
-                  <option key={k} value={k}>{`${k} (${v})`}</option>
-                ))}
-              </select>
-            </label>
-            <label className={styles.label}>
-              Units
-              <select
-                value={unit}
-                onChange={(e) => setUnit(e.target.value as "px" | "rem")}
-              >
-                <option value="px">px</option>
-                <option value="rem">rem</option>
-              </select>
-            </label>
-            <div className={styles.row2}>
-              <div>
-                <label className={styles.label}>
-                  Base size (min viewport, {unit})
-                  <input
-                    type="number"
-                    min={12}
-                    value={unit === "px" ? bodyMin : +(bodyMin / 16).toFixed(3)}
-                    onChange={(e) => {
-                      const n = Number(e.target.value);
-                      setBodyMin(unit === "px" ? n : n * 16);
-                    }}
-                  />
-                </label>
-              </div>
-              <div>
-                <label className={styles.label}>
-                  Base size (max viewport, {unit})
-                  <input
-                    type="number"
-                    min={12}
-                    value={unit === "px" ? bodyMax : +(bodyMax / 16).toFixed(3)}
-                    onChange={(e) => {
-                      const n = Number(e.target.value);
-                      setBodyMax(unit === "px" ? n : n * 16);
-                    }}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className={styles.row2}>
-              <div>
-                <label className={styles.label}>
-                  Root line-height
-                  <input
-                    type="number"
-                    step="0.05"
-                    value={lhRoot}
-                    onChange={(e) => setLhRoot(+e.target.value)}
-                  />
-                </label>
-              </div>
-              <div>
-                <label className={styles.label}>
-                  Measure (max line length, ch)
-                  <input
-                    type="number"
-                    value={measureCh}
-                    onChange={(e) => setMeasureCh(+e.target.value)}
-                  />
-                </label>
-              </div>
-            </div>
-          </GlassyWrapper>
-
-          <GlassyWrapper title={"Advanced"}>
-            <summary>Advanced (viewport range)</summary>
-            <div className={styles.row2}>
-              <div>
-                <label className={styles.label}>
-                  Min viewport (px)
-                  <input
-                    type="number"
-                    value={minViewport}
-                    onChange={(e) => setMinViewport(+e.target.value)}
-                  />
-                </label>
-              </div>
-              <div>
-                <label className={styles.label}>
-                  Max viewport (px)
-                  <input
-                    type="number"
-                    value={maxViewport}
-                    onChange={(e) => setMaxViewport(+e.target.value)}
-                  />
-                </label>
-              </div>
-            </div>
-          </GlassyWrapper>
+    <>
+      {/* Sidebar Controls */}
+      <aside className={cx(styles.sidebar, defaultStyles.sidebar)}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarTitle}>Configuration</h2>
+          <nav className={styles.panelTabs}>
+            <button
+              className={cx(
+                styles.panelTab,
+                activePanel === "controls" && styles.panelTabActive,
+              )}
+              onClick={() => setActivePanel("controls")}
+              type="button"
+            >
+              Settings
+            </button>
+            <button
+              className={cx(
+                styles.panelTab,
+                activePanel === "export" && styles.panelTabActive,
+              )}
+              onClick={() => setActivePanel("export")}
+              type="button"
+            >
+              Export
+            </button>
+          </nav>
         </div>
-        <GlassyWrapper title={"Preview"} className={cx(styles.preview)}>
-          {/* Clamp explainer */}
-          <div className={styles.metaRow}>
-            <div className={styles.metaCell}>
-              <strong>Min viewport:</strong> {minViewport}px
+
+        <div className={styles.sidebarContent}>
+          {activePanel === "controls" ? (
+            <div className={styles.controlsPanel}>
+              {/* Project Settings */}
+              <section className={styles.controlSection}>
+                <h3 className={styles.sectionTitle}>Project</h3>
+                <div className={styles.controlGroup}>
+                  <label className={styles.controlLabel}>
+                    <span className={styles.labelText}>Project Name</span>
+                    <input
+                      className={styles.input}
+                      value={projectName}
+                      onChange={(e) => setProjectName(e.target.value)}
+                      placeholder="Enter project name"
+                    />
+                  </label>
+                </div>
+              </section>
+
+              {/* Output Configuration */}
+              <section className={styles.controlSection}>
+                <h3 className={styles.sectionTitle}>Output Configuration</h3>
+                <div className={styles.controlGroup}>
+                  <label className={styles.controlLabel}>
+                    <span className={styles.labelText}>Output Type</span>
+                    <select
+                      className={styles.select}
+                      value={outputType}
+                      onChange={(e) =>
+                        setOutputType(e.target.value as OutputType)
+                      }
+                    >
+                      <option value="static">Static (base × ratio)</option>
+                      <option value="fluid">Fluid (clamp)</option>
+                    </select>
+                    <span className={styles.helpText}>
+                      {outputType === "static"
+                        ? "Fixed sizes multiplied by scale ratio"
+                        : "Responsive sizes using CSS clamp()"}
+                    </span>
+                  </label>
+                </div>
+              </section>
+
+              {/* Typography Settings */}
+              <section className={styles.controlSection}>
+                <h3 className={styles.sectionTitle}>Typography</h3>
+                <div className={styles.controlGroup}>
+                  <label className={styles.controlLabel}>
+                    <span className={styles.labelText}>Font Family</span>
+                    <select
+                      className={styles.select}
+                      value={previewFontFamily}
+                      onChange={(e) => {
+                        setFontFamily(e.target.value);
+                        setPreviewFontFamily(e.target.value);
+                      }}
+                    >
+                      {fontFamilyPreviewOptions.map((opt) => (
+                        <option key={opt.name} value={opt.style.fontFamily}>
+                          {opt.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className={styles.controlLabel}>
+                    <span className={styles.labelText}>Scale Ratio</span>
+                    <select
+                      className={styles.select}
+                      value={ratioKey}
+                      onChange={(e) => setRatioKey(e.target.value as RatioKey)}
+                    >
+                      {Object.entries(defaultRatios).map(([k, v]) => (
+                        <option key={k} value={k}>{`${k} (${v})`}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className={styles.controlLabel}>
+                    <span className={styles.labelText}>Units</span>
+                    <select
+                      className={styles.select}
+                      value={unit}
+                      onChange={(e) => setUnit(e.target.value as "px" | "rem")}
+                    >
+                      <option value="px">Pixels (px)</option>
+                      <option value="rem">Root Em (rem)</option>
+                    </select>
+                  </label>
+
+                  <label className={styles.controlLabel}>
+                    <span className={styles.labelText}>Line Height</span>
+                    <input
+                      className={styles.input}
+                      type="number"
+                      step="0.05"
+                      value={lhRoot}
+                      onChange={(e) => setLhRoot(+e.target.value)}
+                    />
+                  </label>
+                </div>
+              </section>
+
+              {/* Size Settings */}
+              <section className={styles.controlSection}>
+                <h3 className={styles.sectionTitle}>Size Settings</h3>
+                <div className={styles.controlGroup}>
+                  {outputType === "static" && (
+                    <label className={styles.controlLabel}>
+                      <span className={styles.labelText}>
+                        Base Size ({unit})
+                      </span>
+                      <input
+                        className={styles.input}
+                        type="number"
+                        min={12}
+                        value={
+                          unit === "px"
+                            ? staticBaseSize
+                            : +(staticBaseSize / 16).toFixed(3)
+                        }
+                        onChange={(e) => {
+                          const n = Number(e.target.value);
+                          setStaticBaseSize(unit === "px" ? n : n * 16);
+                        }}
+                      />
+                    </label>
+                  )}
+
+                  {outputType === "fluid" && (
+                    <>
+                      <div className={styles.splitGroup}>
+                        <label className={styles.controlLabel}>
+                          <span className={styles.labelText}>
+                            Min Size ({unit})
+                          </span>
+                          <input
+                            className={styles.input}
+                            type="number"
+                            min={12}
+                            value={
+                              unit === "px"
+                                ? bodyMin
+                                : +(bodyMin / 16).toFixed(3)
+                            }
+                            onChange={(e) => {
+                              const n = Number(e.target.value);
+                              setBodyMin(unit === "px" ? n : n * 16);
+                            }}
+                          />
+                        </label>
+                        <label className={styles.controlLabel}>
+                          <span className={styles.labelText}>
+                            Max Size ({unit})
+                          </span>
+                          <input
+                            className={styles.input}
+                            type="number"
+                            min={12}
+                            value={
+                              unit === "px"
+                                ? bodyMax
+                                : +(bodyMax / 16).toFixed(3)
+                            }
+                            onChange={(e) => {
+                              const n = Number(e.target.value);
+                              setBodyMax(unit === "px" ? n : n * 16);
+                            }}
+                          />
+                        </label>
+                      </div>
+                      <div className={styles.splitGroup}>
+                        <label className={styles.controlLabel}>
+                          <span className={styles.labelText}>
+                            Min Viewport (px)
+                          </span>
+                          <input
+                            className={styles.input}
+                            type="number"
+                            value={minViewport}
+                            onChange={(e) => setMinViewport(+e.target.value)}
+                          />
+                        </label>
+                        <label className={styles.controlLabel}>
+                          <span className={styles.labelText}>
+                            Max Viewport (px)
+                          </span>
+                          <input
+                            className={styles.input}
+                            type="number"
+                            value={maxViewport}
+                            onChange={(e) => setMaxViewport(+e.target.value)}
+                          />
+                        </label>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </section>
+
+              {/* Preview Text */}
+              <section className={styles.controlSection}>
+                <h3 className={styles.sectionTitle}>Preview Text</h3>
+                <div className={styles.controlGroup}>
+                  <label className={styles.controlLabel}>
+                    <span className={styles.labelText}>Custom Text</span>
+                    <input
+                      className={styles.input}
+                      type="text"
+                      value={previewText}
+                      onChange={(e) => setPreviewText(e.target.value)}
+                      placeholder="Enter custom preview text..."
+                    />
+                    <span className={styles.helpText}>
+                      Leave empty for default &quot;The quick brown fox&quot;
+                      text
+                    </span>
+                  </label>
+                </div>
+              </section>
             </div>
-            <div className={styles.metaCell}>
-              <strong>Max viewport:</strong> {maxViewport}px
+          ) : (
+            <div className={styles.exportPanel}>
+              <QuickExport
+                projectName={projectName}
+                tokens={tokens}
+                filesForZip={filesForZip}
+                roleMap={identityRoleMap}
+              />
             </div>
-            <div className={styles.metaCell}>
-              <strong>Min body:</strong> {fmt(bodyMin)}
+          )}
+        </div>
+      </aside>
+
+      {/* Main Preview Area */}
+      <main className={cx(styles.main, defaultStyles.hero)}>
+        <div
+          className={styles.previewContainer}
+          style={{ fontFamily: previewFontFamily }}
+        >
+          {/* Live Stats Bar */}
+          <div className={styles.statsBar}>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Mode</span>
+              <span className={styles.statValue}>{outputType}</span>
             </div>
-            <div className={styles.metaCell}>
-              <strong>Max body:</strong> {fmt(bodyMax)}
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Ratio</span>
+              <span className={styles.statValue}>
+                {defaultRatios[ratioKey]}
+              </span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Base</span>
+              <span className={styles.statValue}>{bodySize.formatted}</span>
+            </div>
+            {outputType === "fluid" && (
+              <>
+                <div className={styles.stat}>
+                  <span className={styles.statLabel}>Viewport</span>
+                  <span className={styles.statValue}>
+                    {minViewport}px → {maxViewport}px
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Typography Specimens */}
+          <div className={styles.specimens}>
+            <div className={styles.specimenGroup}>
+              <div className={styles.specimen}>
+                <div className={styles.specimenMeta}>
+                  <span className={styles.specimenLabel}>H1 Display</span>
+                  <code className={styles.specimenCode}>
+                    {outputType === "static"
+                      ? parseFloat(headingSizes.h1.formatted).toFixed(2)
+                      : headingSizes.h1.formatted}{" "}
+                    {outputType === "static" ? "px" : "rem"}
+                  </code>
+                </div>
+                <h1
+                  className={styles.specimenText}
+                  style={{
+                    fontSize: headingSizes.h1.formatted as any,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {getDisplayText()}
+                </h1>
+              </div>
+
+              <div className={styles.specimen}>
+                <div className={styles.specimenMeta}>
+                  <span className={styles.specimenLabel}>H2 Headline</span>
+                  <code className={styles.specimenCode}>
+                    {outputType === "static"
+                      ? parseFloat(headingSizes.h2.formatted).toFixed(2)
+                      : headingSizes.h2.formatted}{" "}
+                    {outputType === "static" ? "px" : "rem"}
+                  </code>
+                </div>
+                <h2
+                  className={styles.specimenText}
+                  style={{
+                    fontSize: headingSizes.h2.formatted as any,
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {getDisplayText()}
+                </h2>
+              </div>
+
+              <div className={styles.specimen}>
+                <div className={styles.specimenMeta}>
+                  <span className={styles.specimenLabel}>H3 Title</span>
+                  <code className={styles.specimenCode}>
+                    {outputType === "static"
+                      ? parseFloat(headingSizes.h3.formatted).toFixed(2)
+                      : headingSizes.h3.formatted}{" "}
+                    {outputType === "static" ? "px" : "rem"}
+                  </code>
+                </div>
+                <h3
+                  className={styles.specimenText}
+                  style={{
+                    fontSize: headingSizes.h3.formatted,
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {getDisplayText()}
+                </h3>
+              </div>
+
+              <div className={styles.specimen}>
+                <div className={styles.specimenMeta}>
+                  <span className={styles.specimenLabel}>H4 Subtitle</span>
+                  <code className={styles.specimenCode}>
+                    {outputType === "static"
+                      ? parseFloat(headingSizes.h4.formatted).toFixed(2)
+                      : headingSizes.h4.formatted}{" "}
+                    {outputType === "static" ? "px" : "rem"}
+                  </code>
+                </div>
+                <h4
+                  className={styles.specimenText}
+                  style={{
+                    fontSize: headingSizes.h4.formatted as any,
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {getDisplayText()}
+                </h4>
+              </div>
+
+              <div className={styles.specimen}>
+                <div className={styles.specimenMeta}>
+                  <span className={styles.specimenLabel}>H5 Heading</span>
+                  <code className={styles.specimenCode}>
+                    {outputType === "static"
+                      ? parseFloat(headingSizes.h5.formatted).toFixed(2)
+                      : headingSizes.h5.formatted}{" "}
+                    {outputType === "static" ? "px" : "rem"}
+                  </code>
+                </div>
+                <h5
+                  className={styles.specimenText}
+                  style={{
+                    fontSize: headingSizes.h5.formatted as any,
+                    lineHeight: 1.35,
+                  }}
+                >
+                  {getDisplayText()}
+                </h5>
+              </div>
+
+              <div className={styles.specimen}>
+                <div className={styles.specimenMeta}>
+                  <span className={styles.specimenLabel}>H6 Label</span>
+                  <code className={styles.specimenCode}>
+                    {outputType === "static"
+                      ? parseFloat(headingSizes.h6.formatted).toFixed(2)
+                      : headingSizes.h6.formatted}{" "}
+                    {outputType === "static" ? "px" : "rem"}
+                  </code>
+                </div>
+                <h6
+                  className={styles.specimenText}
+                  style={{
+                    fontSize: headingSizes.h6.formatted as any,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {getDisplayText()}
+                </h6>
+              </div>
+
+              <div className={styles.specimen}>
+                <div className={styles.specimenMeta}>
+                  <span className={styles.specimenLabel}>Body Text</span>
+                  <code className={styles.specimenCode}>
+                    {bodySize.formatted}
+                  </code>
+                </div>
+                <p
+                  className={styles.specimenText}
+                  style={{
+                    fontSize: bodySize.formatted as any,
+                    lineHeight: lhRoot,
+                  }}
+                >
+                  {getBodyText().split(" link example.")[0]}{" "}
+                  <a href="#" className={styles.link}>
+                    link example
+                  </a>
+                  .
+                </p>
+              </div>
+
+              <div className={styles.specimen}>
+                <div className={styles.specimenMeta}>
+                  <span className={styles.specimenLabel}>Small Text</span>
+                  <code className={styles.specimenCode}>
+                    {formatSize(
+                      outputType === "static"
+                        ? calculateStaticSize(
+                            {
+                              baseSize: staticBaseSize,
+                              ratio: defaultRatios[ratioKey],
+                            },
+                            -1,
+                          )
+                        : calculateFluidSize({
+                            minViewport,
+                            maxViewport,
+                            minSize: bodyMin * 0.875,
+                            maxSize: bodyMax * 0.875,
+                          }),
+                      unit,
+                    )}
+                  </code>
+                </div>
+                <small
+                  className={styles.specimenText}
+                  style={{
+                    fontSize: formatSize(
+                      outputType === "static"
+                        ? calculateStaticSize(
+                            {
+                              baseSize: staticBaseSize,
+                              ratio: defaultRatios[ratioKey],
+                            },
+                            -1,
+                          )
+                        : calculateFluidSize({
+                            minViewport,
+                            maxViewport,
+                            minSize: bodyMin * 0.875,
+                            maxSize: bodyMax * 0.875,
+                          }),
+                      unit,
+                    ) as any,
+                    lineHeight: 1.35,
+                  }}
+                >
+                  Small print example for captions and labels.
+                </small>
+              </div>
             </div>
           </div>
-          <div className={styles.clampLine}>font-size: {bodyClamp.line};</div>
-
-          {/* Headings preview */}
-          <h1
-            style={{
-              fontSize: fmt(headsMax.h1) as any,
-              lineHeight: 1.2 as any,
-            }}
-          >
-            The quick brown fox
-          </h1>
-          <h2
-            style={{
-              fontSize: fmt(headsMax.h2) as any,
-              lineHeight: 1.25 as any,
-            }}
-          >
-            The quick brown fox
-          </h2>
-          <h3
-            style={{
-              fontSize: fmt(headsMax.h3) as any,
-              lineHeight: 1.25 as any,
-            }}
-          >
-            The quick brown fox
-          </h3>
-          <h4
-            style={{
-              fontSize: fmt(headsMax.h4) as any,
-              lineHeight: 1.3 as any,
-            }}
-          >
-            The quick brown fox
-          </h4>
-          <h5
-            style={{
-              fontSize: fmt(headsMax.h5) as any,
-              lineHeight: 1.35 as any,
-            }}
-          >
-            The quick brown fox
-          </h5>
-          <h6
-            style={{
-              fontSize: fmt(headsMax.h6) as any,
-              lineHeight: 1.4 as any,
-            }}
-          >
-            The quick brown fox
-          </h6>
-          <p
-            style={{
-              fontSize: bodyClamp.line as any,
-              lineHeight: lhRoot as any,
-            }}
-          >
-            The quick brown fox jumps over the lazy dog.{" "}
-            <a href="#" style={{ fontSize: "inherit" }}>
-              link example
-            </a>
-            .
-          </p>
-          <small
-            style={{
-              fontSize: fmt(Math.max(12, bodyMax * 0.8)) as any,
-              lineHeight: 1.35 as any,
-            }}
-          >
-            Small print example.
-          </small>
-        </GlassyWrapper>
-      </section>
-
-      {/* QuickExport: code and ZIP */}
-      <QuickExport
-        projectName={projectName}
-        tokens={tokens}
-        filesForZip={filesForZip}
-        roleMap={identityRoleMap}
-      />
-    </div>
+        </div>
+      </main>
+    </>
   );
 }

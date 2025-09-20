@@ -1,13 +1,8 @@
-// Emits a minimal CSS file containing CSS variables and sensible defaults
-// derived from the typography design tokens.  The file defines custom
-// properties for the font family and each role size as well as the root
-// line height.  It also adds baseline styles for HTML elements like
-// headings and anchors.
-
 export function emitCSS({
   family,
   roles,
   roleMap,
+  outputType = "static",
 }: {
   family: string;
   roles: {
@@ -18,11 +13,17 @@ export function emitCSS({
     label: { size: { value: string } };
   };
   roleMap: Record<"display" | "headline" | "title" | "body" | "label", string>;
+  outputType?: string;
 }) {
-  // Helper to extract the clamp value from a role.
   const v = (r: { size: { value: string } }) => r.size.value;
 
-  return `:root {
+  const cssComment =
+    outputType === "static"
+      ? "/* Static typography system using fixed sizes */"
+      : "/* Fluid typography system using CSS clamp() */";
+
+  return `${cssComment}
+:root {
   --font-sans: ${family};
   --size-display: ${v(roles.display)};
   --size-headline: ${v(roles.headline)};

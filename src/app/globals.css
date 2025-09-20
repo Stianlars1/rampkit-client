@@ -230,4 +230,5 @@ body {
   min-height: 100dvh;
   scroll-behavior: smooth;
   overflow-x: clip;
+  display: flex;
 }
