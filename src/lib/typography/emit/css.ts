@@ -1,20 +1,44 @@
+import { RoleMap } from "../types";
+
+type RolesFromTokens = {
+  display: { size: { value: string } };
+  headline: { size: { value: string } };
+  title: { size: { value: string } };
+  body: { size: { value: string } };
+  label: { size: { value: string } };
+};
+
+function header(tokens: any, projectName?: string) {
+  const m = tokens?.typography?.meta ?? {};
+  const vp = m.viewport ?? {};
+  const r = m.responsive ?? {};
+  return `/*────────────────────────────────────────────
+${projectName ? `  Project: ${projectName}\n` : ""}  Generated: ${new Date().toISOString()}
+  Viewport: ${vp.min ?? "?"}px → ${vp.max ?? "?"}px
+  Responsive:
+    profile         : ${r.profile ?? "custom/unknown"}
+    mobile ratio    : ${r.mobileRatio ?? "?"}
+    desktop ratio   : ${r.desktopRatio ?? "?"}
+    optimize mobile : ${r.optimizeMobile ? "yes" : "no"}
+    H1 cap (mobile) : ${r.mobileH1Cap ?? "?"}px
+────────────────────────────────────────────*/`;
+}
+
 export function emitCSS({
-  family,
-  roles,
+  tokens,
   roleMap,
-  outputType = "static",
+  projectName,
 }: {
-  family: string;
-  roles: {
-    display: { size: { value: string } };
-    headline: { size: { value: string } };
-    title: { size: { value: string } };
-    body: { size: { value: string } };
-    label: { size: { value: string } };
-  };
-  roleMap: Record<"display" | "headline" | "title" | "body" | "label", string>;
-  outputType?: string;
+  tokens: any;
+  roleMap: RoleMap;
+  projectName?: string;
 }) {
+  const t = tokens.typography;
+  const roles = t.roles as RolesFromTokens;
+  const family = t.font.family.sans.value;
+  const lh = t.lineHeight.root.value;
+  const outputType = t.outputType?.value ?? "static";
+
   const v = (r: { size: { value: string } }) => r.size.value;
 
   const cssComment =
@@ -24,15 +48,17 @@ export function emitCSS({
         ? "/* Mobile-first responsive typography system using CSS clamp() */"
         : "/* Fluid typography system using CSS clamp() */";
 
-  return `${cssComment}
+  return `${header(tokens, projectName)}
+${cssComment}
 :root {
   --font-sans: ${family};
-  --size-display: ${v(roles.display)};
-  --size-headline: ${v(roles.headline)};
-  --size-title: ${v(roles.title)};
-  --size-body: ${v(roles.body)};
-  --size-label: ${v(roles.label)};
-  --lh-root: 1.5;
+  --lh-root: ${lh};
+
+  --size-${roleMap.display}: ${v(roles.display)};
+  --size-${roleMap.headline}: ${v(roles.headline)};
+  --size-${roleMap.title}: ${v(roles.title)};
+  --size-${roleMap.body}: ${v(roles.body)};
+  --size-${roleMap.label}: ${v(roles.label)};
 }
 
 /* Baseline styles */

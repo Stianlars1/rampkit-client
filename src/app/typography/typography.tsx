@@ -303,6 +303,9 @@ export default function TypographyTool() {
     [tokens, projectName, identityRoleMap],
   );
 
+  console.log("Headingsizes: ", headingSizes);
+  console.log("tokens", tokens);
+
   // --------------------------- UI -------------------------------------------
   return (
     <>

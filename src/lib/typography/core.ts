@@ -1,6 +1,14 @@
 // src/lib/typography/core.ts
 export type OutputType = "responsive" | "fluid" | "static";
-
+export type RoleKey = "display" | "headline" | "title" | "body" | "label";
+export type RoleMap = Record<RoleKey, string>;
+export type RolesFromTokens = {
+  display: { size: { value: string } };
+  headline: { size: { value: string } };
+  title: { size: { value: string } };
+  body: { size: { value: string } };
+  label: { size: { value: string } };
+};
 /** Named intervals + golden ratio */
 export const defaultRatios: Record<string, number> = {
   minorSecond: 1.067,

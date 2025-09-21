@@ -3,15 +3,13 @@
 import { useMemo, useState } from "react";
 import styles from "./QuickExport.module.scss";
 import { CodePreview } from "@stianlarsen/react-code-preview";
-import {
-  emitCSS,
-  emitDTCG,
-  emitReactModule,
-  emitReactStyles,
-  exportAllAsZip,
-  RoleMap,
-} from "@/lib/typography/exporters";
+import { emitCSS } from "@/lib/typography/emit/css";
 import { emitSCSS } from "@/lib/typography/emit/scss";
+import { emitReactModule } from "@/lib/typography/emit/react";
+import { emitReactStyles } from "@/lib/typography/emit/reactStyles";
+import { emitDTCG } from "@/lib/typography/emit/dtcg";
+import { RoleMap } from "@/lib/typography/types";
+import { exportAllAsZip } from "@/lib/typography/export";
 
 export function QuickExport({
   projectName,
