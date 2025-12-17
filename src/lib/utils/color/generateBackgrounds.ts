@@ -7,10 +7,18 @@
  * - APCA-ready contrast verification
  * - Hue-aware saturation for better harmony
  *
- * Research-backed best practices:
- * - Light mode: L=0.97-0.98 (avoids pure white glare)
- * - Dark mode: L=0.06-0.08 (battery efficient, ecosystem compatible)
- * - Chroma: Very low (0.005-0.015) for subtle tinting
+ * Research-backed best practices (see docs/color/background-foreground-research.md):
+ * - Light mode: L=0.97-0.98 (avoids pure white glare) → ~#F5F5F5-#FAFAFA
+ * - Dark mode: L=0.17-0.20 (NOT 0.06-0.08!) → ~#0F0F0F-#171717
+ *   - #0F0F0F has OKLCH L≈0.168, not 0.06!
+ *   - #121212 (Material baseline) has OKLCH L≈0.182
+ * - Chroma: Very low (0.003-0.010) for subtle tinting
+ *   - Lower chroma at low lightness to avoid sRGB gamut clipping
+ *
+ * Sources:
+ * - Material Design: https://m2.material.io/design/color/dark-theme.html
+ * - Radix Colors: https://www.radix-ui.com/colors
+ * - Evil Martians OKLCH: https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl
  */
 
 import Color from "colorjs.io";
@@ -59,22 +67,44 @@ function calculateBackgroundHue(
  * Different hues need different lightness values to achieve
  * the same perceived brightness. This function provides
  * fine-tuning based on hue characteristics.
+ *
+ * NOTE: These adjustments are very subtle (±2%) to maintain
+ * consistent appearance while accommodating hue-specific perception.
+ * For dark mode (L < 0.5), we apply slightly larger adjustments.
+ * For light mode (L > 0.5), we keep adjustments minimal to stay
+ * within the expected brightness range.
  */
 function getHueAdaptiveLightness(hue: number, baseL: number): number {
   // Normalize hue to 0-360
   const h = ((hue % 360) + 360) % 360;
 
-  // Yellow/orange (40-80°) appear brighter - slightly reduce lightness
+  // For light mode backgrounds, keep adjustments minimal
+  // to ensure we stay in the expected ~#F5F5F5 range
+  if (baseL > 0.5) {
+    // Yellow/orange (40-80°) appear brighter - very slight reduction
+    if (h >= 40 && h < 80) {
+      return baseL * 0.995;
+    }
+    // Blue/violet (220-280°) appear darker - very slight increase
+    if (h >= 220 && h < 280) {
+      return Math.min(baseL * 1.005, 0.99); // Cap at 0.99 to avoid pure white
+    }
+    // Cyan (160-200°) - no adjustment needed at high lightness
+    return baseL;
+  }
+
+  // For dark mode backgrounds (L < 0.5), apply standard adjustments
+  // Yellow/orange (40-80°) appear brighter - reduce lightness
   if (h >= 40 && h < 80) {
     return baseL * 0.98;
   }
 
-  // Blue/violet (220-280°) appear darker - slightly increase lightness
+  // Blue/violet (220-280°) appear darker - increase lightness
   if (h >= 220 && h < 280) {
     return baseL * 1.02;
   }
 
-  // Cyan (160-200°) appears very bright - reduce lightness
+  // Cyan (160-200°) appears brighter - slight reduction
   if (h >= 160 && h < 200) {
     return baseL * 0.97;
   }
@@ -89,25 +119,31 @@ function getHueAdaptiveLightness(hue: number, baseL: number): number {
  * - Prevents color cast that interferes with content
  * - Maintains subtle brand presence
  * - Better for accessibility
+ *
+ * IMPORTANT: At low lightness (dark mode), chroma must be kept very low
+ * to avoid sRGB gamut clipping. Values > 0.01 at L < 0.2 often produce
+ * out-of-gamut colors that clip to near-black.
  */
 function calculateBackgroundChroma(scheme: Scheme, isDark: boolean): number {
   let baseChroma: number;
 
   switch (scheme) {
     case "monochromatic":
-      baseChroma = isDark ? 0.015 : 0.010;
+      // Slightly more tinting for monochromatic to add visual interest
+      baseChroma = isDark ? 0.008 : 0.008;
       break;
     case "analogous":
-      baseChroma = isDark ? 0.012 : 0.008;
+      baseChroma = isDark ? 0.006 : 0.006;
       break;
     case "complementary":
-      baseChroma = isDark ? 0.008 : 0.005;
+      // Less tinting for complementary as accent provides enough contrast
+      baseChroma = isDark ? 0.004 : 0.004;
       break;
     case "triadic":
-      baseChroma = isDark ? 0.010 : 0.006;
+      baseChroma = isDark ? 0.005 : 0.005;
       break;
     default:
-      baseChroma = isDark ? 0.010 : 0.006;
+      baseChroma = isDark ? 0.005 : 0.005;
   }
 
   return baseChroma;
@@ -136,30 +172,58 @@ export function generateBackgroundsOKLCH(
   const seedHSL = hexToHSL(seedHex);
   const accentHSL = hexToHSL(accentHex);
 
-  const seedHue = seedHSL.s < 6 ? 210 : seedHSL.h; // Fallback to blue for grayscale
+  // For grayscale inputs (saturation < 6%), use neutral backgrounds
+  const isGrayscale = seedHSL.s < 6 && accentHSL.s < 6;
+  const seedHue = seedHSL.s < 6 ? 210 : seedHSL.h;
   const accentHue = accentHSL.s < 6 ? 210 : accentHSL.h;
 
   // Calculate background hue with scheme-aware mixing
   const bgHue = calculateBackgroundHue(seedHue, accentHue, scheme);
 
+  // For grayscale inputs, use zero chroma (pure neutral)
+  const chromaMultiplier = isGrayscale ? 0 : 1;
+
   // Light mode background
-  // Research: L=0.97-0.98 prevents glare, maintains accessibility
-  let lightL = 0.975; // OKLCH lightness (0-1 scale)
+  // Target: ~#F5F5F5 to #FAFAFA (OKLCH L ≈ 0.97-0.985)
+  let lightL = 0.975;
   lightL = getHueAdaptiveLightness(bgHue, lightL);
-  const lightC = calculateBackgroundChroma(scheme, false);
+  const lightC = calculateBackgroundChroma(scheme, false) * chromaMultiplier;
 
   const lightBgOKLCH = new Color("oklch", [lightL, lightC, bgHue]);
+  // Ensure we're in sRGB gamut before converting
+  if (!lightBgOKLCH.inGamut("srgb")) {
+    lightBgOKLCH.toGamut({ space: "srgb", method: "css" });
+  }
   const lightBackground = lightBgOKLCH.to("srgb").toString({ format: "hex" });
 
   // Dark mode background
-  // Research: L=0.06-0.08 balances battery life with usability
-  // Avoids pure black (#000) which causes halation effects
-  let darkL = 0.07; // Slightly lighter than current L=6 for better contrast
+  // CORRECTED: #0F0F0F has OKLCH L≈0.168, NOT 0.06-0.08!
+  // Target: ~#0F0F0F to #171717 (OKLCH L ≈ 0.168-0.20)
+  // Material Design #121212 has OKLCH L≈0.182
+  let darkL = 0.172; // Matches ~#0F0F0F-#111111 range
   darkL = getHueAdaptiveLightness(bgHue, darkL);
-  const darkC = calculateBackgroundChroma(scheme, true);
+  const darkC = calculateBackgroundChroma(scheme, true) * chromaMultiplier;
 
   const darkBgOKLCH = new Color("oklch", [darkL, darkC, bgHue]);
+  // Ensure we're in sRGB gamut before converting
+  if (!darkBgOKLCH.inGamut("srgb")) {
+    darkBgOKLCH.toGamut({ space: "srgb", method: "css" });
+  }
   const darkBackground = darkBgOKLCH.to("srgb").toString({ format: "hex" });
+
+  // Validate outputs are in expected ranges
+  const darkColor = new Color(darkBackground);
+  const darkOKLCH = darkColor.to("oklch");
+
+  // If dark background is too dark (L < 0.12), something went wrong
+  // Fall back to a safe neutral dark gray
+  if (darkOKLCH.coords[0] < 0.12) {
+    const safeDark = new Color("oklch", [0.172, 0, 0]);
+    return {
+      lightBackground,
+      darkBackground: safeDark.to("srgb").toString({ format: "hex" }),
+    };
+  }
 
   return {
     lightBackground,
