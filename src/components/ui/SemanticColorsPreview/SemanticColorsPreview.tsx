@@ -49,7 +49,9 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
                       style={{ color: lightColors.foreground }}
                     >
                       <span className={styles.swatchName}>Base</span>
-                      <span className={styles.swatchHex}>{lightColors.base}</span>
+                      <span className={styles.swatchHex}>
+                        {lightColors.base}
+                      </span>
                     </div>
                   </div>
 
@@ -63,7 +65,9 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
                       style={{ color: lightColors.mutedForeground }}
                     >
                       <span className={styles.swatchName}>Muted</span>
-                      <span className={styles.swatchHex}>{lightColors.muted}</span>
+                      <span className={styles.swatchHex}>
+                        {lightColors.muted}
+                      </span>
                     </div>
                   </div>
 
@@ -73,8 +77,8 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
                     style={{
                       backgroundColor: data.lightBackground,
                       borderColor: lightColors.border,
-                      borderWidth: '2px',
-                      borderStyle: 'solid'
+                      borderWidth: "2px",
+                      borderStyle: "solid",
                     }}
                   >
                     <div
@@ -82,7 +86,9 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
                       style={{ color: data.grayScale.light[11] }}
                     >
                       <span className={styles.swatchName}>Border</span>
-                      <span className={styles.swatchHex}>{lightColors.border}</span>
+                      <span className={styles.swatchHex}>
+                        {lightColors.border}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -102,7 +108,9 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
                       style={{ color: darkColors.foreground }}
                     >
                       <span className={styles.swatchName}>Base</span>
-                      <span className={styles.swatchHex}>{darkColors.base}</span>
+                      <span className={styles.swatchHex}>
+                        {darkColors.base}
+                      </span>
                     </div>
                   </div>
 
@@ -116,7 +124,9 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
                       style={{ color: darkColors.mutedForeground }}
                     >
                       <span className={styles.swatchName}>Muted</span>
-                      <span className={styles.swatchHex}>{darkColors.muted}</span>
+                      <span className={styles.swatchHex}>
+                        {darkColors.muted}
+                      </span>
                     </div>
                   </div>
 
@@ -126,8 +136,8 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
                     style={{
                       backgroundColor: data.darkBackground,
                       borderColor: darkColors.border,
-                      borderWidth: '2px',
-                      borderStyle: 'solid'
+                      borderWidth: "2px",
+                      borderStyle: "solid",
                     }}
                   >
                     <div
@@ -135,7 +145,9 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
                       style={{ color: data.grayScale.dark[11] }}
                     >
                       <span className={styles.swatchName}>Border</span>
-                      <span className={styles.swatchHex}>{darkColors.border}</span>
+                      <span className={styles.swatchHex}>
+                        {darkColors.border}
+                      </span>
                     </div>
                   </div>
                 </div>

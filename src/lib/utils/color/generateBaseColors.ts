@@ -1,5 +1,6 @@
 import { Scheme } from "@/types";
 import { generateHarmoniousPalette } from "@/lib/utils/color/ColorTheory";
+import { generateBackgroundsOKLCH } from "@/lib/utils/color/generateBackgrounds";
 
 function normalizeHex(input?: string | null): string | null {
   if (!input) return null;
@@ -18,7 +19,7 @@ function normalizeHex(input?: string | null): string | null {
 export function generateBaseColors(
   brandColor?: string,
   scheme: Scheme = "analogous",
-  opts?: { harmonized?: boolean },
+  opts?: { harmonized?: boolean; useOKLCH?: boolean },
 ): {
   accent: string;
   gray: string;
@@ -26,6 +27,7 @@ export function generateBaseColors(
   darkBackground: string;
 } {
   const useHarmonized = opts?.harmonized ?? true;
+  const useOKLCH = opts?.useOKLCH ?? true; // Default to OKLCH for better perceptual uniformity
   const seed = normalizeHex(brandColor) ?? "#3B82F6"; // safe default
 
   const { accent, gray, lightBg, darkBg } = generateHarmoniousPalette(
@@ -33,6 +35,24 @@ export function generateBaseColors(
     scheme,
   );
 
+  // Use OKLCH-based background generation for better perceptual uniformity
+  if (useOKLCH) {
+    const accentColor = useHarmonized ? accent : seed;
+    const { lightBackground, darkBackground } = generateBackgroundsOKLCH(
+      seed,
+      accentColor,
+      scheme,
+    );
+
+    return {
+      accent: accentColor,
+      gray,
+      lightBackground,
+      darkBackground,
+    };
+  }
+
+  // Fallback to HSL-based backgrounds
   return {
     accent: useHarmonized ? accent : seed,
     gray,
