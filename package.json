@@ -28,25 +28,29 @@
     "gsap": "^3.13.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.542.0",
-    "next": "15.5.2",
+    "next": "16.0.10",
     "radix-ui": "^1.4.3",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "sass": "^1.91.0",
     "simple-icons": "^15.13.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
     "check-types": "^11.2.3",
     "eslint": "^9.34.0",
-    "eslint-config-next": "15.5.2",
+    "eslint-config-next": "16.0.10",
     "lint": "^0.8.19",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2"
+  },
+  "overrides": {
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3"
   }
 }
