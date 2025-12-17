@@ -1,6 +1,7 @@
 import { generateRadixColors } from "@/components/radix/generateRadixColors";
 import { hexToHSL, hslToHex } from "@/lib/utils/color/colorConverters";
 import { getBestForegroundStep } from "@/lib/utils/color/contrast-utils";
+import { hexToRGB } from "@/lib/utils/color-utils";
 
 /**
  * Semantic color target hues (in degrees)
@@ -35,6 +36,28 @@ export interface SemanticColors {
   danger: SemanticColorSet;
   warning: SemanticColorSet;
   info: SemanticColorSet;
+}
+
+/**
+ * Calculate WCAG contrast ratio between two colors
+ */
+function getLuminance(hex: string): number {
+  const { r, g, b } = hexToRGB(hex);
+  const [rs, gs, bs] = [r, g, b].map((c) => {
+    const normalized = c / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : Math.pow((normalized + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+}
+
+function getContrastRatio(color1: string, color2: string): number {
+  const lum1 = getLuminance(color1);
+  const lum2 = getLuminance(color2);
+  const lighter = Math.max(lum1, lum2);
+  const darker = Math.min(lum1, lum2);
+  return (lighter + 0.05) / (darker + 0.05);
 }
 
 /**
@@ -185,14 +208,49 @@ function generateSemanticColorSet(
 
   // Calculate best foreground colors for WCAG AA contrast (4.5:1)
   // getBestForegroundStep automatically selects step 0 or 11 based on contrast
-  const foregroundStep = getBestForegroundStep(base, radixScale.accentScale);
-  const foreground = radixScale.accentScale[foregroundStep];
+  let foregroundStep = getBestForegroundStep(base, radixScale.accentScale);
+  let foreground = radixScale.accentScale[foregroundStep];
 
-  const mutedForegroundStep = getBestForegroundStep(
+  // Verify WCAG AA compliance (4.5:1) and adjust if needed
+  let baseForegroundContrast = getContrastRatio(base, foreground);
+  if (baseForegroundContrast < 4.5) {
+    // Try the opposite extreme (step 0 vs step 11)
+    foregroundStep = foregroundStep === 0 ? 11 : 0;
+    foreground = radixScale.accentScale[foregroundStep];
+    baseForegroundContrast = getContrastRatio(base, foreground);
+
+    // If still not enough contrast, force pure white or pure black
+    // Use luminance for more accurate determination than HSL lightness
+    if (baseForegroundContrast < 4.5) {
+      const baseLuminance = getLuminance(base);
+      // Luminance threshold of 0.18 is equivalent to approximately L=50
+      foreground = baseLuminance > 0.18 ? "#000000" : "#FFFFFF";
+    }
+  }
+
+  let mutedForegroundStep = getBestForegroundStep(
     muted,
     radixScale.accentScale,
   );
-  const mutedForeground = radixScale.accentScale[mutedForegroundStep];
+  let mutedForeground = radixScale.accentScale[mutedForegroundStep];
+
+  // Verify WCAG AA compliance for muted foreground
+  let mutedContrast = getContrastRatio(muted, mutedForeground);
+  if (mutedContrast < 4.5) {
+    // Try the opposite extreme
+    mutedForegroundStep = mutedForegroundStep === 0 ? 11 : 0;
+    mutedForeground = radixScale.accentScale[mutedForegroundStep];
+    mutedContrast = getContrastRatio(muted, mutedForeground);
+
+    // If still not enough contrast, use gray scale extremes
+    if (mutedContrast < 4.5) {
+      const mutedLuminance = getLuminance(muted);
+      mutedForeground =
+        mutedLuminance > 0.18
+          ? radixScale.grayScale[11]
+          : radixScale.grayScale[0];
+    }
+  }
 
   return {
     base,
