@@ -48,6 +48,9 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
     data.accentScale.light,
   );
 
+  // Semantic colors - light mode
+  const semanticLight = data.semantic.light;
+
   // Calculate best foreground steps for analogous palette - light theme
   const lightAnalogousForegroundStep = getBestForegroundStep(
     data.analogous.lightBackground,
@@ -138,6 +141,9 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
     data.analogous.accentScale.dark,
   );
 
+  // Semantic colors - dark mode
+  const semanticDark = data.semantic.dark;
+
   return {
     light: {
       "--background": hexToHSLValues(data.lightBackground),
@@ -188,6 +194,42 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
         },
         {} as Record<string, string>,
       ),
+
+      // Semantic colors - success
+      "--success": hexToHSLValues(semanticLight.success.base),
+      "--success-foreground": hexToHSLValues(semanticLight.success.foreground),
+      "--success-muted": hexToHSLValues(semanticLight.success.muted),
+      "--success-muted-foreground": hexToHSLValues(
+        semanticLight.success.mutedForeground,
+      ),
+      "--success-border": hexToHSLValues(semanticLight.success.border),
+
+      // Semantic colors - danger
+      "--danger": hexToHSLValues(semanticLight.danger.base),
+      "--danger-foreground": hexToHSLValues(semanticLight.danger.foreground),
+      "--danger-muted": hexToHSLValues(semanticLight.danger.muted),
+      "--danger-muted-foreground": hexToHSLValues(
+        semanticLight.danger.mutedForeground,
+      ),
+      "--danger-border": hexToHSLValues(semanticLight.danger.border),
+
+      // Semantic colors - warning
+      "--warning": hexToHSLValues(semanticLight.warning.base),
+      "--warning-foreground": hexToHSLValues(semanticLight.warning.foreground),
+      "--warning-muted": hexToHSLValues(semanticLight.warning.muted),
+      "--warning-muted-foreground": hexToHSLValues(
+        semanticLight.warning.mutedForeground,
+      ),
+      "--warning-border": hexToHSLValues(semanticLight.warning.border),
+
+      // Semantic colors - info
+      "--info": hexToHSLValues(semanticLight.info.base),
+      "--info-foreground": hexToHSLValues(semanticLight.info.foreground),
+      "--info-muted": hexToHSLValues(semanticLight.info.muted),
+      "--info-muted-foreground": hexToHSLValues(
+        semanticLight.info.mutedForeground,
+      ),
+      "--info-border": hexToHSLValues(semanticLight.info.border),
     },
     lightAnalogous: {
       "--a-background": hexToHSLValues(data.analogous.lightBackground),
@@ -292,6 +334,42 @@ function generateThemeMapping(data: PaletteData): ThemeMapping {
         },
         {} as Record<string, string>,
       ),
+
+      // Semantic colors - success
+      "--success": hexToHSLValues(semanticDark.success.base),
+      "--success-foreground": hexToHSLValues(semanticDark.success.foreground),
+      "--success-muted": hexToHSLValues(semanticDark.success.muted),
+      "--success-muted-foreground": hexToHSLValues(
+        semanticDark.success.mutedForeground,
+      ),
+      "--success-border": hexToHSLValues(semanticDark.success.border),
+
+      // Semantic colors - danger
+      "--danger": hexToHSLValues(semanticDark.danger.base),
+      "--danger-foreground": hexToHSLValues(semanticDark.danger.foreground),
+      "--danger-muted": hexToHSLValues(semanticDark.danger.muted),
+      "--danger-muted-foreground": hexToHSLValues(
+        semanticDark.danger.mutedForeground,
+      ),
+      "--danger-border": hexToHSLValues(semanticDark.danger.border),
+
+      // Semantic colors - warning
+      "--warning": hexToHSLValues(semanticDark.warning.base),
+      "--warning-foreground": hexToHSLValues(semanticDark.warning.foreground),
+      "--warning-muted": hexToHSLValues(semanticDark.warning.muted),
+      "--warning-muted-foreground": hexToHSLValues(
+        semanticDark.warning.mutedForeground,
+      ),
+      "--warning-border": hexToHSLValues(semanticDark.warning.border),
+
+      // Semantic colors - info
+      "--info": hexToHSLValues(semanticDark.info.base),
+      "--info-foreground": hexToHSLValues(semanticDark.info.foreground),
+      "--info-muted": hexToHSLValues(semanticDark.info.muted),
+      "--info-muted-foreground": hexToHSLValues(
+        semanticDark.info.mutedForeground,
+      ),
+      "--info-border": hexToHSLValues(semanticDark.info.border),
     },
     darkAnalogous: {
       "--a-background": hexToHSLValues(data.analogous.darkBackground),

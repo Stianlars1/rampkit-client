@@ -1,6 +1,7 @@
 import { PaletteData, Scheme } from "@/types";
 import { generateBaseColors } from "@/lib/utils/color/generateBaseColors";
 import { generateRadixColors } from "@/components/radix/generateRadixColors";
+import { generateSemanticColors } from "@/lib/utils/color/generateSemanticColors";
 import { RadixColorTheme } from "@/types/radix";
 
 interface GeneratePalette {
@@ -44,6 +45,14 @@ export function generatePalette({
     gray: baseColorsAnalogous.gray,
     background: baseColorsAnalogous.darkBackground,
   });
+
+  // Generate semantic colors (success, danger, warning, info)
+  const semanticColors = generateSemanticColors(
+    baseColors.accent,
+    baseColors.gray,
+    baseColors.lightBackground,
+    baseColors.darkBackground,
+  );
 
   return {
     accent: baseColors.accent,
@@ -96,5 +105,8 @@ export function generatePalette({
       radixAnalogousLight: lightAnalogous as RadixColorTheme,
       radixAnalogousDark: darkAnalogous as RadixColorTheme,
     },
+
+    // Add semantic colors
+    semantic: semanticColors,
   };
 }

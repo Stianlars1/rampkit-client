@@ -1,4 +1,8 @@
 import { RadixColorTheme } from "@/types/radix";
+import {
+  SemanticColors,
+  SemanticColorSet,
+} from "@/lib/utils/color/generateSemanticColors";
 
 export type SearchParams = {
   hex?: string;
@@ -59,7 +63,16 @@ export interface PaletteData {
     radixAnalogousLight: RadixColorTheme;
     radixAnalogousDark: RadixColorTheme;
   };
+
+  // Semantic/feedback colors for light and dark modes
+  semantic: {
+    light: SemanticColors;
+    dark: SemanticColors;
+  };
 }
+
+// Re-export semantic types for convenience
+export type { SemanticColors, SemanticColorSet };
 
 export interface ExportOptions {
   preset: StylePreset;
