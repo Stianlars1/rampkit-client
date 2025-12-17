@@ -1,0 +1,175 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: min(800px, 100%);
+  margin: 40px auto;
+  padding: 32px;
+  background: hsl(var(--card));
+  border-radius: calc(var(--radius) * 2);
+  border: 1px solid hsl(var(--border));
+
+  will-change: transform, filter, opacity, scale;
+  opacity: 0;
+  y: 15px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.subtitle {
+  font-size: 14px;
+  color: hsl(var(--foreground-subtle));
+  line-height: 1.5;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.semanticGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.semanticLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.semanticIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  background: hsl(var(--muted));
+  border-radius: calc(var(--radius));
+}
+
+.semanticName {
+  flex: 1;
+}
+
+.modePreview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 32px;
+
+  @media (max-width: 768px) {
+    padding-left: 0;
+  }
+}
+
+.modeLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: hsl(var(--foreground-subtle));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.colorRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.colorSwatch {
+  position: relative;
+  min-height: 80px;
+  border-radius: calc(var(--radius));
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  @media (max-width: 768px) {
+    min-height: 60px;
+  }
+}
+
+.swatchLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.swatchName {
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
+.swatchHex {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.footer {
+  padding-top: 16px;
+  border-top: 1px solid hsl(var(--border));
+  text-align: center;
+}
+
+.footerText {
+  font-size: 12px;
+  color: hsl(var(--foreground-subtle));
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &::before {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: hsl(var(--success-muted));
+    color: hsl(var(--success));
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+  }
+}

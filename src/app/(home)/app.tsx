@@ -8,6 +8,7 @@ import { ColorInput } from "@/components/ui/ColorInput/ColorInput";
 import { LoadingTips } from "@/components/ui/LoadingTips/LoadingTips";
 import { Loader } from "@/components/ui/Loader/Loader";
 import { ColorRamp } from "@/components/ui/ColorRamp/ColorRamp";
+import { SemanticColorsPreview } from "@/components/ui/SemanticColorsPreview/SemanticColorsPreview";
 import { ExportPanel } from "@/components/ui/ExportPanel/ExportPanel";
 import layoutStyles from "./layout.module.scss";
 import { cx } from "@/lib/utils/cx";
@@ -91,6 +92,7 @@ export const RampKitApp = () => {
         {paletteData && (
           <section className={styles.results}>
             <ColorRamp data={paletteData} />
+            <SemanticColorsPreview data={paletteData} />
             <ExportPanel data={paletteData} />
           </section>
         )}
