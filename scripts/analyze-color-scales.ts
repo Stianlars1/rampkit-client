@@ -56,7 +56,10 @@ function getContrastRatio(color1: string, color2: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function analyzeScale(scale: string[], appearance: "light" | "dark"): Omit<ScaleAnalysis, "color"> {
+function analyzeScale(
+  scale: string[],
+  appearance: "light" | "dark",
+): Omit<ScaleAnalysis, "color"> {
   // Get OKLCH lightness values
   const lightnessValues = scale.map((hex) => {
     const color = new Color(hex).to("oklch");
@@ -69,9 +72,11 @@ function analyzeScale(scale: string[], appearance: "light" | "dark"): Omit<Scale
   });
 
   // Calculate mean and standard deviation
-  const deltaMean = lightnessDeltas.reduce((a, b) => a + b, 0) / lightnessDeltas.length;
+  const deltaMean =
+    lightnessDeltas.reduce((a, b) => a + b, 0) / lightnessDeltas.length;
   const deltaVariance =
-    lightnessDeltas.reduce((sum, d) => sum + Math.pow(d - deltaMean, 2), 0) / lightnessDeltas.length;
+    lightnessDeltas.reduce((sum, d) => sum + Math.pow(d - deltaMean, 2), 0) /
+    lightnessDeltas.length;
   const deltaStdDev = Math.sqrt(deltaVariance);
 
   // Test contrast for key pairs (as defined by Radix)
@@ -100,6 +105,7 @@ function analyzeScale(scale: string[], appearance: "light" | "dark"): Omit<Scale
     deltaMean,
     deltaStdDev,
     contrastResults,
+    appearance: appearance,
   };
 }
 
@@ -113,20 +119,20 @@ function runAnalysis() {
 
   // Generate and analyze scales for each test color
   for (const { name, hex } of testColors) {
-    for (const appearance of ["light", "dark"] as const) {
-      const bg = appearance === "light" ? "#F7F7F7" : "#0F0F0F";
+    for (const appearance2 of ["light", "dark"] as const) {
+      const bg = appearance2 === "light" ? "#F7F7F7" : "#0F0F0F";
       const generated = generateRadixColors({
-        appearance,
+        appearance: appearance2,
         accent: hex,
         gray: "#808080",
         background: bg,
       });
 
-      const analysis = analyzeScale(generated.accentScale, appearance);
+      const analysis = analyzeScale(generated.accentScale, appearance2);
       results.push({
         color: `${name} (${hex})`,
-        appearance,
         ...analysis,
+        appearance: appearance2,
       });
     }
   }
@@ -138,29 +144,48 @@ function runAnalysis() {
   console.log("Ideal: Equal deltas across all steps (low std dev)");
   console.log();
 
-  console.log("Color               | Mode  | Mean Delta | Std Dev | Uniformity");
+  console.log(
+    "Color               | Mode  | Mean Delta | Std Dev | Uniformity",
+  );
   console.log("-".repeat(100));
 
   for (const r of results) {
-    const uniformity = r.deltaStdDev < 0.02 ? "✅ Good" : r.deltaStdDev < 0.04 ? "⚠️ Fair" : "❌ Poor";
+    const uniformity =
+      r.deltaStdDev < 0.02
+        ? "✅ Good"
+        : r.deltaStdDev < 0.04
+          ? "⚠️ Fair"
+          : "❌ Poor";
     console.log(
-      `${r.color.padEnd(19)} | ${r.appearance.padEnd(5)} | ${r.deltaMean.toFixed(4).padEnd(10)} | ${r.deltaStdDev.toFixed(4).padEnd(7)} | ${uniformity}`
+      `${r.color.padEnd(19)} | ${r.appearance.padEnd(5)} | ${r.deltaMean.toFixed(4).padEnd(10)} | ${r.deltaStdDev.toFixed(4).padEnd(7)} | ${uniformity}`,
     );
   }
 
   // Show detailed lightness values for one example
   console.log();
   console.log("Detailed lightness curve (Blue - Light mode):");
-  const blueLight = results.find((r) => r.color.includes("Blue") && r.appearance === "light");
+  const blueLight = results.find(
+    (r) => r.color.includes("Blue") && r.appearance === "light",
+  );
   if (blueLight) {
-    console.log("Step:      " + Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(6)).join(" "));
     console.log(
-      "L (OKLCH): " + blueLight.lightnessValues.map((l) => l.toFixed(3).padStart(6)).join(" ")
+      "Step:      " +
+        Array.from({ length: 12 }, (_, i) =>
+          (i + 1).toString().padStart(6),
+        ).join(" "),
+    );
+    console.log(
+      "L (OKLCH): " +
+        blueLight.lightnessValues
+          .map((l) => l.toFixed(3).padStart(6))
+          .join(" "),
     );
     console.log(
       "Delta:     " +
         "     -" +
-        blueLight.lightnessDeltas.map((d) => d.toFixed(3).padStart(6)).join(" ")
+        blueLight.lightnessDeltas
+          .map((d) => d.toFixed(3).padStart(6))
+          .join(" "),
     );
   }
 
@@ -175,7 +200,13 @@ function runAnalysis() {
 
   let totalPairs = 0;
   let passingPairs = 0;
-  const failingPairs: { color: string; appearance: string; bgStep: number; textStep: number; ratio: number }[] = [];
+  const failingPairs: {
+    color: string;
+    appearance: string;
+    bgStep: number;
+    textStep: number;
+    ratio: number;
+  }[] = [];
 
   for (const r of results) {
     for (const cr of r.contrastResults) {
@@ -194,7 +225,9 @@ function runAnalysis() {
     }
   }
 
-  console.log(`Overall: ${passingPairs}/${totalPairs} pairs pass WCAG AA (${((passingPairs / totalPairs) * 100).toFixed(1)}%)`);
+  console.log(
+    `Overall: ${passingPairs}/${totalPairs} pairs pass WCAG AA (${((passingPairs / totalPairs) * 100).toFixed(1)}%)`,
+  );
   console.log();
 
   if (failingPairs.length > 0) {
@@ -202,7 +235,7 @@ function runAnalysis() {
     console.log("-".repeat(80));
     for (const fp of failingPairs) {
       console.log(
-        `  ${fp.color} (${fp.appearance}): Step ${fp.bgStep} ↔ Step ${fp.textStep} = ${fp.ratio.toFixed(2)}:1 ❌`
+        `  ${fp.color} (${fp.appearance}): Step ${fp.bgStep} ↔ Step ${fp.textStep} = ${fp.ratio.toFixed(2)}:1 ❌`,
       );
     }
   } else {
@@ -235,11 +268,17 @@ function runAnalysis() {
     console.log(`  ${s.color.padEnd(20)}: ${s.lightness.toFixed(4)}`);
   }
 
-  const lightMean = step9Light.reduce((a, b) => a + b.lightness, 0) / step9Light.length;
+  const lightMean =
+    step9Light.reduce((a, b) => a + b.lightness, 0) / step9Light.length;
   const lightVariance =
-    step9Light.reduce((sum, s) => sum + Math.pow(s.lightness - lightMean, 2), 0) / step9Light.length;
+    step9Light.reduce(
+      (sum, s) => sum + Math.pow(s.lightness - lightMean, 2),
+      0,
+    ) / step9Light.length;
   const lightStdDev = Math.sqrt(lightVariance);
-  console.log(`  Mean: ${lightMean.toFixed(4)}, Std Dev: ${lightStdDev.toFixed(4)}`);
+  console.log(
+    `  Mean: ${lightMean.toFixed(4)}, Std Dev: ${lightStdDev.toFixed(4)}`,
+  );
 
   console.log();
   console.log("Dark Mode - Step 9 Lightness:");
@@ -247,25 +286,37 @@ function runAnalysis() {
     console.log(`  ${s.color.padEnd(20)}: ${s.lightness.toFixed(4)}`);
   }
 
-  const darkMean = step9Dark.reduce((a, b) => a + b.lightness, 0) / step9Dark.length;
+  const darkMean =
+    step9Dark.reduce((a, b) => a + b.lightness, 0) / step9Dark.length;
   const darkVariance =
-    step9Dark.reduce((sum, s) => sum + Math.pow(s.lightness - darkMean, 2), 0) / step9Dark.length;
+    step9Dark.reduce((sum, s) => sum + Math.pow(s.lightness - darkMean, 2), 0) /
+    step9Dark.length;
   const darkStdDev = Math.sqrt(darkVariance);
-  console.log(`  Mean: ${darkMean.toFixed(4)}, Std Dev: ${darkStdDev.toFixed(4)}`);
+  console.log(
+    `  Mean: ${darkMean.toFixed(4)}, Std Dev: ${darkStdDev.toFixed(4)}`,
+  );
 
   // Identify outliers (yellow is often problematic)
   console.log();
   const outlierThreshold = 0.1;
-  const lightOutliers = step9Light.filter((s) => Math.abs(s.lightness - lightMean) > outlierThreshold);
-  const darkOutliers = step9Dark.filter((s) => Math.abs(s.lightness - darkMean) > outlierThreshold);
+  const lightOutliers = step9Light.filter(
+    (s) => Math.abs(s.lightness - lightMean) > outlierThreshold,
+  );
+  const darkOutliers = step9Dark.filter(
+    (s) => Math.abs(s.lightness - darkMean) > outlierThreshold,
+  );
 
   if (lightOutliers.length > 0 || darkOutliers.length > 0) {
     console.log("⚠️ OUTLIERS (>0.1 from mean):");
     for (const o of lightOutliers) {
-      console.log(`  Light: ${o.color} (L=${o.lightness.toFixed(4)}, diff=${Math.abs(o.lightness - lightMean).toFixed(4)})`);
+      console.log(
+        `  Light: ${o.color} (L=${o.lightness.toFixed(4)}, diff=${Math.abs(o.lightness - lightMean).toFixed(4)})`,
+      );
     }
     for (const o of darkOutliers) {
-      console.log(`  Dark: ${o.color} (L=${o.lightness.toFixed(4)}, diff=${Math.abs(o.lightness - darkMean).toFixed(4)})`);
+      console.log(
+        `  Dark: ${o.color} (L=${o.lightness.toFixed(4)}, diff=${Math.abs(o.lightness - darkMean).toFixed(4)})`,
+      );
     }
   } else {
     console.log("✅ No significant outliers detected");
@@ -283,8 +334,12 @@ function runAnalysis() {
   const modeBalanceIssues: string[] = [];
 
   for (const { name, hex } of testColors) {
-    const light = results.find((r) => r.color.includes(name) && r.appearance === "light");
-    const dark = results.find((r) => r.color.includes(name) && r.appearance === "dark");
+    const light = results.find(
+      (r) => r.color.includes(name) && r.appearance === "light",
+    );
+    const dark = results.find(
+      (r) => r.color.includes(name) && r.appearance === "dark",
+    );
 
     if (light && dark) {
       // Step 9 should be similar in both modes (it's the solid accent)
@@ -294,7 +349,7 @@ function runAnalysis() {
 
       if (step9Diff > 0.15) {
         modeBalanceIssues.push(
-          `${name}: Step 9 differs by ${step9Diff.toFixed(4)} (Light=${step9LightL.toFixed(4)}, Dark=${step9DarkL.toFixed(4)})`
+          `${name}: Step 9 differs by ${step9Diff.toFixed(4)} (Light=${step9LightL.toFixed(4)}, Dark=${step9DarkL.toFixed(4)})`,
         );
       }
 
@@ -324,16 +379,28 @@ function runAnalysis() {
   const crossHueOK = lightStdDev < 0.1 && darkStdDev < 0.1;
   const modeBalanceOK = modeBalanceIssues.length === 0;
 
-  console.log(`1. Perceptual Uniformity: ${uniformityOK ? "✅ PASS" : "⚠️ NEEDS REVIEW"}`);
-  console.log(`2. Contrast Compliance:   ${contrastOK ? "✅ PASS" : "❌ FAIL"}`);
-  console.log(`3. Cross-Hue Consistency: ${crossHueOK ? "✅ PASS" : "⚠️ NEEDS REVIEW"}`);
-  console.log(`4. Dark/Light Balance:    ${modeBalanceOK ? "✅ PASS" : "⚠️ NEEDS REVIEW"}`);
+  console.log(
+    `1. Perceptual Uniformity: ${uniformityOK ? "✅ PASS" : "⚠️ NEEDS REVIEW"}`,
+  );
+  console.log(
+    `2. Contrast Compliance:   ${contrastOK ? "✅ PASS" : "❌ FAIL"}`,
+  );
+  console.log(
+    `3. Cross-Hue Consistency: ${crossHueOK ? "✅ PASS" : "⚠️ NEEDS REVIEW"}`,
+  );
+  console.log(
+    `4. Dark/Light Balance:    ${modeBalanceOK ? "✅ PASS" : "⚠️ NEEDS REVIEW"}`,
+  );
   console.log();
 
   if (uniformityOK && contrastOK && crossHueOK && modeBalanceOK) {
-    console.log("🎉 All tests pass! The color scale generation is working well.");
+    console.log(
+      "🎉 All tests pass! The color scale generation is working well.",
+    );
   } else {
-    console.log("⚠️ Some areas may benefit from review. See detailed results above.");
+    console.log(
+      "⚠️ Some areas may benefit from review. See detailed results above.",
+    );
   }
 }
 

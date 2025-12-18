@@ -8,6 +8,7 @@ import {
   inter,
   jetbrains,
 } from "@/lib/fonts";
+
 import { cx } from "@/lib/utils/cx";
 import { site } from "@/lib/seo/site";
 import Script from "next/script";

@@ -36,7 +36,7 @@ interface BackgroundColors {
 function mixHues(h1: number, h2: number, weight: number = 0.5): number {
   const diff = h2 - h1;
   const shortest = diff > 180 ? diff - 360 : diff < -180 ? diff + 360 : diff;
-  return ((h1 + shortest * weight) % 360 + 360) % 360;
+  return (((h1 + shortest * weight) % 360) + 360) % 360;
 }
 
 /**
@@ -184,10 +184,13 @@ export function generateBackgroundsOKLCH(
   const chromaMultiplier = isGrayscale ? 0 : 1;
 
   // Light mode background
-  // Target: ~#F5F5F5 to #FAFAFA (OKLCH L ≈ 0.97-0.985)
-  let lightL = 0.975;
+  // Target: ~#F3F3F3 to #F5F5F5 (OKLCH L ≈ 0.96-0.97)
+  // Industry standard: Next.js, Material UI, Tailwind use slightly darker backgrounds
+  let lightL = 0.96;
   lightL = getHueAdaptiveLightness(bgHue, lightL);
-  const lightC = calculateBackgroundChroma(scheme, false) * chromaMultiplier;
+  // Light mode uses ZERO chroma for neutral gray (no color tint)
+  // This matches Material Design, Next.js, Tailwind conventions
+  const lightC = 0;
 
   const lightBgOKLCH = new Color("oklch", [lightL, lightC, bgHue]);
   // Ensure we're in sRGB gamut before converting
@@ -202,7 +205,9 @@ export function generateBackgroundsOKLCH(
   // Material Design #121212 has OKLCH L≈0.182
   let darkL = 0.172; // Matches ~#0F0F0F-#111111 range
   darkL = getHueAdaptiveLightness(bgHue, darkL);
-  const darkC = calculateBackgroundChroma(scheme, true) * chromaMultiplier;
+  // Dark mode uses ZERO chroma for neutral gray (no color tint)
+  // This matches Material Design, Next.js, Tailwind conventions
+  const darkC = 0;
 
   const darkBgOKLCH = new Color("oklch", [darkL, darkC, bgHue]);
   // Ensure we're in sRGB gamut before converting
@@ -262,7 +267,10 @@ export function convertHSLBackgroundsToOKLCH(
  * - Large text: Lc 60+ (approximately 3:1 WCAG)
  * - UI components: Lc 45+ (approximately 2.5:1 WCAG)
  */
-export function getAPCAContrast(foreground: string, background: string): number {
+export function getAPCAContrast(
+  foreground: string,
+  background: string,
+): number {
   const fgColor = new Color(foreground).to("oklch");
   const bgColor = new Color(background).to("oklch");
 
@@ -301,6 +309,7 @@ export function getOptimalForeground(
         return colorScale[i];
       }
     }
+
     return colorScale[11]; // Fallback to darkest
   }
 
