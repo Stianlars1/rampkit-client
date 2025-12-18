@@ -10,7 +10,7 @@
   border: 1px solid hsl(var(--border));
 
   will-change: transform, filter, opacity, scale;
-  opacity: 0;
+  //opacity: 0;
   y: 15px;
 }
 
@@ -139,7 +139,7 @@
 }
 
 .swatchHex {
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", monospace;
   font-size: 11px;
   opacity: 0.7;
 }
@@ -160,7 +160,7 @@
   gap: 8px;
 
   &::before {
-    content: '✓';
+    content: "✓";
     display: inline-flex;
     align-items: center;
     justify-content: center;
