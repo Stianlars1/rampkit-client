@@ -64,6 +64,19 @@ export interface PaletteData {
     radixAnalogousDark: RadixColorTheme;
   };
 
+  complementary: {
+    accent: string;
+    gray: string;
+    lightBackground: string;
+    darkBackground: string;
+    accentScale: ColorScale;
+    grayScale: ColorScale;
+    accentScaleAlpha: ColorScale;
+    grayScaleAlpha: ColorScale;
+    radixComplementaryLight: RadixColorTheme;
+    radixComplementaryDark: RadixColorTheme;
+  };
+
   // Semantic/feedback colors for light and dark modes
   semantic: {
     light: SemanticColors;

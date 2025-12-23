@@ -1,0 +1,692 @@
+
+ * ▐▛███▜▌ *   Claude Code v2.0.75
+* ▝▜█████▛▘ *  Opus 4.5 · Claude Pro
+ *  ▘▘ ▝▝  *   ~/Developer/nettsider/rampkit
+
+  ↑ Install the WebStorm plugin from the JetBrains Marketplace:
+    https://docs.claude.com/s/claude-code-jetbrains
+
+> /model 
+  ⎿  Set model to opus (claude-opus-4-5-20251101)
+
+> expand our current export formats and presets by adding: 
+
+⏺ It looks like your message got cut off. Could you tell me what formats or presets you'd like to add to the export functionality?
+
+> expand our current export formats and presets by adding: 
+- background
+- foreground
+
+to all formats and presets, right now its just for shadcn-preset, which is 
+unfortunate. we want it added for all presets and output formats. 
+
+Also, we want an extension and expansion where we also include:
+- analogues hue color for the primary color
+- complementary color
+- more hues?..
+
+this is a bonus, so for all presets and formats we just want to add a simple
+ extra 2 variables per new hue added (a main + a foreground for it). 
+
+follow our code, and see how we could easily jsut also generate the colors 
+needed and add it as we want it for all the presets and formats. check the 
+file at:
+`src/lib/export-formats.ts`. but its also a lot of functionality spread in 
+the `src/lib` folder throughout. our generation of colors already do accept 
+input aegument of haromny type, where we could choose from different 
+type-safe options, check thenm out and you can see that we can jsut for each
+ style preset and format just generate the desired colors easily and add it.
+ 
+
+ome up with fitable and relevant variable names for the respective format / 
+preset and follow the structure its already using for the new variales were 
+adding. thanks, lets go. 
+
+⏺ Let me explore the codebase to understand the current structure and color generation system.
+
+⏺ Explore(Explore export formats and color generation)
+  ⎿  Done (21 tool uses · 59.1k tokens · 1m 14s)                           
+
+⏺ Excellent! Now I have a clear picture. Let me read the export-formats.ts file directly to see the exact implementation and plan the changes.
+
+⏺ Read(src/lib/export-formats.ts)
+  ⎿  Read 470 lines
+
+⏺ Read(src/lib/utils/color/ColorTheory.ts)
+  ⎿  Read 288 lines
+
+⏺ Read(src/types/index.ts)
+  ⎿  Read 81 lines
+
+⏺ I see the structure. Let me check how the palette generation works and what harmony colors are already available:
+
+⏺ Read(src/app/actions/generatePalette.ts)
+  ⎿  Read 113 lines
+
+⏺ Read(src/lib/utils/color/generateBaseColors.ts)
+  ⎿  Read 63 lines
+
+⏺ Now I understand the full picture. Let me create a plan and implement this systematically.
+
+⏺ First, let me update the PaletteData type to include complementary harmony:
+
+⏺ Update(src/types/index.ts)
+  ⎿  Added 13 lines                                                      
+      64      radixAnalogousDark: RadixColorTheme;
+      65    };
+      66  
+      67 +  complementary: {                                             
+      68 +    accent: string;                                            
+      69 +    gray: string;                                              
+      70 +    lightBackground: string;                                   
+      71 +    darkBackground: string;                                    
+      72 +    accentScale: ColorScale;                                   
+      73 +    grayScale: ColorScale;                                     
+      74 +    accentScaleAlpha: ColorScale;                              
+      75 +    grayScaleAlpha: ColorScale;                                
+      76 +    radixComplementaryLight: RadixColorTheme;                  
+      77 +    radixComplementaryDark: RadixColorTheme;                   
+      78 +  };                                                           
+      79 +                                                               
+      80    // Semantic/feedback colors for light and dark modes
+      81    semantic: {
+      82      light: SemanticColors;
+
+⏺ Now let me update generatePalette.ts to generate the complementary colors:
+
+⏺ Update(src/app/actions/generatePalette.ts)
+  ⎿  Added 3 lines                                                       
+      18    const baseColorsAnalogous = generateBaseColors(hex, "analogou
+          s", {
+      19      harmonized: true,
+      20    });
+      21 +  const baseColorsComplementary = generateBaseColors(hex, "comp
+         +lementary", {                                                  
+      22 +    harmonized: true,                                          
+      23 +  });                                                          
+      24  
+      25    const light = generateRadixColors({
+      26      appearance: "light",
+
+⏺ Update(src/app/actions/generatePalette.ts)
+  ⎿  Added 13 lines                                                      
+      49      background: baseColorsAnalogous.darkBackground,
+      50    });
+      51  
+      52 +  const lightComplementary = generateRadixColors({             
+      53 +    appearance: "light",                                       
+      54 +    accent: baseColorsComplementary.accent,                    
+      55 +    gray: baseColorsComplementary.gray,                        
+      56 +    background: baseColorsComplementary.lightBackground,       
+      57 +  });                                                          
+      58 +  const darkComplementary = generateRadixColors({              
+      59 +    appearance: "dark",                                        
+      60 +    accent: baseColorsComplementary.accent,                    
+      61 +    gray: baseColorsComplementary.gray,                        
+      62 +    background: baseColorsComplementary.darkBackground,        
+      63 +  });                                                          
+      64 +                                                               
+      65    // Generate semantic colors (success, danger, warning, info)
+      66    const semanticColors = generateSemanticColors(
+      67      baseColors.accent,
+
+⏺ Now let me add the complementary object to the return statement:
+
+⏺ Update(src/app/actions/generatePalette.ts)
+  ⎿  Added 26 lines                                                      
+      122        radixAnalogousDark: darkAnalogous as RadixColorTheme,
+      123      },
+      124  
+      125 +    complementary: {                                          
+      126 +      accent: baseColorsComplementary.accent,                 
+      127 +      gray: baseColorsComplementary.gray,                     
+      128 +      lightBackground: baseColorsComplementary.lightBackground
+          +,                                                             
+      129 +      darkBackground: baseColorsComplementary.darkBackground, 
+      130 +      accentScale: {                                          
+      131 +        light: lightComplementary.accentScale,                
+      132 +        dark: darkComplementary.accentScale,                  
+      133 +      },                                                      
+      134 +      grayScale: {                                            
+      135 +        light: lightComplementary.grayScale,                  
+      136 +        dark: darkComplementary.grayScale,                    
+      137 +      },                                                      
+      138 +      accentScaleAlpha: {                                     
+      139 +        light: lightComplementary.accentScaleAlpha,           
+      140 +        dark: darkComplementary.accentScaleAlpha,             
+      141 +      },                                                      
+      142 +      grayScaleAlpha: {                                       
+      143 +        light: lightComplementary.grayScaleAlpha,             
+      144 +        dark: darkComplementary.grayScaleAlpha,               
+      145 +      },                                                      
+      146 +                                                              
+      147 +      radixComplementaryLight: lightComplementary as RadixColo
+          +rTheme,                                                       
+      148 +      radixComplementaryDark: darkComplementary as RadixColorT
+          +heme,                                                         
+      149 +    },                                                        
+      150 +                                                              
+      151      // Add semantic colors
+      152      semantic: semanticColors,
+      153    };
+
+⏺ Now let me update all the export formats. I'll start with the css-variables format:
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Added 54 lines                                                      
+      192  function generateCSSVariables(data: PaletteData, format: strin
+           g): string {
+      193    const formatFn = (hex: string) => formatColor(hex, format);
+      194  
+      195 +  // Calculate foreground steps                               
+      196 +  const lightForegroundStep = getBestForegroundStep(          
+      197 +    data.lightBackground,                                     
+      198 +    data.grayScale.light,                                     
+      199 +  );                                                          
+      200 +  const darkForegroundStep = getBestForegroundStep(           
+      201 +    data.darkBackground,                                      
+      202 +    data.grayScale.dark,                                      
+      203 +  );                                                          
+      204 +                                                              
+      205 +  // Calculate analogous foreground                           
+      206 +  const lightAnalogousForegroundStep = getBestForegroundStep( 
+      207 +    data.analogous.accentScale.light[8],                      
+      208 +    data.analogous.accentScale.light,                         
+      209 +  );                                                          
+      210 +  const darkAnalogousForegroundStep = getBestForegroundStep(  
+      211 +    data.analogous.accentScale.dark[8],                       
+      212 +    data.analogous.accentScale.dark,                          
+      213 +  );                                                          
+      214 +                                                              
+      215 +  // Calculate complementary foreground                       
+      216 +  const lightComplementaryForegroundStep = getBestForegroundSt
+          +ep(                                                           
+      217 +    data.complementary.accentScale.light[8],                  
+      218 +    data.complementary.accentScale.light,                     
+      219 +  );                                                          
+      220 +  const darkComplementaryForegroundStep = getBestForegroundSte
+          +p(                                                            
+      221 +    data.complementary.accentScale.dark[8],                   
+      222 +    data.complementary.accentScale.dark,                      
+      223 +  );                                                          
+      224 +                                                              
+      225    return `:root {
+      226 +  /* Base */                                                  
+      227 +  --background: ${formatFn(data.lightBackground)};            
+      228 +  --foreground: ${formatFn(data.grayScale.light[lightForegroun
+          +dStep])};                                                     
+      229 +                                                              
+      230    /* Accent Colors */
+      231  ${data.accentScale.light
+      232    .map((color, i) => `  --accent-${i + 1}: ${formatFn(color)};
+           `)
+     ...
+      237    .map((color, i) => `  --gray-${i + 1}: ${formatFn(color)};`)
+      238    .join("\n")}
+      239  
+      240 +  /* Analogous Harmony */                                     
+      241 +  --analogous: ${formatFn(data.analogous.accentScale.light[8])
+          +};                                                            
+      242 +  --analogous-foreground: ${formatFn(data.analogous.accentScal
+          +e.light[lightAnalogousForegroundStep])};                      
+      243 +                                                              
+      244 +  /* Complementary Harmony */                                 
+      245 +  --complementary: ${formatFn(data.complementary.accentScale.l
+          +ight[8])};                                                    
+      246 +  --complementary-foreground: ${formatFn(data.complementary.ac
+          +centScale.light[lightComplementaryForegroundStep])};          
+      247 +                                                              
+      248    /* Semantic Colors */
+      249  ${formatSemanticColorSet("success", data.semantic.light.succes
+           s, format)}
+      250  ${formatSemanticColorSet("danger", data.semantic.light.danger,
+            format)}
+     ...
+      254  
+      255  @media (prefers-color-scheme: dark) {
+      256    :root {
+      257 +    /* Base */                                                
+      258 +    --background: ${formatFn(data.darkBackground)};           
+      259 +    --foreground: ${formatFn(data.grayScale.dark[darkForegroun
+          +dStep])};                                                     
+      260 +                                                              
+      261      /* Accent Colors - Dark */
+      262  ${data.accentScale.dark
+      263    .map((color, i) => `    --accent-${i + 1}: ${formatFn(color)
+           };`)
+     ...
+      268    .map((color, i) => `    --gray-${i + 1}: ${formatFn(color)};
+           `)
+      269    .join("\n")}
+      270  
+      271 +    /* Analogous Harmony - Dark */                            
+      272 +    --analogous: ${formatFn(data.analogous.accentScale.dark[8]
+          +)};                                                           
+      273 +    --analogous-foreground: ${formatFn(data.analogous.accentSc
+          +ale.dark[darkAnalogousForegroundStep])};                      
+      274 +                                                              
+      275 +    /* Complementary Harmony - Dark */                        
+      276 +    --complementary: ${formatFn(data.complementary.accentScale
+          +.dark[8])};                                                   
+      277 +    --complementary-foreground: ${formatFn(data.complementary.
+          +accentScale.dark[darkComplementaryForegroundStep])};          
+      278 +                                                              
+      279      /* Semantic Colors - Dark */
+      280  ${formatSemanticColorSet("success", data.semantic.dark.success
+           , format, "    ")}
+      281  ${formatSemanticColorSet("danger", data.semantic.dark.danger, 
+           format, "    ")}
+
+⏺ Now updating the Tailwind format:
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Added 24 lines                                                      
+      292  function generateTailwindConfig(data: PaletteData, format: str
+           ing): string {
+      293    const formatFn = (hex: string) => formatColor(hex, format);
+      294  
+      295 +  // Calculate foreground steps                               
+      296 +  const lightForegroundStep = getBestForegroundStep(          
+      297 +    data.lightBackground,                                     
+      298 +    data.grayScale.light,                                     
+      299 +  );                                                          
+      300 +  const lightAnalogousForegroundStep = getBestForegroundStep( 
+      301 +    data.analogous.accentScale.light[8],                      
+      302 +    data.analogous.accentScale.light,                         
+      303 +  );                                                          
+      304 +  const lightComplementaryForegroundStep = getBestForegroundSt
+          +ep(                                                           
+      305 +    data.complementary.accentScale.light[8],                  
+      306 +    data.complementary.accentScale.light,                     
+      307 +  );                                                          
+      308 +                                                              
+      309    return `module.exports = {
+      310    theme: {
+      311      extend: {
+      312        colors: {
+      313 +        background: '${formatFn(data.lightBackground)}',      
+      314 +        foreground: '${formatFn(data.grayScale.light[lightFore
+          +groundStep])}',                                               
+      315          accent: {
+      316  ${data.accentScale.light
+      317    .map((color, i) => `          ${i + 1}: '${formatFn(color)}'
+           ,`)
+     ...
+      322    .map((color, i) => `          ${i + 1}: '${formatFn(color)}'
+           ,`)
+      323    .join("\n")}
+      324          },
+      325 +        analogous: {                                          
+      326 +          DEFAULT: '${formatFn(data.analogous.accentScale.ligh
+          +t[8])}',                                                      
+      327 +          foreground: '${formatFn(data.analogous.accentScale.l
+          +ight[lightAnalogousForegroundStep])}',                        
+      328 +        },                                                    
+      329 +        complementary: {                                      
+      330 +          DEFAULT: '${formatFn(data.complementary.accentScale.
+          +light[8])}',                                                  
+      331 +          foreground: '${formatFn(data.complementary.accentSca
+          +le.light[lightComplementaryForegroundStep])}',                
+      332 +        },                                                    
+      333          success: {
+      334            DEFAULT: '${formatFn(data.semantic.light.success.bas
+           e)}',
+      335            foreground: '${formatFn(data.semantic.light.success.
+           foreground)}',
+
+⏺ Now updating CSS-in-JS:
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Error editing file
+
+⏺ Let me read the current state of the file:
+
+⏺ Read(src/lib/export-formats.ts)
+  ⎿  Read 120 lines
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Added 24 lines                                                      
+      367  function generateCSSInJS(data: PaletteData, format: string): s
+           tring {
+      368    const formatFn = (hex: string) => formatColor(hex, format);
+      369  
+      370 +  // Calculate foreground steps                               
+      371 +  const lightForegroundStep = getBestForegroundStep(          
+      372 +    data.lightBackground,                                     
+      373 +    data.grayScale.light,                                     
+      374 +  );                                                          
+      375 +  const lightAnalogousForegroundStep = getBestForegroundStep( 
+      376 +    data.analogous.accentScale.light[8],                      
+      377 +    data.analogous.accentScale.light,                         
+      378 +  );                                                          
+      379 +  const lightComplementaryForegroundStep = getBestForegroundSt
+          +ep(                                                           
+      380 +    data.complementary.accentScale.light[8],                  
+      381 +    data.complementary.accentScale.light,                     
+      382 +  );                                                          
+      383 +                                                              
+      384    return `export const colors = {
+      385 +  background: '${formatFn(data.lightBackground)}',            
+      386 +  foreground: '${formatFn(data.grayScale.light[lightForeground
+          +Step])}',                                                     
+      387    accent: {
+      388  ${data.accentScale.light
+      389    .map((color, i) => `    ${i + 1}: '${formatFn(color)}',`)
+     ...
+      394    .map((color, i) => `    ${i + 1}: '${formatFn(color)}',`)
+      395    .join("\n")}
+      396    },
+      397 +  analogous: {                                                
+      398 +    base: '${formatFn(data.analogous.accentScale.light[8])}', 
+      399 +    foreground: '${formatFn(data.analogous.accentScale.light[l
+          +ightAnalogousForegroundStep])}',                              
+      400 +  },                                                          
+      401 +  complementary: {                                            
+      402 +    base: '${formatFn(data.complementary.accentScale.light[8])
+          +}',                                                           
+      403 +    foreground: '${formatFn(data.complementary.accentScale.lig
+          +ht[lightComplementaryForegroundStep])}',                      
+      404 +  },                                                          
+      405    semantic: {
+      406      success: {
+      407        base: '${formatFn(data.semantic.light.success.base)}',
+
+⏺ Now updating SCSS:
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Added 27 lines, removed 1 line                                      
+      438  function generateSCSS(data: PaletteData, format: string): stri
+           ng {
+      439    const formatFn = (hex: string) => formatColor(hex, format);
+      440  
+      441 -  return `// Accent Colors                                    
+      441 +  // Calculate foreground steps                               
+      442 +  const lightForegroundStep = getBestForegroundStep(          
+      443 +    data.lightBackground,                                     
+      444 +    data.grayScale.light,                                     
+      445 +  );                                                          
+      446 +  const lightAnalogousForegroundStep = getBestForegroundStep( 
+      447 +    data.analogous.accentScale.light[8],                      
+      448 +    data.analogous.accentScale.light,                         
+      449 +  );                                                          
+      450 +  const lightComplementaryForegroundStep = getBestForegroundSt
+          +ep(                                                           
+      451 +    data.complementary.accentScale.light[8],                  
+      452 +    data.complementary.accentScale.light,                     
+      453 +  );                                                          
+      454 +                                                              
+      455 +  return `// Base                                             
+      456 +$background: ${formatFn(data.lightBackground)};               
+      457 +$foreground: ${formatFn(data.grayScale.light[lightForegroundSt
+          +ep])};                                                        
+      458 +                                                              
+      459 +// Accent Colors                                              
+      460  ${data.accentScale.light
+      461    .map((color, i) => `$accent-${i + 1}: ${formatFn(color)};`)
+      462    .join("\n")}
+     ...
+      466    .map((color, i) => `$gray-${i + 1}: ${formatFn(color)};`)
+      467    .join("\n")}
+      468  
+      469 +// Harmony - Analogous                                        
+      470 +$analogous: ${formatFn(data.analogous.accentScale.light[8])}; 
+      471 +$analogous-foreground: ${formatFn(data.analogous.accentScale.l
+          +ight[lightAnalogousForegroundStep])};                         
+      472 +                                                              
+      473 +// Harmony - Complementary                                    
+      474 +$complementary: ${formatFn(data.complementary.accentScale.ligh
+          +t[8])};                                                       
+      475 +$complementary-foreground: ${formatFn(data.complementary.accen
+          +tScale.light[lightComplementaryForegroundStep])};             
+      476 +                                                              
+      477  // Semantic Colors - Success
+      478  $success: ${formatFn(data.semantic.light.success.base)};
+      479  $success-foreground: ${formatFn(data.semantic.light.success.fo
+           reground)};
+
+⏺ Read(src/lib/export-formats.ts)
+  ⎿  Read 80 lines
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Added 32 lines                                                      
+      506  function generateMaterialUI(data: PaletteData, format: string)
+           : string {
+      507    const formatFn = (hex: string) => formatColor(hex, format);
+      508  
+      509 +  // Calculate foreground steps                               
+      510 +  const lightForegroundStep = getBestForegroundStep(          
+      511 +    data.lightBackground,                                     
+      512 +    data.grayScale.light,                                     
+      513 +  );                                                          
+      514 +  const lightAnalogousForegroundStep = getBestForegroundStep( 
+      515 +    data.analogous.accentScale.light[8],                      
+      516 +    data.analogous.accentScale.light,                         
+      517 +  );                                                          
+      518 +  const lightComplementaryForegroundStep = getBestForegroundSt
+          +ep(                                                           
+      519 +    data.complementary.accentScale.light[8],                  
+      520 +    data.complementary.accentScale.light,                     
+      521 +  );                                                          
+      522 +                                                              
+      523    return `import { createTheme } from '@mui/material/styles';
+      524  
+      525  const theme = createTheme({
+      526    palette: {
+      527 +    background: {                                             
+      528 +      default: '${formatFn(data.lightBackground)}',           
+      529 +    },                                                        
+      530 +    text: {                                                   
+      531 +      primary: '${formatFn(data.grayScale.light[lightForegroun
+          +dStep])}',                                                    
+      532 +    },                                                        
+      533      primary: {
+      534        main: '${formatFn(data.accent)}',
+      535      },
+      536 +    secondary: {                                              
+      537 +      main: '${formatFn(data.analogous.accentScale.light[8])}'
+          +,                                                             
+      538 +      contrastText: '${formatFn(data.analogous.accentScale.lig
+          +ht[lightAnalogousForegroundStep])}',                          
+      539 +    },                                                        
+      540      success: {
+      541        main: '${formatFn(data.semantic.light.success.base)}',
+      542        contrastText: '${formatFn(data.semantic.light.success.fo
+           reground)}',
+     ...
+      562  ${data.grayScale.light
+      563    .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
+      564    .join("\n")}
+      565 +    },                                                        
+      566 +    analogous: {                                              
+      567 +      main: '${formatFn(data.analogous.accentScale.light[8])}'
+          +,                                                             
+      568 +      contrastText: '${formatFn(data.analogous.accentScale.lig
+          +ht[lightAnalogousForegroundStep])}',                          
+      569 +    },                                                        
+      570 +    complementary: {                                          
+      571 +      main: '${formatFn(data.complementary.accentScale.light[8
+          +])}',                                                         
+      572 +      contrastText: '${formatFn(data.complementary.accentScale
+          +.light[lightComplementaryForegroundStep])}',                  
+      573      }
+      574    }
+      575  });
+
+⏺ Read(src/lib/export-formats.ts)
+  ⎿  Read 53 lines
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Added 24 lines                                                      
+      580  function generateChakraUI(data: PaletteData, format: string): 
+           string {
+      581    const formatFn = (hex: string) => formatColor(hex, format);
+      582  
+      583 +  // Calculate foreground steps                               
+      584 +  const lightForegroundStep = getBestForegroundStep(          
+      585 +    data.lightBackground,                                     
+      586 +    data.grayScale.light,                                     
+      587 +  );                                                          
+      588 +  const lightAnalogousForegroundStep = getBestForegroundStep( 
+      589 +    data.analogous.accentScale.light[8],                      
+      590 +    data.analogous.accentScale.light,                         
+      591 +  );                                                          
+      592 +  const lightComplementaryForegroundStep = getBestForegroundSt
+          +ep(                                                           
+      593 +    data.complementary.accentScale.light[8],                  
+      594 +    data.complementary.accentScale.light,                     
+      595 +  );                                                          
+      596 +                                                              
+      597    return `import { extendTheme } from '@chakra-ui/react';
+      598  
+      599  const theme = extendTheme({
+      600    colors: {
+      601 +    background: '${formatFn(data.lightBackground)}',          
+      602 +    foreground: '${formatFn(data.grayScale.light[lightForegrou
+          +ndStep])}',                                                   
+      603      accent: {
+      604  ${data.accentScale.light
+      605    .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
+     ...
+      610    .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
+      611    .join("\n")}
+      612      },
+      613 +    analogous: {                                              
+      614 +      base: '${formatFn(data.analogous.accentScale.light[8])}'
+          +,                                                             
+      615 +      fg: '${formatFn(data.analogous.accentScale.light[lightAn
+          +alogousForegroundStep])}',                                    
+      616 +    },                                                        
+      617 +    complementary: {                                          
+      618 +      base: '${formatFn(data.complementary.accentScale.light[8
+          +])}',                                                         
+      619 +      fg: '${formatFn(data.complementary.accentScale.light[lig
+          +htComplementaryForegroundStep])}',                            
+      620 +    },                                                        
+      621      success: {
+      622        base: '${formatFn(data.semantic.light.success.base)}',
+      623        fg: '${formatFn(data.semantic.light.success.foreground)}
+           ',
+
+⏺ Now let me also update the shadcn preset to include the harmony colors (it already has background/foreground, but needs analogous/complementary):
+
+⏺ Read(src/lib/export-formats.ts)
+  ⎿  Read 125 lines
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Added 24 lines                                                      
+      116      data.accentScale.dark,
+      117    );
+      118  
+      119 +  // Calculate harmony foreground steps for light theme       
+      120 +  const lightAnalogousForegroundStep = getBestForegroundStep( 
+      121 +    data.analogous.accentScale.light[8],                      
+      122 +    data.analogous.accentScale.light,                         
+      123 +  );                                                          
+      124 +  const lightComplementaryForegroundStep = getBestForegroundSt
+          +ep(                                                           
+      125 +    data.complementary.accentScale.light[8],                  
+      126 +    data.complementary.accentScale.light,                     
+      127 +  );                                                          
+      128 +                                                              
+      129 +  // Calculate harmony foreground steps for dark theme        
+      130 +  const darkAnalogousForegroundStep = getBestForegroundStep(  
+      131 +    data.analogous.accentScale.dark[8],                       
+      132 +    data.analogous.accentScale.dark,                          
+      133 +  );                                                          
+      134 +  const darkComplementaryForegroundStep = getBestForegroundSte
+          +p(                                                            
+      135 +    data.complementary.accentScale.dark[8],                   
+      136 +    data.complementary.accentScale.dark,                      
+      137 +  );                                                          
+      138 +                                                              
+      139    return `:root {
+      140    --background: ${formatFn(data.lightBackground)};
+      141    --foreground: ${formatFn(data.grayScale.light[lightForegroun
+           dStep])};
+     ...
+      153    --border: ${formatFn(data.grayScale.light[6])};
+      154    --input: ${formatFn(data.grayScale.light[6])};
+      155    --ring: ${formatFn(data.accent)};
+      156 +  --analogous: ${formatFn(data.analogous.accentScale.light[8])
+          +};                                                            
+      157 +  --analogous-foreground: ${formatFn(data.analogous.accentScal
+          +e.light[lightAnalogousForegroundStep])};                      
+      158 +  --complementary: ${formatFn(data.complementary.accentScale.l
+          +ight[8])};                                                    
+      159 +  --complementary-foreground: ${formatFn(data.complementary.ac
+          +centScale.light[lightComplementaryForegroundStep])};          
+      160  
+      161    /* Accent Scale - Light */
+      162  ${data.accentScale.light
+
+⏺ Now let me add the harmony colors to the dark theme section of shadcn:
+
+⏺ Update(src/lib/export-formats.ts)
+  ⎿  Added 4 lines                                                       
+      193      --border: ${formatFn(data.grayScale.dark[6])};
+      194      --input: ${formatFn(data.grayScale.dark[6])};
+      195      --ring: ${formatFn(data.accent)};
+      196 +    --analogous: ${formatFn(data.analogous.accentScale.dark[8]
+          +)};                                                           
+      197 +    --analogous-foreground: ${formatFn(data.analogous.accentSc
+          +ale.dark[darkAnalogousForegroundStep])};                      
+      198 +    --complementary: ${formatFn(data.complementary.accentScale
+          +.dark[8])};                                                   
+      199 +    --complementary-foreground: ${formatFn(data.complementary.
+          +accentScale.dark[darkComplementaryForegroundStep])};          
+      200  
+      201      /* Accent Scale - Dark */
+      202  ${data.accentScale.dark
+
+⏺ Let me verify the TypeScript compilation:
+
+⏺ Bash(npx tsc --noEmit 2>&1 | head -50)
+  ⎿  (No content)
+
+⏺ Let me also run the build to ensure everything works:
+
+⏺ Bash(npm run build 2>&1 | tail -30)
+  ⎿      roles: {                  
+           display: [Object],
+           headline: [Object],
+     … +26 lines (ctrl+o to expand)
+
+⏺ All changes completed successfully. Here's a summary:
+
+  Changes Made
+
+  1. Extended PaletteData type (src/types/index.ts)
+
+  Added complementary harmony object (same structure as analogous):
+  - accent, gray, lightBackground, darkBackground
+  - accentScale, grayScale, accentScaleAlpha, grayScaleAlpha
+  - radixComplementaryLight, radixComplementaryDark
+
+  2. Updated generatePalette (src/app/actions/generatePalette.ts)
+
+  - Added baseColorsComplementary generation using "complementary" scheme
+  - Generated light/dark Radix color scales for complementary harmony
+  - Included full complementary object in the returned PaletteData
+
+  3. Updated all export formats (src/lib/export-formats.ts)
+
+  All formats now include:
+  - background / foreground (base colors)
+  - analogous / analogous-foreground (harmonious neighbor color)
+  - complementary / complementary-foreground (opposite color)
+
+  | Format        | Variable Naming                                                                                                                |
+  |---------------|--------------------------------------------------------------------------------------------------------------------------------|
+  | shadcn        | --background, --foreground, --analogous, --analogous-foreground, --complementary, --complementary-foreground                   |
+  | css-variables | Same as shadcn                                                                                                                 |
+  | radix         | Same as css-variables                                                                                                          |
+  | tailwind      | background, foreground, analogous.DEFAULT/foreground, complementary.DEFAULT/foreground                                         |
+  | css-in-js     | background, foreground, analogous.base/foreground, complementary.base/foreground                                               |
+  | scss          | $background, $foreground, $analogous, $analogous-foreground, $complementary, $complementary-foreground                         |
+  | material-ui   | palette.background.default, palette.text.primary, palette.analogous.main/contrastText, palette.complementary.main/contrastText |
+  | chakra-ui     | background, foreground, analogous.base/fg, complementary.base/fg                                                               |
+
+  All harmony colors use step 9 (index 8) from the accent scale as the main color, and getBestForegroundStep() calculates the optimal contrasting foreground.
+
+
+

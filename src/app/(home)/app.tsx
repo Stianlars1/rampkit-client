@@ -38,6 +38,7 @@ export const RampKitApp = () => {
         scheme,
         harmonized: harmonizeColors,
       });
+      console.log("data", data);
       setPaletteData(data);
     } catch (err) {
       const errorMessage =

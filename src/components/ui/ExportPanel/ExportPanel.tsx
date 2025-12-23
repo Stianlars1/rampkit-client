@@ -42,7 +42,7 @@ export function ExportPanel({ data }: ExportPanelProps) {
   const [showCode, setShowCode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  console.log("Palette data: ", data);
   const {
     trackExportButton,
     trackDevPreset,

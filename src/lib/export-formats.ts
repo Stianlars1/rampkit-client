@@ -116,6 +116,26 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
     data.accentScale.dark,
   );
 
+  // Calculate harmony foreground steps for light theme
+  const lightAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[8],
+    data.analogous.accentScale.light,
+  );
+  const lightComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.light[8],
+    data.complementary.accentScale.light,
+  );
+
+  // Calculate harmony foreground steps for dark theme
+  const darkAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.dark[8],
+    data.analogous.accentScale.dark,
+  );
+  const darkComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.dark[8],
+    data.complementary.accentScale.dark,
+  );
+
   return `:root {
   --background: ${formatFn(data.lightBackground)};
   --foreground: ${formatFn(data.grayScale.light[lightForegroundStep])};
@@ -133,6 +153,10 @@ function generateShadcnCSS(data: PaletteData, format: string): string {
   --border: ${formatFn(data.grayScale.light[6])};
   --input: ${formatFn(data.grayScale.light[6])};
   --ring: ${formatFn(data.accent)};
+  --analogous: ${formatFn(data.analogous.accentScale.light[8])};
+  --analogous-foreground: ${formatFn(data.analogous.accentScale.light[lightAnalogousForegroundStep])};
+  --complementary: ${formatFn(data.complementary.accentScale.light[8])};
+  --complementary-foreground: ${formatFn(data.complementary.accentScale.light[lightComplementaryForegroundStep])};
 
   /* Accent Scale - Light */
 ${data.accentScale.light
@@ -169,6 +193,10 @@ ${formatSemanticColorSet("info", data.semantic.light.info, format)}
     --border: ${formatFn(data.grayScale.dark[6])};
     --input: ${formatFn(data.grayScale.dark[6])};
     --ring: ${formatFn(data.accent)};
+    --analogous: ${formatFn(data.analogous.accentScale.dark[8])};
+    --analogous-foreground: ${formatFn(data.analogous.accentScale.dark[darkAnalogousForegroundStep])};
+    --complementary: ${formatFn(data.complementary.accentScale.dark[8])};
+    --complementary-foreground: ${formatFn(data.complementary.accentScale.dark[darkComplementaryForegroundStep])};
 
     /* Accent Scale - Dark */
 ${data.accentScale.dark
@@ -192,7 +220,41 @@ ${formatSemanticColorSet("info", data.semantic.dark.info, format, "    ")}
 function generateCSSVariables(data: PaletteData, format: string): string {
   const formatFn = (hex: string) => formatColor(hex, format);
 
+  // Calculate foreground steps
+  const lightForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.grayScale.light,
+  );
+  const darkForegroundStep = getBestForegroundStep(
+    data.darkBackground,
+    data.grayScale.dark,
+  );
+
+  // Calculate analogous foreground
+  const lightAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[8],
+    data.analogous.accentScale.light,
+  );
+  const darkAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.dark[8],
+    data.analogous.accentScale.dark,
+  );
+
+  // Calculate complementary foreground
+  const lightComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.light[8],
+    data.complementary.accentScale.light,
+  );
+  const darkComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.dark[8],
+    data.complementary.accentScale.dark,
+  );
+
   return `:root {
+  /* Base */
+  --background: ${formatFn(data.lightBackground)};
+  --foreground: ${formatFn(data.grayScale.light[lightForegroundStep])};
+
   /* Accent Colors */
 ${data.accentScale.light
   .map((color, i) => `  --accent-${i + 1}: ${formatFn(color)};`)
@@ -203,6 +265,14 @@ ${data.grayScale.light
   .map((color, i) => `  --gray-${i + 1}: ${formatFn(color)};`)
   .join("\n")}
 
+  /* Analogous Harmony */
+  --analogous: ${formatFn(data.analogous.accentScale.light[8])};
+  --analogous-foreground: ${formatFn(data.analogous.accentScale.light[lightAnalogousForegroundStep])};
+
+  /* Complementary Harmony */
+  --complementary: ${formatFn(data.complementary.accentScale.light[8])};
+  --complementary-foreground: ${formatFn(data.complementary.accentScale.light[lightComplementaryForegroundStep])};
+
   /* Semantic Colors */
 ${formatSemanticColorSet("success", data.semantic.light.success, format)}
 ${formatSemanticColorSet("danger", data.semantic.light.danger, format)}
@@ -212,6 +282,10 @@ ${formatSemanticColorSet("info", data.semantic.light.info, format)}
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Base */
+    --background: ${formatFn(data.darkBackground)};
+    --foreground: ${formatFn(data.grayScale.dark[darkForegroundStep])};
+
     /* Accent Colors - Dark */
 ${data.accentScale.dark
   .map((color, i) => `    --accent-${i + 1}: ${formatFn(color)};`)
@@ -221,6 +295,14 @@ ${data.accentScale.dark
 ${data.grayScale.dark
   .map((color, i) => `    --gray-${i + 1}: ${formatFn(color)};`)
   .join("\n")}
+
+    /* Analogous Harmony - Dark */
+    --analogous: ${formatFn(data.analogous.accentScale.dark[8])};
+    --analogous-foreground: ${formatFn(data.analogous.accentScale.dark[darkAnalogousForegroundStep])};
+
+    /* Complementary Harmony - Dark */
+    --complementary: ${formatFn(data.complementary.accentScale.dark[8])};
+    --complementary-foreground: ${formatFn(data.complementary.accentScale.dark[darkComplementaryForegroundStep])};
 
     /* Semantic Colors - Dark */
 ${formatSemanticColorSet("success", data.semantic.dark.success, format, "    ")}
@@ -238,10 +320,26 @@ function generateRadixCSS(data: PaletteData, format: string): string {
 function generateTailwindConfig(data: PaletteData, format: string): string {
   const formatFn = (hex: string) => formatColor(hex, format);
 
+  // Calculate foreground steps
+  const lightForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.grayScale.light,
+  );
+  const lightAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[8],
+    data.analogous.accentScale.light,
+  );
+  const lightComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.light[8],
+    data.complementary.accentScale.light,
+  );
+
   return `module.exports = {
   theme: {
     extend: {
       colors: {
+        background: '${formatFn(data.lightBackground)}',
+        foreground: '${formatFn(data.grayScale.light[lightForegroundStep])}',
         accent: {
 ${data.accentScale.light
   .map((color, i) => `          ${i + 1}: '${formatFn(color)}',`)
@@ -251,6 +349,14 @@ ${data.accentScale.light
 ${data.grayScale.light
   .map((color, i) => `          ${i + 1}: '${formatFn(color)}',`)
   .join("\n")}
+        },
+        analogous: {
+          DEFAULT: '${formatFn(data.analogous.accentScale.light[8])}',
+          foreground: '${formatFn(data.analogous.accentScale.light[lightAnalogousForegroundStep])}',
+        },
+        complementary: {
+          DEFAULT: '${formatFn(data.complementary.accentScale.light[8])}',
+          foreground: '${formatFn(data.complementary.accentScale.light[lightComplementaryForegroundStep])}',
         },
         success: {
           DEFAULT: '${formatFn(data.semantic.light.success.base)}',
@@ -289,7 +395,23 @@ ${data.grayScale.light
 function generateCSSInJS(data: PaletteData, format: string): string {
   const formatFn = (hex: string) => formatColor(hex, format);
 
+  // Calculate foreground steps
+  const lightForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.grayScale.light,
+  );
+  const lightAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[8],
+    data.analogous.accentScale.light,
+  );
+  const lightComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.light[8],
+    data.complementary.accentScale.light,
+  );
+
   return `export const colors = {
+  background: '${formatFn(data.lightBackground)}',
+  foreground: '${formatFn(data.grayScale.light[lightForegroundStep])}',
   accent: {
 ${data.accentScale.light
   .map((color, i) => `    ${i + 1}: '${formatFn(color)}',`)
@@ -299,6 +421,14 @@ ${data.accentScale.light
 ${data.grayScale.light
   .map((color, i) => `    ${i + 1}: '${formatFn(color)}',`)
   .join("\n")}
+  },
+  analogous: {
+    base: '${formatFn(data.analogous.accentScale.light[8])}',
+    foreground: '${formatFn(data.analogous.accentScale.light[lightAnalogousForegroundStep])}',
+  },
+  complementary: {
+    base: '${formatFn(data.complementary.accentScale.light[8])}',
+    foreground: '${formatFn(data.complementary.accentScale.light[lightComplementaryForegroundStep])}',
   },
   semantic: {
     success: {
@@ -336,7 +466,25 @@ ${data.grayScale.light
 function generateSCSS(data: PaletteData, format: string): string {
   const formatFn = (hex: string) => formatColor(hex, format);
 
-  return `// Accent Colors
+  // Calculate foreground steps
+  const lightForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.grayScale.light,
+  );
+  const lightAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[8],
+    data.analogous.accentScale.light,
+  );
+  const lightComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.light[8],
+    data.complementary.accentScale.light,
+  );
+
+  return `// Base
+$background: ${formatFn(data.lightBackground)};
+$foreground: ${formatFn(data.grayScale.light[lightForegroundStep])};
+
+// Accent Colors
 ${data.accentScale.light
   .map((color, i) => `$accent-${i + 1}: ${formatFn(color)};`)
   .join("\n")}
@@ -345,6 +493,14 @@ ${data.accentScale.light
 ${data.grayScale.light
   .map((color, i) => `$gray-${i + 1}: ${formatFn(color)};`)
   .join("\n")}
+
+// Harmony - Analogous
+$analogous: ${formatFn(data.analogous.accentScale.light[8])};
+$analogous-foreground: ${formatFn(data.analogous.accentScale.light[lightAnalogousForegroundStep])};
+
+// Harmony - Complementary
+$complementary: ${formatFn(data.complementary.accentScale.light[8])};
+$complementary-foreground: ${formatFn(data.complementary.accentScale.light[lightComplementaryForegroundStep])};
 
 // Semantic Colors - Success
 $success: ${formatFn(data.semantic.light.success.base)};
@@ -378,12 +534,36 @@ $info-border: ${formatFn(data.semantic.light.info.border)};`;
 function generateMaterialUI(data: PaletteData, format: string): string {
   const formatFn = (hex: string) => formatColor(hex, format);
 
+  // Calculate foreground steps
+  const lightForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.grayScale.light,
+  );
+  const lightAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[8],
+    data.analogous.accentScale.light,
+  );
+  const lightComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.light[8],
+    data.complementary.accentScale.light,
+  );
+
   return `import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
+    background: {
+      default: '${formatFn(data.lightBackground)}',
+    },
+    text: {
+      primary: '${formatFn(data.grayScale.light[lightForegroundStep])}',
+    },
     primary: {
       main: '${formatFn(data.accent)}',
+    },
+    secondary: {
+      main: '${formatFn(data.analogous.accentScale.light[8])}',
+      contrastText: '${formatFn(data.analogous.accentScale.light[lightAnalogousForegroundStep])}',
     },
     success: {
       main: '${formatFn(data.semantic.light.success.base)}',
@@ -410,6 +590,14 @@ ${data.accentScale.light
 ${data.grayScale.light
   .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
   .join("\n")}
+    },
+    analogous: {
+      main: '${formatFn(data.analogous.accentScale.light[8])}',
+      contrastText: '${formatFn(data.analogous.accentScale.light[lightAnalogousForegroundStep])}',
+    },
+    complementary: {
+      main: '${formatFn(data.complementary.accentScale.light[8])}',
+      contrastText: '${formatFn(data.complementary.accentScale.light[lightComplementaryForegroundStep])}',
     }
   }
 });
@@ -420,10 +608,26 @@ export default theme;`;
 function generateChakraUI(data: PaletteData, format: string): string {
   const formatFn = (hex: string) => formatColor(hex, format);
 
+  // Calculate foreground steps
+  const lightForegroundStep = getBestForegroundStep(
+    data.lightBackground,
+    data.grayScale.light,
+  );
+  const lightAnalogousForegroundStep = getBestForegroundStep(
+    data.analogous.accentScale.light[8],
+    data.analogous.accentScale.light,
+  );
+  const lightComplementaryForegroundStep = getBestForegroundStep(
+    data.complementary.accentScale.light[8],
+    data.complementary.accentScale.light,
+  );
+
   return `import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
   colors: {
+    background: '${formatFn(data.lightBackground)}',
+    foreground: '${formatFn(data.grayScale.light[lightForegroundStep])}',
     accent: {
 ${data.accentScale.light
   .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
@@ -433,6 +637,14 @@ ${data.accentScale.light
 ${data.grayScale.light
   .map((color, i) => `      ${i + 1}: '${formatFn(color)}',`)
   .join("\n")}
+    },
+    analogous: {
+      base: '${formatFn(data.analogous.accentScale.light[8])}',
+      fg: '${formatFn(data.analogous.accentScale.light[lightAnalogousForegroundStep])}',
+    },
+    complementary: {
+      base: '${formatFn(data.complementary.accentScale.light[8])}',
+      fg: '${formatFn(data.complementary.accentScale.light[lightComplementaryForegroundStep])}',
     },
     success: {
       base: '${formatFn(data.semantic.light.success.base)}',

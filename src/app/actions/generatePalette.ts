@@ -18,6 +18,9 @@ export function generatePalette({
   const baseColorsAnalogous = generateBaseColors(hex, "analogous", {
     harmonized: true,
   });
+  const baseColorsComplementary = generateBaseColors(hex, "complementary", {
+    harmonized: true,
+  });
 
   const light = generateRadixColors({
     appearance: "light",
@@ -44,6 +47,19 @@ export function generatePalette({
     accent: baseColorsAnalogous.accent,
     gray: baseColorsAnalogous.gray,
     background: baseColorsAnalogous.darkBackground,
+  });
+
+  const lightComplementary = generateRadixColors({
+    appearance: "light",
+    accent: baseColorsComplementary.accent,
+    gray: baseColorsComplementary.gray,
+    background: baseColorsComplementary.lightBackground,
+  });
+  const darkComplementary = generateRadixColors({
+    appearance: "dark",
+    accent: baseColorsComplementary.accent,
+    gray: baseColorsComplementary.gray,
+    background: baseColorsComplementary.darkBackground,
   });
 
   // Generate semantic colors (success, danger, warning, info)
@@ -104,6 +120,32 @@ export function generatePalette({
 
       radixAnalogousLight: lightAnalogous as RadixColorTheme,
       radixAnalogousDark: darkAnalogous as RadixColorTheme,
+    },
+
+    complementary: {
+      accent: baseColorsComplementary.accent,
+      gray: baseColorsComplementary.gray,
+      lightBackground: baseColorsComplementary.lightBackground,
+      darkBackground: baseColorsComplementary.darkBackground,
+      accentScale: {
+        light: lightComplementary.accentScale,
+        dark: darkComplementary.accentScale,
+      },
+      grayScale: {
+        light: lightComplementary.grayScale,
+        dark: darkComplementary.grayScale,
+      },
+      accentScaleAlpha: {
+        light: lightComplementary.accentScaleAlpha,
+        dark: darkComplementary.accentScaleAlpha,
+      },
+      grayScaleAlpha: {
+        light: lightComplementary.grayScaleAlpha,
+        dark: darkComplementary.grayScaleAlpha,
+      },
+
+      radixComplementaryLight: lightComplementary as RadixColorTheme,
+      radixComplementaryDark: darkComplementary as RadixColorTheme,
     },
 
     // Add semantic colors

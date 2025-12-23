@@ -4,7 +4,9 @@
       "WebSearch",
       "WebFetch(domain:m3.material.io)",
       "WebFetch(domain:www.radix-ui.com)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }
