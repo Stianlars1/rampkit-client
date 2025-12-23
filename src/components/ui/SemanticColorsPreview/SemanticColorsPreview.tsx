@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button/Button";
 
 interface SemanticColorsPreviewProps {
-  data: PaletteData;
+  data: PaletteData | null;
 }
 
 export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
@@ -16,6 +16,10 @@ export const SemanticColorsPreview = ({ data }: SemanticColorsPreviewProps) => {
     { key: "warning", label: "Warning", icon: "⚠" },
     { key: "info", label: "Info", icon: "ℹ" },
   ] as const;
+
+  if (!data) {
+    return <></>;
+  }
 
   return (
     <div className={styles.container}>
