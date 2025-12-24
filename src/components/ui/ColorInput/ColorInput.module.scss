@@ -155,20 +155,33 @@
 .colorPair {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+}
+
+.colorWithHex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 .colorSwatch {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
   border: 2px solid hsl(var(--border));
-  cursor: help;
   transition: transform 0.15s ease;
 
   &:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
   }
+}
+
+.hexLabel {
+  font-size: 10px;
+  font-family: "SF Mono", "Monaco", monospace;
+  color: hsl(var(--muted-foreground));
+  letter-spacing: 0.3px;
 }
 
 .transformArrow {
@@ -592,6 +605,21 @@
 
 .recommendedIcon {
   fill: currentColor;
+}
+
+.harmonySelectorInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.harmonySelectedHex {
+  font-size: 14px;
+  font-family: "SF Mono", "Monaco", monospace;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  letter-spacing: 0.5px;
 }
 
 .harmonySelectorHint {

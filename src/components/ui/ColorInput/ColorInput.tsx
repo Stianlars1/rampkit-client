@@ -20,6 +20,7 @@ import {
 import { cx } from "@/lib/utils/cx";
 import { Tooltip } from "radix-ui";
 import { getAllHarmonyColors } from "@/lib/utils/color/ColorTheory";
+import { DEFAULT_HEX } from "@/lib/constants";
 
 interface ColorInputProps {
   onGenerate: (
@@ -64,7 +65,7 @@ const schemes: { value: Scheme; label: string; description: string }[] = [
   },
 ];
 
-export const default_accent_color = "#3B82F6";
+export const default_accent_color = DEFAULT_HEX;
 export function ColorInput({
   onGenerate,
   loading,
@@ -81,8 +82,16 @@ export function ColorInput({
   const [pureColorTheory, setPureColorTheory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [harmonyIndex, setHarmonyIndex] = useState(0);
+  const [hasGenerated, setHasGenerated] = useState(!!firstRenderHex);
   const { trackGenerate } = useMetrics();
   const gsapContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-regenerate when settings change (after initial generation)
+  useEffect(() => {
+    if (hasGenerated && isValidHex(hex)) {
+      onGenerate(hex, scheme, harmonizeColors, pureColorTheory, harmonyIndex);
+    }
+  }, [harmonizeColors, scheme, pureColorTheory, harmonyIndex]);
 
   // Compute all available harmony colors for the current scheme
   const harmonyColors = useMemo(() => {
@@ -103,11 +112,12 @@ export function ColorInput({
 
   const handleGenerate = () => {
     if (!isValidHex(hex)) {
-      setError("Please enter a valid hex color (e.g., #3B82F6)");
+      setError(`Please enter a valid hex color (e.g., ${DEFAULT_HEX})`);
       return;
     }
 
     setError("");
+    setHasGenerated(true);
     trackGenerate(hex, scheme);
     onGenerate(hex, scheme, harmonizeColors, pureColorTheory, harmonyIndex);
   };
@@ -230,38 +240,30 @@ export function ColorInput({
                     : "Harmony"}
                 </span>
                 <div className={styles.colorPair}>
-                  <Tooltip.Provider>
-                    <Tooltip.Root>
-                      <Tooltip.Trigger asChild>
-                        <div
-                          className={styles.colorSwatch}
-                          style={{ backgroundColor: firstRenderHex }}
-                          aria-label={`Base color: ${firstRenderHex}`}
-                        />
-                      </Tooltip.Trigger>
-                      <Tooltip.Content className={styles.TooltipContent}>
-                        Base: {firstRenderHex}
-                      </Tooltip.Content>
-                    </Tooltip.Root>
-                  </Tooltip.Provider>
+                  <div className={styles.colorWithHex}>
+                    <div
+                      className={styles.colorSwatch}
+                      style={{ backgroundColor: firstRenderHex }}
+                      aria-label={`Base color: ${firstRenderHex}`}
+                    />
+                    <span className={styles.hexLabel}>
+                      {firstRenderHex.toUpperCase()}
+                    </span>
+                  </div>
                   <ArrowRight
                     className={styles.transformArrow}
                     aria-hidden="true"
                   />
-                  <Tooltip.Provider>
-                    <Tooltip.Root>
-                      <Tooltip.Trigger asChild>
-                        <div
-                          className={styles.colorSwatch}
-                          style={{ backgroundColor: generatedAccent }}
-                          aria-label={`Generated color: ${generatedAccent}`}
-                        />
-                      </Tooltip.Trigger>
-                      <Tooltip.Content className={styles.TooltipContent}>
-                        Generated: {generatedAccent}
-                      </Tooltip.Content>
-                    </Tooltip.Root>
-                  </Tooltip.Provider>
+                  <div className={styles.colorWithHex}>
+                    <div
+                      className={styles.colorSwatch}
+                      style={{ backgroundColor: generatedAccent }}
+                      aria-label={`Generated color: ${generatedAccent}`}
+                    />
+                    <span className={styles.hexLabel}>
+                      {generatedAccent.toUpperCase()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -411,38 +413,28 @@ export function ColorInput({
                   </button>
                   <div className={styles.harmonyColorPreview}>
                     {harmonyColors.colors.map((color, idx) => (
-                      <Tooltip.Provider key={idx}>
-                        <Tooltip.Root>
-                          <Tooltip.Trigger asChild>
-                            <button
-                              type="button"
-                              className={cx(
-                                styles.harmonyColorChip,
-                                idx === harmonyIndex && styles.activeChip,
-                                idx === harmonyColors.recommendedIndex &&
-                                  styles.recommendedChip,
-                              )}
-                              style={{ backgroundColor: color.hex }}
-                              onClick={() => setHarmonyIndex(idx)}
-                              aria-label={`${color.label}: ${color.hex}`}
-                              aria-pressed={idx === harmonyIndex}
-                            >
-                              {idx === harmonyColors.recommendedIndex && (
-                                <Star
-                                  size={10}
-                                  className={styles.recommendedIcon}
-                                  aria-label="Recommended"
-                                />
-                              )}
-                            </button>
-                          </Tooltip.Trigger>
-                          <Tooltip.Content className={styles.TooltipContent}>
-                            {color.label}: {color.hex}
-                            {idx === harmonyColors.recommendedIndex &&
-                              " (Recommended)"}
-                          </Tooltip.Content>
-                        </Tooltip.Root>
-                      </Tooltip.Provider>
+                      <button
+                        key={idx}
+                        type="button"
+                        className={cx(
+                          styles.harmonyColorChip,
+                          idx === harmonyIndex && styles.activeChip,
+                          idx === harmonyColors.recommendedIndex &&
+                            styles.recommendedChip,
+                        )}
+                        style={{ backgroundColor: color.hex }}
+                        onClick={() => setHarmonyIndex(idx)}
+                        aria-label={`${color.label}: ${color.hex}`}
+                        aria-pressed={idx === harmonyIndex}
+                      >
+                        {idx === harmonyColors.recommendedIndex && (
+                          <Star
+                            size={10}
+                            className={styles.recommendedIcon}
+                            aria-label="Recommended"
+                          />
+                        )}
+                      </button>
                     ))}
                   </div>
                   <button
@@ -454,11 +446,15 @@ export function ColorInput({
                     <ChevronRight size={18} />
                   </button>
                 </div>
-                <span className={styles.harmonySelectorHint}>
-                  {harmonyColors.colors[harmonyIndex]?.label}
-                  {harmonyIndex === harmonyColors.recommendedIndex &&
-                    " — Recommended (avoids muddy tones)"}
-                </span>
+                <div className={styles.harmonySelectorInfo}>
+                  <span className={styles.harmonySelectedHex}>
+                    {harmonyColors.colors[harmonyIndex]?.hex.toUpperCase()}
+                  </span>
+                  <span className={styles.harmonySelectorHint}>
+                    {harmonyColors.colors[harmonyIndex]?.label}
+                    {harmonyIndex === harmonyColors.recommendedIndex && " ★"}
+                  </span>
+                </div>
               </div>
             )}
           </div>
