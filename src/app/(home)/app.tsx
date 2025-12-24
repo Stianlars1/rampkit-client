@@ -73,6 +73,9 @@ export const RampKitApp = () => {
             firstRenderHex={paletteData?.brandColor}
             onGenerate={handleGenerate}
             loading={loading}
+            generatedAccent={paletteData?.accent}
+            wasHarmonized={paletteData?.harmonized}
+            activeScheme={paletteData?.scheme}
           />
 
           {error && (

@@ -116,6 +116,78 @@
   }
 }
 
+// Color transformation indicator - shows base → generated color
+.colorTransformation {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.transformationContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.transformLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.colorPair {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.colorSwatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid hsl(var(--border));
+  cursor: help;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.transformArrow {
+  width: 16px;
+  height: 16px;
+  color: hsl(var(--muted-foreground));
+}
+
+.TooltipContent {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 4px 6px hsl(var(--shadow) / 0.1);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: "SF Mono", "Monaco", monospace;
+}
+
 .settingsPanel {
   max-height: 0;
   overflow: hidden;

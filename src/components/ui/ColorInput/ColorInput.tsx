@@ -7,7 +7,7 @@ import { Scheme } from "@/types";
 import styles from "./ColorInput.module.scss";
 import { isValidHex } from "@/lib/utils/color-utils";
 import { useMetrics } from "@/hooks/useMetrics";
-import { FlaskConical, Palette, Settings2, X } from "lucide-react";
+import { ArrowRight, FlaskConical, Palette, Settings2, X } from "lucide-react";
 import { cx } from "@/lib/utils/cx";
 import { Tooltip } from "radix-ui";
 
@@ -20,6 +20,12 @@ interface ColorInputProps {
   ) => void;
   loading?: boolean;
   firstRenderHex?: string;
+  /** The generated accent color after harmony transformation (if different from input) */
+  generatedAccent?: string;
+  /** Whether harmony was applied to generate the accent */
+  wasHarmonized?: boolean;
+  /** The scheme used for generation */
+  activeScheme?: Scheme;
 }
 
 const schemes: { value: Scheme; label: string; description: string }[] = [
@@ -50,6 +56,9 @@ export function ColorInput({
   onGenerate,
   loading,
   firstRenderHex,
+  generatedAccent,
+  wasHarmonized,
+  activeScheme,
 }: ColorInputProps) {
   const [hex, setHex] = useState(firstRenderHex ?? default_accent_color);
   const [scheme, setScheme] = useState<Scheme>("analogous");
@@ -144,6 +153,8 @@ export function ColorInput({
             variant={showSettings ? "primary" : "outline"}
             onClick={handleSettingsClick}
             title="Color harmony settings"
+            aria-expanded={showSettings}
+            aria-label="Toggle color harmony settings"
           >
             {showSettings ? (
               <X className={styles.settingsIcon} />
@@ -157,6 +168,61 @@ export function ColorInput({
             )}
           </Button>
         </div>
+
+        {/* Color Transformation Indicator - shows when harmony transforms the color */}
+        {wasHarmonized &&
+          generatedAccent &&
+          firstRenderHex &&
+          generatedAccent.toUpperCase() !== firstRenderHex.toUpperCase() && (
+            <div
+              className={styles.colorTransformation}
+              role="status"
+              aria-live="polite"
+              aria-label={`Color transformed from ${firstRenderHex} to ${generatedAccent} using ${activeScheme} harmony`}
+            >
+              <div className={styles.transformationContent}>
+                <span className={styles.transformLabel}>
+                  {activeScheme
+                    ? schemes.find((s) => s.value === activeScheme)?.label
+                    : "Harmony"}
+                </span>
+                <div className={styles.colorPair}>
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <div
+                          className={styles.colorSwatch}
+                          style={{ backgroundColor: firstRenderHex }}
+                          aria-label={`Base color: ${firstRenderHex}`}
+                        />
+                      </Tooltip.Trigger>
+                      <Tooltip.Content className={styles.TooltipContent}>
+                        Base: {firstRenderHex}
+                      </Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                  <ArrowRight
+                    className={styles.transformArrow}
+                    aria-hidden="true"
+                  />
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <div
+                          className={styles.colorSwatch}
+                          style={{ backgroundColor: generatedAccent }}
+                          aria-label={`Generated color: ${generatedAccent}`}
+                        />
+                      </Tooltip.Trigger>
+                      <Tooltip.Content className={styles.TooltipContent}>
+                        Generated: {generatedAccent}
+                      </Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </div>
+              </div>
+            </div>
+          )}
 
         {/* Settings Panel - Animated */}
         <div
