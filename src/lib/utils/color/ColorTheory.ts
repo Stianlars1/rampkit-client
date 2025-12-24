@@ -286,6 +286,121 @@ export function generateHarmoniousPalette(
   }
 }
 
+export interface HarmonyColor {
+  hex: string;
+  rotation: number;
+  label: string;
+}
+
+export interface HarmonyColorSet {
+  scheme: Scheme;
+  baseColor: string;
+  colors: HarmonyColor[];
+  /** Index of the recommended/default color (avoids muddy zones) */
+  recommendedIndex: number;
+}
+
+/**
+ * Returns all harmony colors for a given scheme.
+ * Unlike generateHarmoniousPalette which picks one, this returns all options
+ * so users can choose which harmony color to use.
+ *
+ * @param seedHex - Base color hex
+ * @param scheme - Color harmony scheme
+ * @param pureColorTheory - If true, uses exact rotations; if false, applies tone preservation
+ */
+export function getAllHarmonyColors(
+  seedHex: string,
+  scheme: Scheme,
+  pureColorTheory = false,
+): HarmonyColorSet {
+  const baseHSL = hexToHSL(seedHex, true); // Always use precise for calculations
+
+  // Handle grayscale
+  const seedHue = isNearGray(baseHSL.s)
+    ? fallbackHueFromLightness(baseHSL.l)
+    : baseHSL.h;
+
+  const createColor = (rotation: number, label: string): HarmonyColor => {
+    const targetHue = modHue(seedHue + rotation);
+
+    let resultHSL: HSLColor;
+    if (pureColorTheory) {
+      // Pure: exact rotation, preserve S/L
+      resultHSL = { h: targetHue, s: baseHSL.s, l: baseHSL.l };
+    } else {
+      // Optimized: apply tone preservation
+      resultHSL = tonePreservingMap(baseHSL, targetHue, scheme);
+    }
+
+    return {
+      hex: hslToHex(resultHSL),
+      rotation,
+      label,
+    };
+  };
+
+  // Check if a hue is in the muddy yellow-green zone
+  const isMuddy = (rotation: number) => {
+    const hue = modHue(seedHue + rotation);
+    return hue >= 60 && hue <= 140;
+  };
+
+  let colors: HarmonyColor[];
+  let recommendedIndex: number;
+
+  switch (scheme) {
+    case "complementary":
+      colors = [createColor(180, "Complement")];
+      recommendedIndex = 0;
+      break;
+
+    case "triadic":
+      colors = [
+        createColor(120, "Triadic 1"),
+        createColor(240, "Triadic 2"),
+      ];
+      // Recommend the one that's NOT in the muddy zone
+      recommendedIndex = isMuddy(120) ? 1 : 0;
+      break;
+
+    case "analogous":
+      colors = [
+        createColor(30, "Analogous +30°"),
+        createColor(-30, "Analogous -30°"),
+      ];
+      // Recommend based on muddy zone avoidance
+      recommendedIndex = isMuddy(30) ? 1 : 0;
+      break;
+
+    case "monochromatic":
+      // For monochromatic, vary lightness instead of hue
+      const lightnessVariations = [-15, 0, 15];
+      colors = lightnessVariations.map((lDelta, i) => {
+        const newL = clamp(baseHSL.l + lDelta, 15, 85);
+        const resultHSL: HSLColor = { h: seedHue, s: baseHSL.s, l: newL };
+        return {
+          hex: hslToHex(resultHSL),
+          rotation: 0,
+          label: `Mono ${i + 1}`,
+        };
+      });
+      recommendedIndex = 1; // Middle one (original lightness)
+      break;
+
+    default:
+      colors = [createColor(30, "Default")];
+      recommendedIndex = 0;
+  }
+
+  return {
+    scheme,
+    baseColor: seedHex.toUpperCase(),
+    colors,
+    recommendedIndex,
+  };
+}
+
 /**
  * Research notes for future reference:
  *

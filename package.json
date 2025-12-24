@@ -9,7 +9,9 @@
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
     "check-types": "tsc",
     "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,less,md,scss,sass}\"",
-    "pr": "npm run lint && npm run check-types && npm run prettier"
+    "pr": "npm run lint && npm run check-types && npm run prettier",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -47,7 +49,8 @@
     "eslint-config-next": "16.0.10",
     "lint": "^0.8.19",
     "prettier": "^3.6.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.16"
   },
   "overrides": {
     "@types/react": "19.2.7",
