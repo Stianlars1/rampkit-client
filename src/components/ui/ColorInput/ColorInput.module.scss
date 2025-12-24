@@ -116,6 +116,142 @@
   }
 }
 
+// History button and popover
+.historyButton {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  position: relative;
+  transition: all 0.2s;
+
+  .historyIcon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.historyBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.historyPopover {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  box-shadow:
+    0 10px 38px -10px hsl(var(--shadow) / 0.35),
+    0 10px 20px -15px hsl(var(--shadow) / 0.2);
+  width: 220px;
+  max-height: 320px;
+  overflow: hidden;
+  animation: popoverSlide 0.15s ease-out;
+  z-index: 100;
+}
+
+@keyframes popoverSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.historyPopoverArrow {
+  fill: hsl(var(--background));
+}
+
+.historyHeader {
+  padding: 12px 14px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.historyList {
+  padding: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  width: 100%;
+
+  &:hover {
+    background: hsl(var(--muted));
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.historyItemCurrent {
+  background: hsl(var(--primary) / 0.1);
+
+  &:hover {
+    background: hsl(var(--primary) / 0.15);
+  }
+}
+
+.historyItemSwatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid hsl(var(--border));
+  flex-shrink: 0;
+}
+
+.historyItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.historyItemHex {
+  font-size: 12px;
+  font-family: "SF Mono", "Monaco", monospace;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+
+.historyItemMeta {
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+}
+
 // Color transformation indicator - shows base → generated color
 .colorTransformation {
   margin-top: 12px;

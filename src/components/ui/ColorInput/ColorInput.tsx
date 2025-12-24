@@ -12,15 +12,17 @@ import {
   ChevronLeft,
   ChevronRight,
   FlaskConical,
+  History,
   Palette,
   Settings2,
   Star,
   X,
 } from "lucide-react";
 import { cx } from "@/lib/utils/cx";
-import { Tooltip } from "radix-ui";
+import { Tooltip, Popover } from "radix-ui";
 import { getAllHarmonyColors } from "@/lib/utils/color/ColorTheory";
 import { DEFAULT_HEX } from "@/lib/constants";
+import { ColorHistoryItem } from "@/hooks/useColorHistory";
 
 interface ColorInputProps {
   onGenerate: (
@@ -40,6 +42,8 @@ interface ColorInputProps {
   activeScheme?: Scheme;
   /** Current harmony color index (for multi-color schemes) */
   currentHarmonyIndex?: number;
+  /** Color generation history */
+  history?: ColorHistoryItem[];
 }
 
 const schemes: { value: Scheme; label: string; description: string }[] = [
@@ -74,6 +78,7 @@ export function ColorInput({
   wasHarmonized,
   activeScheme,
   currentHarmonyIndex = 0,
+  history = [],
 }: ColorInputProps) {
   const [hex, setHex] = useState(firstRenderHex ?? default_accent_color);
   const [scheme, setScheme] = useState<Scheme>("analogous");
@@ -83,8 +88,27 @@ export function ColorInput({
   const [showSettings, setShowSettings] = useState(false);
   const [harmonyIndex, setHarmonyIndex] = useState(0);
   const [hasGenerated, setHasGenerated] = useState(!!firstRenderHex);
+  const [showHistory, setShowHistory] = useState(false);
   const { trackGenerate } = useMetrics();
   const gsapContainerRef = useRef<HTMLDivElement>(null);
+
+  // Handle clicking a history item
+  const handleHistorySelect = (item: ColorHistoryItem) => {
+    setHex(item.inputHex);
+    setScheme(item.scheme);
+    setHarmonizeColors(item.harmonized);
+    setPureColorTheory(item.pureColorTheory);
+    setHarmonyIndex(item.harmonyColorIndex);
+    setShowHistory(false);
+    // Trigger generation with these settings
+    onGenerate(
+      item.inputHex,
+      item.scheme,
+      item.harmonized,
+      item.pureColorTheory,
+      item.harmonyColorIndex,
+    );
+  };
 
   // Auto-regenerate when settings change (after initial generation)
   useEffect(() => {
@@ -220,6 +244,64 @@ export function ColorInput({
               />
             )}
           </Button>
+
+          {/* History Popover - only show if there's history */}
+          {history.length > 0 && (
+            <Popover.Root open={showHistory} onOpenChange={setShowHistory}>
+              <Popover.Trigger asChild>
+                <Button
+                  className={styles.historyButton}
+                  variant="outline"
+                  title="Color history"
+                  aria-label="View color history"
+                >
+                  <History className={styles.historyIcon} />
+                  <span className={styles.historyBadge}>{history.length}</span>
+                </Button>
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Content
+                  className={styles.historyPopover}
+                  sideOffset={8}
+                  align="end"
+                >
+                  <div className={styles.historyHeader}>
+                    <span>Recent Colors</span>
+                  </div>
+                  <div className={styles.historyList}>
+                    {history.map((item, idx) => (
+                      <button
+                        key={item.timestamp}
+                        className={cx(
+                          styles.historyItem,
+                          idx === 0 && styles.historyItemCurrent,
+                        )}
+                        onClick={() => handleHistorySelect(item)}
+                        title={`${item.inputHex} → ${item.generatedAccent}`}
+                      >
+                        <div
+                          className={styles.historyItemSwatch}
+                          style={{ backgroundColor: item.generatedAccent }}
+                        />
+                        <div className={styles.historyItemInfo}>
+                          <span className={styles.historyItemHex}>
+                            {item.generatedAccent.toUpperCase()}
+                          </span>
+                          <span className={styles.historyItemMeta}>
+                            {item.harmonized
+                              ? schemes.find((s) => s.value === item.scheme)
+                                  ?.label
+                              : "Direct"}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <Popover.Arrow className={styles.historyPopoverArrow} />
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover.Root>
+          )}
         </div>
 
         {/* Color Transformation Indicator - shows when harmony transforms the color */}

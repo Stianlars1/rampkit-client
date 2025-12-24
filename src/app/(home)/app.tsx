@@ -14,15 +14,34 @@ import layoutStyles from "./layout.module.scss";
 import { cx } from "@/lib/utils/cx";
 import { usePaletteData } from "@/context/PaletteDataprovider";
 import BackgroundEffects from "@/components/ui/BackgroundEffects/BackgroundEffects";
+import { useColorHistory } from "@/hooks/useColorHistory";
 
 export const RampKitApp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { setPaletteData, paletteData, isLoading } = usePaletteData();
+  const { history, addToHistory, getInitialValues, isInitialized } =
+    useColorHistory();
 
   useEffect(() => {
     bumpVisitorOncePerSession().then();
   }, []);
+
+  // Auto-generate from URL params on first load
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const initial = getInitialValues();
+    if (initial.hasURLParams) {
+      handleGenerate(
+        initial.hex,
+        initial.scheme,
+        initial.harmonized,
+        initial.pureColorTheory,
+        initial.harmonyColorIndex,
+      );
+    }
+  }, [isInitialized]);
 
   const handleGenerate = async (
     hex: string,
@@ -43,6 +62,16 @@ export const RampKitApp = () => {
         harmonyColorIndex,
       });
       setPaletteData(data);
+
+      // Add to history and update URL
+      addToHistory({
+        inputHex: hex,
+        generatedAccent: data.accent,
+        scheme,
+        harmonized: harmonizeColors,
+        pureColorTheory,
+        harmonyColorIndex,
+      });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to generate palette";
@@ -78,6 +107,7 @@ export const RampKitApp = () => {
             generatedAccent={paletteData?.accent}
             wasHarmonized={paletteData?.harmonized}
             activeScheme={paletteData?.scheme}
+            history={history}
           />
 
           {error && (
