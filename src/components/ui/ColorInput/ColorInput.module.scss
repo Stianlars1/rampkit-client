@@ -489,3 +489,114 @@
     background: hsl(var(--primary) / 0.75);
   }
 }
+
+// Harmony color selector - allows stepping through available harmony options
+.harmonySelector {
+  padding-top: 16px;
+  border-top: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.harmonySelectorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.harmonySelectorLabel {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: hsl(var(--muted-foreground));
+}
+
+.harmonySelectorCount {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  font-family: "SF Mono", "Monaco", monospace;
+}
+
+.harmonySelectorContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.harmonyNavButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  border-radius: 6px;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    border-color: hsl(var(--primary));
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.harmonyColorPreview {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.harmonyColorChip {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.activeChip {
+    border-color: hsl(var(--foreground));
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary));
+  }
+
+  &.recommendedChip {
+    .recommendedIcon {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      border-radius: 50%;
+      padding: 2px;
+    }
+  }
+}
+
+.recommendedIcon {
+  fill: currentColor;
+}
+
+.harmonySelectorHint {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+  line-height: 1.4;
+}

@@ -29,6 +29,7 @@ export const RampKitApp = () => {
     scheme: Scheme,
     harmonizeColors: boolean,
     pureColorTheory: boolean,
+    harmonyColorIndex = 0,
   ) => {
     try {
       setLoading(true);
@@ -39,6 +40,7 @@ export const RampKitApp = () => {
         scheme,
         harmonized: harmonizeColors,
         pureColorTheory,
+        harmonyColorIndex,
       });
       setPaletteData(data);
     } catch (err) {

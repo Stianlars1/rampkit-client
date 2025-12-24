@@ -9,6 +9,8 @@ interface GeneratePalette {
   scheme?: Scheme;
   harmonized?: boolean;
   pureColorTheory?: boolean;
+  /** Index of harmony color to use (for multi-color schemes like triadic/analogous) */
+  harmonyColorIndex?: number;
 }
 
 export function generatePalette({
@@ -16,11 +18,13 @@ export function generatePalette({
   hex,
   scheme = "analogous",
   pureColorTheory = false,
+  harmonyColorIndex = 0,
 }: GeneratePalette): PaletteData {
   // Generate base colors with current settings
   const baseColors = generateBaseColors(hex, scheme, {
     harmonized,
     pureColorTheory,
+    harmonyColorIndex,
   });
 
   // Always generate harmony variants for export (using optimized mode for better results)

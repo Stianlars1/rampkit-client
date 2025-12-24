@@ -1,15 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/Input/Input";
 import { Button } from "@/components/ui/Button/Button";
 import { Scheme } from "@/types";
 import styles from "./ColorInput.module.scss";
 import { isValidHex } from "@/lib/utils/color-utils";
 import { useMetrics } from "@/hooks/useMetrics";
-import { ArrowRight, FlaskConical, Palette, Settings2, X } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  FlaskConical,
+  Palette,
+  Settings2,
+  Star,
+  X,
+} from "lucide-react";
 import { cx } from "@/lib/utils/cx";
 import { Tooltip } from "radix-ui";
+import { getAllHarmonyColors } from "@/lib/utils/color/ColorTheory";
 
 interface ColorInputProps {
   onGenerate: (
@@ -17,6 +27,7 @@ interface ColorInputProps {
     scheme: Scheme,
     harmonizeColors: boolean,
     pureColorTheory: boolean,
+    harmonyColorIndex?: number,
   ) => void;
   loading?: boolean;
   firstRenderHex?: string;
@@ -26,6 +37,8 @@ interface ColorInputProps {
   wasHarmonized?: boolean;
   /** The scheme used for generation */
   activeScheme?: Scheme;
+  /** Current harmony color index (for multi-color schemes) */
+  currentHarmonyIndex?: number;
 }
 
 const schemes: { value: Scheme; label: string; description: string }[] = [
@@ -59,6 +72,7 @@ export function ColorInput({
   generatedAccent,
   wasHarmonized,
   activeScheme,
+  currentHarmonyIndex = 0,
 }: ColorInputProps) {
   const [hex, setHex] = useState(firstRenderHex ?? default_accent_color);
   const [scheme, setScheme] = useState<Scheme>("analogous");
@@ -66,8 +80,22 @@ export function ColorInput({
   const [harmonizeColors, setHarmonizeColors] = useState(false);
   const [pureColorTheory, setPureColorTheory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [harmonyIndex, setHarmonyIndex] = useState(0);
   const { trackGenerate } = useMetrics();
   const gsapContainerRef = useRef<HTMLDivElement>(null);
+
+  // Compute all available harmony colors for the current scheme
+  const harmonyColors = useMemo(() => {
+    if (!isValidHex(hex) || !harmonizeColors) return null;
+    return getAllHarmonyColors(hex, scheme, pureColorTheory);
+  }, [hex, scheme, harmonizeColors, pureColorTheory]);
+
+  // Reset harmony index when scheme changes or when harmony colors change
+  useEffect(() => {
+    if (harmonyColors) {
+      setHarmonyIndex(harmonyColors.recommendedIndex);
+    }
+  }, [scheme, harmonyColors?.recommendedIndex]);
 
   useEffect(() => {
     setHex(firstRenderHex ?? default_accent_color);
@@ -81,7 +109,22 @@ export function ColorInput({
 
     setError("");
     trackGenerate(hex, scheme);
-    onGenerate(hex, scheme, harmonizeColors, pureColorTheory);
+    onGenerate(hex, scheme, harmonizeColors, pureColorTheory, harmonyIndex);
+  };
+
+  // Step through harmony colors
+  const handlePrevHarmony = () => {
+    if (!harmonyColors) return;
+    const newIndex =
+      (harmonyIndex - 1 + harmonyColors.colors.length) %
+      harmonyColors.colors.length;
+    setHarmonyIndex(newIndex);
+  };
+
+  const handleNextHarmony = () => {
+    if (!harmonyColors) return;
+    const newIndex = (harmonyIndex + 1) % harmonyColors.colors.length;
+    setHarmonyIndex(newIndex);
   };
 
   const normalizeHex = (value: string) => {
@@ -343,6 +386,79 @@ export function ColorInput({
                     </span>
                   </div>
                 </label>
+              </div>
+            )}
+
+            {/* Harmony Color Selector - shows when there are multiple options */}
+            {harmonyColors && harmonyColors.colors.length > 1 && (
+              <div className={styles.harmonySelector}>
+                <div className={styles.harmonySelectorHeader}>
+                  <span className={styles.harmonySelectorLabel}>
+                    Select Harmony Color
+                  </span>
+                  <span className={styles.harmonySelectorCount}>
+                    {harmonyIndex + 1} / {harmonyColors.colors.length}
+                  </span>
+                </div>
+                <div className={styles.harmonySelectorContent}>
+                  <button
+                    className={styles.harmonyNavButton}
+                    onClick={handlePrevHarmony}
+                    aria-label="Previous harmony color"
+                    type="button"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <div className={styles.harmonyColorPreview}>
+                    {harmonyColors.colors.map((color, idx) => (
+                      <Tooltip.Provider key={idx}>
+                        <Tooltip.Root>
+                          <Tooltip.Trigger asChild>
+                            <button
+                              type="button"
+                              className={cx(
+                                styles.harmonyColorChip,
+                                idx === harmonyIndex && styles.activeChip,
+                                idx === harmonyColors.recommendedIndex &&
+                                  styles.recommendedChip,
+                              )}
+                              style={{ backgroundColor: color.hex }}
+                              onClick={() => setHarmonyIndex(idx)}
+                              aria-label={`${color.label}: ${color.hex}`}
+                              aria-pressed={idx === harmonyIndex}
+                            >
+                              {idx === harmonyColors.recommendedIndex && (
+                                <Star
+                                  size={10}
+                                  className={styles.recommendedIcon}
+                                  aria-label="Recommended"
+                                />
+                              )}
+                            </button>
+                          </Tooltip.Trigger>
+                          <Tooltip.Content className={styles.TooltipContent}>
+                            {color.label}: {color.hex}
+                            {idx === harmonyColors.recommendedIndex &&
+                              " (Recommended)"}
+                          </Tooltip.Content>
+                        </Tooltip.Root>
+                      </Tooltip.Provider>
+                    ))}
+                  </div>
+                  <button
+                    className={styles.harmonyNavButton}
+                    onClick={handleNextHarmony}
+                    aria-label="Next harmony color"
+                    type="button"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+                <span className={styles.harmonySelectorHint}>
+                  {harmonyColors.colors[harmonyIndex]?.label}
+                  {harmonyIndex === harmonyColors.recommendedIndex &&
+                    " — Recommended (avoids muddy tones)"}
+                </span>
               </div>
             )}
           </div>

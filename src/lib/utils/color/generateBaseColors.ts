@@ -1,5 +1,8 @@
 import { Scheme } from "@/types";
-import { generateHarmoniousPalette } from "@/lib/utils/color/ColorTheory";
+import {
+  generateHarmoniousPalette,
+  getAllHarmonyColors,
+} from "@/lib/utils/color/ColorTheory";
 import { generateBackgroundsOKLCH } from "@/lib/utils/color/generateBackgrounds";
 
 function normalizeHex(input?: string | null): string | null {
@@ -23,6 +26,8 @@ export function generateBaseColors(
     harmonized?: boolean;
     useOKLCH?: boolean;
     pureColorTheory?: boolean;
+    /** Index of harmony color to use (for multi-color schemes) */
+    harmonyColorIndex?: number;
   },
 ): {
   accent: string;
@@ -33,25 +38,40 @@ export function generateBaseColors(
   const useHarmonized = opts?.harmonized ?? true;
   const useOKLCH = opts?.useOKLCH ?? true;
   const pureColorTheory = opts?.pureColorTheory ?? false;
+  const harmonyColorIndex = opts?.harmonyColorIndex ?? 0;
   const seed = normalizeHex(brandColor) ?? "#3B82F6";
 
-  const { accent, gray, lightBg, darkBg } = generateHarmoniousPalette(
+  // Get the base palette (gray, backgrounds)
+  const { gray, lightBg, darkBg } = generateHarmoniousPalette(
     seed,
     scheme,
     { pureColorTheory },
   );
 
+  // Get the selected harmony color using the index
+  let accent: string;
+  if (useHarmonized) {
+    const harmonyColors = getAllHarmonyColors(seed, scheme, pureColorTheory);
+    // Use the selected index, or fall back to recommended
+    const colorIndex = Math.min(
+      harmonyColorIndex,
+      harmonyColors.colors.length - 1,
+    );
+    accent = harmonyColors.colors[colorIndex]?.hex ?? seed;
+  } else {
+    accent = seed;
+  }
+
   // Use OKLCH-based background generation for better perceptual uniformity
   if (useOKLCH) {
-    const accentColor = useHarmonized ? accent : seed;
     const { lightBackground, darkBackground } = generateBackgroundsOKLCH(
       seed,
-      accentColor,
+      accent,
       scheme,
     );
 
     return {
-      accent: accentColor,
+      accent,
       gray,
       lightBackground,
       darkBackground,
@@ -60,7 +80,7 @@ export function generateBaseColors(
 
   // Fallback to HSL-based backgrounds
   return {
-    accent: useHarmonized ? accent : seed,
+    accent,
     gray,
     lightBackground: lightBg,
     darkBackground: darkBg,
