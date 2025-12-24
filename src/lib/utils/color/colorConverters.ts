@@ -4,7 +4,13 @@ export interface HSLColor {
   l: number;
 }
 
-export function hexToHSL(hex: string): HSLColor {
+/**
+ * Convert hex color to HSL.
+ * @param hex - Hex color string (e.g., "#007DB8" or "007DB8")
+ * @param precise - If true, returns full floating-point precision.
+ *                  If false (default), rounds to integers for display.
+ */
+export function hexToHSL(hex: string, precise = false): HSLColor {
   const clean = hex.trim().replace(/^#/, "");
 
   // Handle 3-digit hex
@@ -42,6 +48,15 @@ export function hexToHSL(hex: string): HSLColor {
         break;
     }
     h /= 6;
+  }
+
+  // Precise mode preserves floating-point for accurate color theory calculations
+  if (precise) {
+    return {
+      h: h * 360,
+      s: s * 100,
+      l: l * 100,
+    };
   }
 
   return {

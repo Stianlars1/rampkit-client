@@ -1,7 +1,6 @@
 // ColorTheory.ts - Research-optimized color palette generation
 import { Scheme } from "@/types";
-import { hexToHSL } from "@/lib/utils/color-utils";
-import { HSLColor, hslToHex } from "@/lib/utils/color/colorConverters";
+import { HSLColor, hexToHSL, hslToHex } from "@/lib/utils/color/colorConverters";
 
 /** ---------- Core utilities ---------- */
 const clamp = (n: number, min: number, max: number) =>
@@ -209,7 +208,8 @@ export function generateHarmoniousPalette(
   let baseHSL: HSLColor;
 
   try {
-    baseHSL = hexToHSL(seedHex);
+    // Use precise mode for pure color theory to avoid rounding errors
+    baseHSL = hexToHSL(seedHex, pureColorTheory);
 
     // Validate parsed values
     if (
