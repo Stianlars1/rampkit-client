@@ -40,6 +40,14 @@ export interface ColorScale {
 }
 
 export interface PaletteData {
+  // Original user input - never modified by harmony transformations
+  brandColor: string;
+  // Generation settings used
+  scheme: Scheme;
+  harmonized: boolean;
+  pureColorTheory: boolean;
+
+  // Generated accent (may differ from brandColor when harmony is applied)
   accent: string;
   gray: string;
   lightBackground: string;

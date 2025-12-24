@@ -181,6 +181,15 @@ const createBackgrounds = (
   };
 };
 
+interface HarmonyOptions {
+  /**
+   * When true, outputs mathematically pure color theory values.
+   * When false (default), applies tone preservation for better
+   * accessibility and WCAG contrast compliance.
+   */
+  pureColorTheory?: boolean;
+}
+
 /**
  * Bulletproof palette generation with comprehensive error handling
  * Research-optimized for accessibility, battery life, and ecosystem compatibility
@@ -188,12 +197,14 @@ const createBackgrounds = (
 export function generateHarmoniousPalette(
   seedHex: string,
   scheme: Scheme = "analogous",
+  options: HarmonyOptions = {},
 ): {
   accent: string;
   gray: string;
   lightBg: string;
   darkBg: string;
 } {
+  const { pureColorTheory = false } = options;
   // Validate and normalize input
   let baseHSL: HSLColor;
 
@@ -232,10 +243,24 @@ export function generateHarmoniousPalette(
 
   // Generate harmonious accent
   const targetHue = getAccentHue(seedHue, scheme);
-  const accentHSL =
-    scheme === "monochromatic"
-      ? tonePreservingMap({ ...baseHSL, h: seedHue }, seedHue, scheme)
-      : tonePreservingMap(baseHSL, targetHue, scheme);
+
+  // Pure mode: exact color theory rotation without tone adjustments
+  // Optimized mode: applies WCAG-friendly saturation/lightness clamping
+  let accentHSL: HSLColor;
+  if (pureColorTheory) {
+    // Pure color theory: only rotate hue, preserve original S/L
+    accentHSL = {
+      h: modHue(targetHue),
+      s: baseHSL.s,
+      l: baseHSL.l,
+    };
+  } else {
+    // Optimized mode: tone preservation for accessibility
+    accentHSL =
+      scheme === "monochromatic"
+        ? tonePreservingMap({ ...baseHSL, h: seedHue }, seedHue, scheme)
+        : tonePreservingMap(baseHSL, targetHue, scheme);
+  }
 
   // Generate supporting colors
   const grayHSL = createTintedNeutral(seedHue, scheme);

@@ -8,18 +8,29 @@ interface GeneratePalette {
   hex: string;
   scheme?: Scheme;
   harmonized?: boolean;
+  pureColorTheory?: boolean;
 }
+
 export function generatePalette({
   harmonized = false,
   hex,
-  scheme,
+  scheme = "analogous",
+  pureColorTheory = false,
 }: GeneratePalette): PaletteData {
-  const baseColors = generateBaseColors(hex, scheme, { harmonized });
+  // Generate base colors with current settings
+  const baseColors = generateBaseColors(hex, scheme, {
+    harmonized,
+    pureColorTheory,
+  });
+
+  // Always generate harmony variants for export (using optimized mode for better results)
   const baseColorsAnalogous = generateBaseColors(hex, "analogous", {
     harmonized: true,
+    pureColorTheory,
   });
   const baseColorsComplementary = generateBaseColors(hex, "complementary", {
     harmonized: true,
+    pureColorTheory,
   });
 
   const light = generateRadixColors({
@@ -71,6 +82,12 @@ export function generatePalette({
   );
 
   return {
+    // Preserve original user input for reference
+    brandColor: hex.toUpperCase(),
+    scheme,
+    harmonized,
+    pureColorTheory,
+
     accent: baseColors.accent,
     gray: baseColors.gray,
     lightBackground: baseColors.lightBackground,

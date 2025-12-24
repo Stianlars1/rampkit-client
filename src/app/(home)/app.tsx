@@ -28,6 +28,7 @@ export const RampKitApp = () => {
     hex: string,
     scheme: Scheme,
     harmonizeColors: boolean,
+    pureColorTheory: boolean,
   ) => {
     try {
       setLoading(true);
@@ -37,6 +38,7 @@ export const RampKitApp = () => {
         hex,
         scheme,
         harmonized: harmonizeColors,
+        pureColorTheory,
       });
       setPaletteData(data);
     } catch (err) {
@@ -68,7 +70,7 @@ export const RampKitApp = () => {
             <div className={styles.backgroundContrast_2} />*/}
           </div>
           <ColorInput
-            firstRenderHex={paletteData?.accent}
+            firstRenderHex={paletteData?.brandColor}
             onGenerate={handleGenerate}
             loading={loading}
           />

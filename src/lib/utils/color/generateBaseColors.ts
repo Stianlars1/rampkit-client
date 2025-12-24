@@ -19,7 +19,11 @@ function normalizeHex(input?: string | null): string | null {
 export function generateBaseColors(
   brandColor?: string,
   scheme: Scheme = "analogous",
-  opts?: { harmonized?: boolean; useOKLCH?: boolean },
+  opts?: {
+    harmonized?: boolean;
+    useOKLCH?: boolean;
+    pureColorTheory?: boolean;
+  },
 ): {
   accent: string;
   gray: string;
@@ -27,12 +31,14 @@ export function generateBaseColors(
   darkBackground: string;
 } {
   const useHarmonized = opts?.harmonized ?? true;
-  const useOKLCH = opts?.useOKLCH ?? true; // Default to OKLCH for better perceptual uniformity
-  const seed = normalizeHex(brandColor) ?? "#3B82F6"; // safe default
+  const useOKLCH = opts?.useOKLCH ?? true;
+  const pureColorTheory = opts?.pureColorTheory ?? false;
+  const seed = normalizeHex(brandColor) ?? "#3B82F6";
 
   const { accent, gray, lightBg, darkBg } = generateHarmoniousPalette(
     seed,
     scheme,
+    { pureColorTheory },
   );
 
   // Use OKLCH-based background generation for better perceptual uniformity

@@ -231,6 +231,109 @@
   }
 }
 
+// Reusable toggle section styles (used by harmonize and pure color toggles)
+.pureColorSection {
+  padding-top: 16px;
+  border-top: 1px solid hsl(var(--border));
+
+  .switch {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+
+    input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+
+      &:checked + span {
+        background: hsl(var(--primary));
+
+        .sliderIcon {
+          opacity: 1;
+        }
+      }
+    }
+
+    .slider {
+      min-width: 48px;
+      height: 28px;
+      background: hsl(var(--border));
+      border-radius: 14px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      outline: none;
+
+      .sliderIcon {
+        width: 16px;
+        height: 16px;
+        color: hsl(var(--background));
+        opacity: 0.5;
+        transition: opacity 0.2s;
+      }
+    }
+
+    .sliderSmall {
+      min-width: 40px;
+      height: 24px;
+      border-radius: 12px;
+
+      .sliderIcon {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .sliderActive {
+      opacity: 1;
+      background: hsl(var(--primary));
+    }
+
+    .switchLabel {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .switchTitle {
+        font-size: 14px;
+        font-weight: 500;
+        color: hsl(var(--foreground));
+
+        .sliderStatus {
+          font-size: 12px;
+          font-weight: 400;
+          color: hsl(var(--muted-foreground));
+          margin-left: 6px;
+          background: hsl(var(--background));
+          padding: 4px 8px;
+          border-radius: 4px;
+        }
+      }
+
+      .switchDescription {
+        font-size: 12px;
+        color: hsl(var(--muted-foreground));
+        line-height: 1.5;
+      }
+    }
+
+    .TooltipContent {
+      background: hsl(var(--muted));
+      color: hsl(var(--muted-foreground));
+      border: 1px solid hsl(var(--border));
+      box-shadow: 0 4px 6px hsl(var(--shadow));
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+  }
+}
+
 .schemeSection {
   display: flex;
   flex-direction: column;

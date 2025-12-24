@@ -7,12 +7,17 @@ import { Scheme } from "@/types";
 import styles from "./ColorInput.module.scss";
 import { isValidHex } from "@/lib/utils/color-utils";
 import { useMetrics } from "@/hooks/useMetrics";
-import { Palette, Settings2, X } from "lucide-react";
+import { FlaskConical, Palette, Settings2, X } from "lucide-react";
 import { cx } from "@/lib/utils/cx";
 import { Tooltip } from "radix-ui";
 
 interface ColorInputProps {
-  onGenerate: (hex: string, scheme: Scheme, harmonizeColors: boolean) => void;
+  onGenerate: (
+    hex: string,
+    scheme: Scheme,
+    harmonizeColors: boolean,
+    pureColorTheory: boolean,
+  ) => void;
   loading?: boolean;
   firstRenderHex?: string;
 }
@@ -50,6 +55,7 @@ export function ColorInput({
   const [scheme, setScheme] = useState<Scheme>("analogous");
   const [error, setError] = useState("");
   const [harmonizeColors, setHarmonizeColors] = useState(false);
+  const [pureColorTheory, setPureColorTheory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { trackGenerate } = useMetrics();
   const gsapContainerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +72,7 @@ export function ColorInput({
 
     setError("");
     trackGenerate(hex, scheme);
-    onGenerate(hex, scheme, harmonizeColors);
+    onGenerate(hex, scheme, harmonizeColors, pureColorTheory);
   };
 
   const normalizeHex = (value: string) => {
@@ -214,6 +220,8 @@ export function ColorInput({
                     }`}
                     onClick={() => setScheme(s.value as Scheme)}
                     disabled={!harmonizeColors}
+                    aria-pressed={scheme === s.value}
+                    aria-label={`${s.label}: ${s.description}`}
                   >
                     <span className={styles.schemeTitle}>{s.label}</span>
                     <span className={styles.schemeDescription}>
@@ -223,6 +231,54 @@ export function ColorInput({
                 ))}
               </div>
             </div>
+
+            {/* Pure Color Theory Toggle - only visible when harmony is enabled */}
+            {harmonizeColors && (
+              <div className={styles.pureColorSection}>
+                <label className={styles.switch}>
+                  <input
+                    type="checkbox"
+                    checked={pureColorTheory}
+                    onChange={(e) => setPureColorTheory(e.target.checked)}
+                    aria-describedby="pure-color-description"
+                  />
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild={true}>
+                        <span
+                          className={cx(
+                            styles.slider,
+                            styles.sliderSmall,
+                            pureColorTheory && styles.sliderActive,
+                          )}
+                        >
+                          <FlaskConical className={styles.sliderIcon} />
+                        </span>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content className={styles.TooltipContent}>
+                        Toggle pure color theory mode
+                      </Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                  <div className={styles.switchLabel}>
+                    <span className={styles.switchTitle}>
+                      Pure Color Theory{" "}
+                      <small className={styles.sliderStatus}>
+                        {pureColorTheory ? "🔬 on" : "✨ off"}
+                      </small>
+                    </span>
+                    <span
+                      id="pure-color-description"
+                      className={styles.switchDescription}
+                    >
+                      {pureColorTheory
+                        ? "Exact mathematical color rotation (may have lower contrast)"
+                        : "Optimized for accessibility and WCAG contrast"}
+                    </span>
+                  </div>
+                </label>
+              </div>
+            )}
           </div>
         </div>
       </div>
