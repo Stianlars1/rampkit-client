@@ -89,17 +89,30 @@ export function ColorInput({
   initialPureColorTheory = false,
   initialHarmonyIndex = 0,
 }: ColorInputProps) {
-  const [hex, setHex] = useState(firstRenderHex ?? default_accent_color);
-  const [scheme, setScheme] = useState<Scheme>(initialScheme);
+  // Hydration fix: use consistent defaults on server, sync from props after mount
+  const [isMounted, setIsMounted] = useState(false);
+  const [hex, setHex] = useState(default_accent_color);
+  const [scheme, setScheme] = useState<Scheme>("analogous");
   const [error, setError] = useState("");
-  const [harmonizeColors, setHarmonizeColors] = useState(initialHarmonized);
-  const [pureColorTheory, setPureColorTheory] = useState(initialPureColorTheory);
+  const [harmonizeColors, setHarmonizeColors] = useState(false);
+  const [pureColorTheory, setPureColorTheory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [harmonyIndex, setHarmonyIndex] = useState(initialHarmonyIndex);
-  const [hasGenerated, setHasGenerated] = useState(!!firstRenderHex);
+  const [harmonyIndex, setHarmonyIndex] = useState(0);
+  const [hasGenerated, setHasGenerated] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const { trackGenerate } = useMetrics();
   const gsapContainerRef = useRef<HTMLDivElement>(null);
+
+  // Sync initial values after mount to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+    if (firstRenderHex) setHex(firstRenderHex);
+    if (initialScheme !== "analogous") setScheme(initialScheme);
+    if (initialHarmonized) setHarmonizeColors(true);
+    if (initialPureColorTheory) setPureColorTheory(true);
+    if (initialHarmonyIndex !== 0) setHarmonyIndex(initialHarmonyIndex);
+    if (firstRenderHex) setHasGenerated(true);
+  }, []);
 
   // Handle clicking a history item
   const handleHistorySelect = (item: ColorHistoryItem) => {
@@ -196,6 +209,47 @@ export function ColorInput({
   const handleSettingsClick = () => setShowSettings(!showSettings);
 
   const inputBg = isValidHex(hex) ? hex : default_accent_color;
+
+  // Show skeleton during SSR/hydration to prevent mismatch
+  if (!isMounted) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.form}>
+          <div className={styles.inputRow}>
+            <div className={styles.colorInputWrapper}>
+              <label className={styles.colorPicker} htmlFor="color-skeleton" />
+              <input
+                id="color-skeleton"
+                type="color"
+                className={styles.hiddenColorInput}
+                defaultValue={default_accent_color}
+                readOnly
+              />
+              <Input
+                type="text"
+                placeholder="3B82F6"
+                value="3B82F6"
+                className={styles.colorInput}
+                readOnly
+              />
+              <span className={styles.hashPrefix}>#</span>
+            </div>
+            <Button
+              className={styles.settingsButton}
+              variant="outline"
+              disabled
+            >
+              <Settings2 className={styles.settingsIcon} />
+            </Button>
+          </div>
+        </div>
+        <Button size="lg" className={styles.generateButton} disabled>
+          Generate Palette
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.form}>
