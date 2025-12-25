@@ -11,12 +11,12 @@ export const colorHistoryScript = `
     if (urlHex) {
       d.initialHex = '#' + urlHex.replace('#', '').toUpperCase();
       d.initialScheme = params.get('scheme') || 'analogous';
-      d.initialHarmonized = params.get('harmonized') === 'true' ? '1' : '0';
-      d.initialPure = params.get('pure') === 'true' ? '1' : '0';
+      d.initialHarmonized = params.get('harmonized') === 'true' ? 'true' : 'false';
+      d.initialPure = params.get('pure') === 'true' ? 'true' : 'false';
       // URL uses 1-indexed for humans, convert to 0-indexed
       var colorParam = params.get('color');
       d.initialColorIndex = colorParam ? String(parseInt(colorParam, 10) - 1) : '0';
-      d.hasInitialParams = '1';
+      d.hasInitialParams = 'true';
       return;
     }
 
@@ -28,10 +28,10 @@ export const colorHistoryScript = `
         var item = history[0];
         d.initialHex = item.inputHex;
         d.initialScheme = item.scheme || 'analogous';
-        d.initialHarmonized = item.harmonized ? '1' : '0';
-        d.initialPure = item.pureColorTheory ? '1' : '0';
+        d.initialHarmonized = item.harmonized ? 'true' : 'false';
+        d.initialPure = item.pureColorTheory ? 'true' : 'false';
         d.initialColorIndex = String(item.harmonyColorIndex || 0);
-        d.hasInitialParams = '1';
+        d.hasInitialParams = 'true';
       }
     }
   } catch (e) {}

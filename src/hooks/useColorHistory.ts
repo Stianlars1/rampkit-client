@@ -39,7 +39,7 @@ const DEFAULTS = {
  * This prevents hydration flash by having values ready before first render
  */
 function getInitialFromDataset(): InitialValues {
-  if (typeof document === "undefined") {
+  if (typeof window === "undefined" || typeof document === "undefined") {
     return {
       hex: DEFAULT_HEX,
       scheme: DEFAULTS.scheme,
@@ -55,10 +55,10 @@ function getInitialFromDataset(): InitialValues {
   return {
     hex: d.initialHex || DEFAULT_HEX,
     scheme: (d.initialScheme as Scheme) || DEFAULTS.scheme,
-    harmonized: d.initialHarmonized === "1",
-    pureColorTheory: d.initialPure === "1",
+    harmonized: d.initialHarmonized === "true",
+    pureColorTheory: d.initialPure === "true",
     harmonyColorIndex: parseInt(d.initialColorIndex || "0", 10),
-    hasInitialParams: d.hasInitialParams === "1",
+    hasInitialParams: d.hasInitialParams === "true",
   };
 }
 
