@@ -93,11 +93,10 @@ function updateURL(
     if (scheme !== DEFAULTS.scheme) {
       url.searchParams.set("scheme", scheme);
     }
-    // Use presence-based params for booleans (cleaner: ?harmonized vs ?harmonized=1)
-    url.searchParams.set("harmonized", "");
+    url.searchParams.set("harmonized", "true");
 
     if (pureColorTheory) {
-      url.searchParams.set("pure", "");
+      url.searchParams.set("pure", "true");
     }
 
     // Only include color index if not default (and use 1-indexed for humans)

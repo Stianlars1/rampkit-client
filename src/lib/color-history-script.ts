@@ -11,8 +11,8 @@ export const colorHistoryScript = `
     if (urlHex) {
       d.initialHex = '#' + urlHex.replace('#', '').toUpperCase();
       d.initialScheme = params.get('scheme') || 'analogous';
-      d.initialHarmonized = params.has('harmonized') ? '1' : '0';
-      d.initialPure = params.has('pure') ? '1' : '0';
+      d.initialHarmonized = params.get('harmonized') === 'true' ? '1' : '0';
+      d.initialPure = params.get('pure') === 'true' ? '1' : '0';
       // URL uses 1-indexed for humans, convert to 0-indexed
       var colorParam = params.get('color');
       d.initialColorIndex = colorParam ? String(parseInt(colorParam, 10) - 1) : '0';
