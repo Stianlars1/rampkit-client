@@ -14,61 +14,96 @@ export interface ColorHistoryItem {
   timestamp: number;
 }
 
-interface URLParams {
-  hex?: string;
-  scheme?: Scheme;
-  harmony?: boolean;
-  pure?: boolean;
-  idx?: number;
+interface InitialValues {
+  hex: string;
+  scheme: Scheme;
+  harmonized: boolean;
+  pureColorTheory: boolean;
+  harmonyColorIndex: number;
+  hasInitialParams: boolean;
 }
 
 const HISTORY_KEY = "rampkit_color_history";
 const MAX_HISTORY = 10;
 
-/**
- * Parse URL search params into color settings
- */
-function parseURLParams(): URLParams {
-  if (typeof window === "undefined") return {};
+// Default values - used to determine what to include in URL
+const DEFAULTS = {
+  scheme: "analogous" as Scheme,
+  harmonized: false,
+  pureColorTheory: false,
+  harmonyColorIndex: 0,
+};
 
-  const params = new URLSearchParams(window.location.search);
-  const hex = params.get("hex");
-  const scheme = params.get("scheme") as Scheme | null;
-  const harmony = params.get("harmony");
-  const pure = params.get("pure");
-  const idx = params.get("idx");
+/**
+ * Read initial values from dataset (set by inline script before React)
+ * This prevents hydration flash by having values ready before first render
+ */
+function getInitialFromDataset(): InitialValues {
+  if (typeof document === "undefined") {
+    return {
+      hex: DEFAULT_HEX,
+      scheme: DEFAULTS.scheme,
+      harmonized: DEFAULTS.harmonized,
+      pureColorTheory: DEFAULTS.pureColorTheory,
+      harmonyColorIndex: DEFAULTS.harmonyColorIndex,
+      hasInitialParams: false,
+    };
+  }
+
+  const d = document.documentElement.dataset;
 
   return {
-    hex: hex ? `#${hex.replace("#", "").toUpperCase()}` : undefined,
-    scheme: scheme || undefined,
-    harmony: harmony === "1",
-    pure: pure === "1",
-    idx: idx ? parseInt(idx, 10) : undefined,
+    hex: d.initialHex || DEFAULT_HEX,
+    scheme: (d.initialScheme as Scheme) || DEFAULTS.scheme,
+    harmonized: d.initialHarmonized === "1",
+    pureColorTheory: d.initialPure === "1",
+    harmonyColorIndex: parseInt(d.initialColorIndex || "0", 10),
+    hasInitialParams: d.hasInitialParams === "1",
   };
 }
 
 /**
  * Update URL with current color settings (without page reload)
+ * Only includes params that differ from defaults for cleaner URLs
  */
-function updateURL(params: URLParams): void {
+function updateURL(
+  hex: string,
+  scheme: Scheme,
+  harmonized: boolean,
+  pureColorTheory: boolean,
+  harmonyColorIndex: number,
+): void {
   if (typeof window === "undefined") return;
 
   const url = new URL(window.location.href);
 
-  if (params.hex) {
-    url.searchParams.set("hex", params.hex.replace("#", ""));
-  }
-  if (params.scheme) {
-    url.searchParams.set("scheme", params.scheme);
-  }
-  if (params.harmony !== undefined) {
-    url.searchParams.set("harmony", params.harmony ? "1" : "0");
-  }
-  if (params.pure !== undefined) {
-    url.searchParams.set("pure", params.pure ? "1" : "0");
-  }
-  if (params.idx !== undefined) {
-    url.searchParams.set("idx", params.idx.toString());
+  // Clear existing params
+  url.searchParams.delete("hex");
+  url.searchParams.delete("scheme");
+  url.searchParams.delete("harmonized");
+  url.searchParams.delete("pure");
+  url.searchParams.delete("color");
+
+  // Always include hex
+  url.searchParams.set("hex", hex.replace("#", ""));
+
+  // Only include non-default values for cleaner URLs
+  if (harmonized) {
+    // Only include scheme if harmony is on (otherwise scheme is irrelevant)
+    if (scheme !== DEFAULTS.scheme) {
+      url.searchParams.set("scheme", scheme);
+    }
+    // Use presence-based params for booleans (cleaner: ?harmonized vs ?harmonized=1)
+    url.searchParams.set("harmonized", "");
+
+    if (pureColorTheory) {
+      url.searchParams.set("pure", "");
+    }
+
+    // Only include color index if not default (and use 1-indexed for humans)
+    if (harmonyColorIndex !== DEFAULTS.harmonyColorIndex) {
+      url.searchParams.set("color", String(harmonyColorIndex + 1));
+    }
   }
 
   window.history.replaceState({}, "", url.toString());
@@ -105,17 +140,15 @@ function saveHistory(history: ColorHistoryItem[]): void {
  * Hook for managing color history and URL sync
  */
 export function useColorHistory() {
+  // Initialize from dataset immediately (no flash)
+  const [initialValues] = useState<InitialValues>(getInitialFromDataset);
   const [history, setHistory] = useState<ColorHistoryItem[]>([]);
-  const [initialParams, setInitialParams] = useState<URLParams>({});
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load history and URL params on mount
+  // Load history on mount
   useEffect(() => {
     const loadedHistory = loadHistory();
     setHistory(loadedHistory);
-
-    const params = parseURLParams();
-    setInitialParams(params);
     setIsInitialized(true);
   }, []);
 
@@ -146,14 +179,14 @@ export function useColorHistory() {
         return updated;
       });
 
-      // Update URL
-      updateURL({
-        hex: item.inputHex,
-        scheme: item.scheme,
-        harmony: item.harmonized,
-        pure: item.pureColorTheory,
-        idx: item.harmonyColorIndex,
-      });
+      // Update URL with clean params
+      updateURL(
+        item.inputHex,
+        item.scheme,
+        item.harmonized,
+        item.pureColorTheory,
+        item.harmonyColorIndex,
+      );
     },
     [],
   );
@@ -167,23 +200,11 @@ export function useColorHistory() {
   }, []);
 
   /**
-   * Get initial values from URL (for first render)
+   * Get initial values (from dataset, set by inline script)
    */
   const getInitialValues = useCallback(() => {
-    return {
-      hex: initialParams.hex || DEFAULT_HEX,
-      scheme: initialParams.scheme || ("analogous" as Scheme),
-      harmonized: initialParams.harmony || false,
-      pureColorTheory: initialParams.pure || false,
-      harmonyColorIndex: initialParams.idx || 0,
-      hasURLParams: !!(
-        initialParams.hex ||
-        initialParams.scheme ||
-        initialParams.harmony ||
-        initialParams.pure
-      ),
-    };
-  }, [initialParams]);
+    return initialValues;
+  }, [initialValues]);
 
   return {
     history,

@@ -23,6 +23,9 @@ export const RampKitApp = () => {
   const { history, addToHistory, getInitialValues, isInitialized } =
     useColorHistory();
 
+  // Get initial values from URL/localStorage (set by inline script, no flash)
+  const initialValues = getInitialValues();
+
   useEffect(() => {
     bumpVisitorOncePerSession().then();
   }, []);
@@ -32,7 +35,7 @@ export const RampKitApp = () => {
     if (!isInitialized) return;
 
     const initial = getInitialValues();
-    if (initial.hasURLParams) {
+    if (initial.hasInitialParams) {
       handleGenerate(
         initial.hex,
         initial.scheme,
@@ -101,13 +104,17 @@ export const RampKitApp = () => {
             <div className={styles.backgroundContrast_2} />*/}
           </div>
           <ColorInput
-            firstRenderHex={paletteData?.brandColor}
+            firstRenderHex={paletteData?.brandColor ?? initialValues.hex}
             onGenerate={handleGenerate}
             loading={loading}
             generatedAccent={paletteData?.accent}
             wasHarmonized={paletteData?.harmonized}
             activeScheme={paletteData?.scheme}
             history={history}
+            initialScheme={initialValues.scheme}
+            initialHarmonized={initialValues.harmonized}
+            initialPureColorTheory={initialValues.pureColorTheory}
+            initialHarmonyIndex={initialValues.harmonyColorIndex}
           />
 
           {error && (

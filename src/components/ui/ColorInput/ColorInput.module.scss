@@ -233,6 +233,26 @@
   flex-shrink: 0;
 }
 
+.historySwatchPair {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.historySwatchSmall {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid hsl(var(--border));
+}
+
+.historyArrow {
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+  line-height: 1;
+}
+
 .historyItemInfo {
   display: flex;
   flex-direction: column;

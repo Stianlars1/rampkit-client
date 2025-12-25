@@ -1,6 +1,11 @@
 // ColorTheory.ts - Research-optimized color palette generation
 import { Scheme } from "@/types";
-import { HSLColor, hexToHSL, hslToHex } from "@/lib/utils/color/colorConverters";
+import {
+  HSLColor,
+  hexToHSL,
+  hslToHex,
+} from "@/lib/utils/color/colorConverters";
+import { DEFAULT_HEX } from "@/lib/constants";
 
 /** ---------- Core utilities ---------- */
 const clamp = (n: number, min: number, max: number) =>
@@ -232,7 +237,7 @@ export function generateHarmoniousPalette(
   } catch (error) {
     // Fallback to research-optimized default
     console.warn(`Invalid color input "${seedHex}", using fallback`);
-    const fallback = "#3B82F6"; // Tailwind blue-500, well-tested
+    const fallback = DEFAULT_HEX; // Tailwind blue-500, well-tested
     baseHSL = hexToHSL(fallback);
   }
 
@@ -278,7 +283,7 @@ export function generateHarmoniousPalette(
     // Ultimate fallback - should never reach here
     console.error("Color conversion failed, using safe defaults");
     return {
-      accent: "#3B82F6",
+      accent: DEFAULT_HEX,
       gray: "#6B7280",
       lightBg: "#F9FAFB",
       darkBg: "#0F0F0F",
@@ -356,10 +361,7 @@ export function getAllHarmonyColors(
       break;
 
     case "triadic":
-      colors = [
-        createColor(120, "Triadic 1"),
-        createColor(240, "Triadic 2"),
-      ];
+      colors = [createColor(120, "Triadic 1"), createColor(240, "Triadic 2")];
       // Recommend the one that's NOT in the muddy zone
       recommendedIndex = isMuddy(120) ? 1 : 0;
       break;

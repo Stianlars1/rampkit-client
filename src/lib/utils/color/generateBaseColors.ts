@@ -4,6 +4,7 @@ import {
   getAllHarmonyColors,
 } from "@/lib/utils/color/ColorTheory";
 import { generateBackgroundsOKLCH } from "@/lib/utils/color/generateBackgrounds";
+import { DEFAULT_HEX } from "@/lib/constants";
 
 function normalizeHex(input?: string | null): string | null {
   if (!input) return null;
@@ -39,14 +40,12 @@ export function generateBaseColors(
   const useOKLCH = opts?.useOKLCH ?? true;
   const pureColorTheory = opts?.pureColorTheory ?? false;
   const harmonyColorIndex = opts?.harmonyColorIndex ?? 0;
-  const seed = normalizeHex(brandColor) ?? "#3B82F6";
+  const seed = normalizeHex(brandColor) ?? DEFAULT_HEX;
 
   // Get the base palette (gray, backgrounds)
-  const { gray, lightBg, darkBg } = generateHarmoniousPalette(
-    seed,
-    scheme,
-    { pureColorTheory },
-  );
+  const { gray, lightBg, darkBg } = generateHarmoniousPalette(seed, scheme, {
+    pureColorTheory,
+  });
 
   // Get the selected harmony color using the index
   let accent: string;

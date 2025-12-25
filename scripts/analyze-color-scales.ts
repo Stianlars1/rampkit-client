@@ -12,10 +12,11 @@
 
 import Color from "colorjs.io";
 import { generateRadixColors } from "../src/components/radix/generateRadixColors";
+import { DEFAULT_HEX } from "@/lib/constants";
 
 // Test colors covering various hues
 const testColors = [
-  { name: "Blue", hex: "#3B82F6", hue: 217 },
+  { name: "Blue", hex: DEFAULT_HEX, hue: 217 },
   { name: "Green", hex: "#22C55E", hue: 142 },
   { name: "Red", hex: "#EF4444", hue: 0 },
   { name: "Yellow", hex: "#F59E0B", hue: 38 },

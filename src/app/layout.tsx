@@ -13,6 +13,7 @@ import { cx } from "@/lib/utils/cx";
 import { site } from "@/lib/seo/site";
 import Script from "next/script";
 import { themeScript } from "@/lib/theme-script";
+import { colorHistoryScript } from "@/lib/color-history-script";
 import { GoogleAnalyticsProvider } from "@/lib/analytics/GoogleAnalyticsProvider";
 import { Providers } from "@/context/Providers";
 
@@ -86,6 +87,10 @@ export default function RootLayout({
 
         <script
           dangerouslySetInnerHTML={{ __html: themeScript }}
+          suppressHydrationWarning
+        />
+        <script
+          dangerouslySetInnerHTML={{ __html: colorHistoryScript }}
           suppressHydrationWarning
         />
       </head>

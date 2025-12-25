@@ -44,6 +44,11 @@ interface ColorInputProps {
   currentHarmonyIndex?: number;
   /** Color generation history */
   history?: ColorHistoryItem[];
+  /** Initial values from URL/localStorage (for no-flash hydration) */
+  initialScheme?: Scheme;
+  initialHarmonized?: boolean;
+  initialPureColorTheory?: boolean;
+  initialHarmonyIndex?: number;
 }
 
 const schemes: { value: Scheme; label: string; description: string }[] = [
@@ -79,14 +84,18 @@ export function ColorInput({
   activeScheme,
   currentHarmonyIndex = 0,
   history = [],
+  initialScheme = "analogous",
+  initialHarmonized = false,
+  initialPureColorTheory = false,
+  initialHarmonyIndex = 0,
 }: ColorInputProps) {
   const [hex, setHex] = useState(firstRenderHex ?? default_accent_color);
-  const [scheme, setScheme] = useState<Scheme>("analogous");
+  const [scheme, setScheme] = useState<Scheme>(initialScheme);
   const [error, setError] = useState("");
-  const [harmonizeColors, setHarmonizeColors] = useState(false);
-  const [pureColorTheory, setPureColorTheory] = useState(false);
+  const [harmonizeColors, setHarmonizeColors] = useState(initialHarmonized);
+  const [pureColorTheory, setPureColorTheory] = useState(initialPureColorTheory);
   const [showSettings, setShowSettings] = useState(false);
-  const [harmonyIndex, setHarmonyIndex] = useState(0);
+  const [harmonyIndex, setHarmonyIndex] = useState(initialHarmonyIndex);
   const [hasGenerated, setHasGenerated] = useState(!!firstRenderHex);
   const [showHistory, setShowHistory] = useState(false);
   const { trackGenerate } = useMetrics();
@@ -269,33 +278,61 @@ export function ColorInput({
                     <span>Recent Colors</span>
                   </div>
                   <div className={styles.historyList}>
-                    {history.map((item, idx) => (
-                      <button
-                        key={item.timestamp}
-                        className={cx(
-                          styles.historyItem,
-                          idx === 0 && styles.historyItemCurrent,
-                        )}
-                        onClick={() => handleHistorySelect(item)}
-                        title={`${item.inputHex} → ${item.generatedAccent}`}
-                      >
-                        <div
-                          className={styles.historyItemSwatch}
-                          style={{ backgroundColor: item.generatedAccent }}
-                        />
-                        <div className={styles.historyItemInfo}>
-                          <span className={styles.historyItemHex}>
-                            {item.generatedAccent.toUpperCase()}
-                          </span>
-                          <span className={styles.historyItemMeta}>
-                            {item.harmonized
-                              ? schemes.find((s) => s.value === item.scheme)
-                                  ?.label
-                              : "Direct"}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
+                    {history.map((item, idx) => {
+                      const wasTransformed =
+                        item.harmonized &&
+                        item.inputHex.toUpperCase() !==
+                          item.generatedAccent.toUpperCase();
+                      const schemeName = schemes.find(
+                        (s) => s.value === item.scheme,
+                      )?.label;
+
+                      return (
+                        <button
+                          key={item.timestamp}
+                          className={cx(
+                            styles.historyItem,
+                            idx === 0 && styles.historyItemCurrent,
+                          )}
+                          onClick={() => handleHistorySelect(item)}
+                          title={
+                            wasTransformed
+                              ? `Input: ${item.inputHex} → Output: ${item.generatedAccent}`
+                              : item.generatedAccent
+                          }
+                        >
+                          {/* Show input→output when transformed, single swatch otherwise */}
+                          {wasTransformed ? (
+                            <div className={styles.historySwatchPair}>
+                              <div
+                                className={styles.historySwatchSmall}
+                                style={{ backgroundColor: item.inputHex }}
+                              />
+                              <span className={styles.historyArrow}>→</span>
+                              <div
+                                className={styles.historySwatchSmall}
+                                style={{ backgroundColor: item.generatedAccent }}
+                              />
+                            </div>
+                          ) : (
+                            <div
+                              className={styles.historyItemSwatch}
+                              style={{ backgroundColor: item.generatedAccent }}
+                            />
+                          )}
+                          <div className={styles.historyItemInfo}>
+                            <span className={styles.historyItemHex}>
+                              {item.generatedAccent.toUpperCase()}
+                            </span>
+                            <span className={styles.historyItemMeta}>
+                              {wasTransformed
+                                ? `${schemeName} from ${item.inputHex}`
+                                : "Direct input"}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                   <Popover.Arrow className={styles.historyPopoverArrow} />
                 </Popover.Content>
