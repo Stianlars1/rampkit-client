@@ -82,14 +82,6 @@ const BackgroundEffects = memo(() => {
     stepElements.forEach((step, index) => {
       const fromConfig = preset.animation.from(index, stepElements.length);
       const toConfig = preset.animation.to(index, stepElements.length);
-      console.log("\n\npaletteData", paletteData);
-      console.log("getcolor", getColorFromCSS(`--accent-${index + 1}`));
-      console.log(
-        "Setting background for step",
-        index + 1,
-        "to",
-        getColorFromCSS(`--accent-${index + 1}`),
-      );
       fromConfig.background = getColorFromCSS(`--accent-${index + 1}`);
       toConfig.background = getColorFromCSS(`--accent-${index + 1}`);
       toConfig.opacity = preset.getOpacity(index, stepElements.length - 1);
