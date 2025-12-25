@@ -358,14 +358,15 @@
 }
 
 .settingsPanel {
-  max-height: 0;
+  height: 0;
+  border-radius: 12px;
   overflow: hidden;
   transition:
-    max-height 0.3s ease,
+    height 0.3s ease,
     margin 0.3s ease;
 
   &.open {
-    max-height: 400px;
+    height: calc(100%);
     margin-top: 16px;
   }
 }
@@ -743,7 +744,9 @@
 
   &.activeChip {
     border-color: hsl(var(--foreground));
-    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary));
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--primary));
   }
 
   &.recommendedChip {

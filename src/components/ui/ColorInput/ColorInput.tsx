@@ -49,6 +49,8 @@ interface ColorInputProps {
   initialHarmonized?: boolean;
   initialPureColorTheory?: boolean;
   initialHarmonyIndex?: number;
+  /** Whether there were initial params from URL/localStorage (first-time users = false) */
+  hasInitialParams?: boolean;
 }
 
 const schemes: { value: Scheme; label: string; description: string }[] = [
@@ -88,30 +90,27 @@ export function ColorInput({
   initialHarmonized = false,
   initialPureColorTheory = false,
   initialHarmonyIndex = 0,
+  hasInitialParams = false,
 }: ColorInputProps) {
-  // Hydration fix: use consistent defaults on server, sync from props after mount
+  // Track if component has mounted (for hydration-safe rendering)
   const [isMounted, setIsMounted] = useState(false);
-  const [hex, setHex] = useState(default_accent_color);
-  const [scheme, setScheme] = useState<Scheme>("analogous");
+  // Initialize state from props (set by inline script before React hydrates)
+  const [hex, setHex] = useState(firstRenderHex || default_accent_color);
+  const [scheme, setScheme] = useState<Scheme>(initialScheme);
   const [error, setError] = useState("");
-  const [harmonizeColors, setHarmonizeColors] = useState(false);
-  const [pureColorTheory, setPureColorTheory] = useState(false);
+  const [harmonizeColors, setHarmonizeColors] = useState(initialHarmonized);
+  const [pureColorTheory, setPureColorTheory] = useState(initialPureColorTheory);
   const [showSettings, setShowSettings] = useState(false);
-  const [harmonyIndex, setHarmonyIndex] = useState(0);
-  const [hasGenerated, setHasGenerated] = useState(false);
+  const [harmonyIndex, setHarmonyIndex] = useState(initialHarmonyIndex);
+  // Only mark as generated if user had URL params or localStorage (not first-time users)
+  const [hasGenerated, setHasGenerated] = useState(hasInitialParams);
   const [showHistory, setShowHistory] = useState(false);
   const { trackGenerate } = useMetrics();
   const gsapContainerRef = useRef<HTMLDivElement>(null);
 
-  // Sync initial values after mount to avoid hydration mismatch
+  // Mark as mounted after hydration
   useEffect(() => {
     setIsMounted(true);
-    if (firstRenderHex) setHex(firstRenderHex);
-    if (initialScheme !== "analogous") setScheme(initialScheme);
-    if (initialHarmonized) setHarmonizeColors(true);
-    if (initialPureColorTheory) setPureColorTheory(true);
-    if (initialHarmonyIndex !== 0) setHarmonyIndex(initialHarmonyIndex);
-    if (firstRenderHex) setHasGenerated(true);
   }, []);
 
   // Handle clicking a history item
@@ -210,54 +209,15 @@ export function ColorInput({
 
   const inputBg = isValidHex(hex) ? hex : default_accent_color;
 
-  // Show skeleton during SSR/hydration to prevent mismatch
-  if (!isMounted) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.form}>
-          <div className={styles.inputRow}>
-            <div className={styles.colorInputWrapper}>
-              <label className={styles.colorPicker} htmlFor="color-skeleton" />
-              <input
-                id="color-skeleton"
-                type="color"
-                className={styles.hiddenColorInput}
-                defaultValue={default_accent_color}
-                readOnly
-              />
-              <Input
-                type="text"
-                placeholder="3B82F6"
-                value="3B82F6"
-                className={styles.colorInput}
-                readOnly
-              />
-              <span className={styles.hashPrefix}>#</span>
-            </div>
-            <Button
-              className={styles.settingsButton}
-              variant="outline"
-              disabled
-            >
-              <Settings2 className={styles.settingsIcon} />
-            </Button>
-          </div>
-        </div>
-        <Button size="lg" className={styles.generateButton} disabled>
-          Generate Palette
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.container}>
+    <div className={styles.container} suppressHydrationWarning>
       <div className={styles.form}>
         {/* Main Input Row */}
         <div className={styles.inputRow}>
           <div
             className={styles.colorInputWrapper}
             style={{ borderColor: isValidHex(hex) ? hex : undefined }}
+            suppressHydrationWarning
           >
             <label
               key={removeHexCharacter(hex)}
@@ -266,6 +226,7 @@ export function ColorInput({
               style={{
                 backgroundColor: inputBg,
               }}
+              suppressHydrationWarning
             />
             <input
               id="color"
@@ -275,6 +236,7 @@ export function ColorInput({
               className={styles.hiddenColorInput}
               onChange={(e) => handleHexChange(e.target.value)}
               title="Click to open color picker"
+              suppressHydrationWarning
             />
             <Input
               type="text"
@@ -284,6 +246,7 @@ export function ColorInput({
               onChange={(e) => handleHexChange(e.target.value)}
               error={error}
               className={styles.colorInput}
+              suppressHydrationWarning
             />
             <span className={styles.hashPrefix}>#</span>
           </div>
@@ -302,7 +265,7 @@ export function ColorInput({
               <Settings2
                 className={cx(
                   styles.settingsIcon,
-                  harmonizeColors && styles.activeSettingsIcon,
+                  isMounted && harmonizeColors && styles.activeSettingsIcon,
                 )}
               />
             )}
@@ -365,7 +328,9 @@ export function ColorInput({
                               <span className={styles.historyArrow}>→</span>
                               <div
                                 className={styles.historySwatchSmall}
-                                style={{ backgroundColor: item.generatedAccent }}
+                                style={{
+                                  backgroundColor: item.generatedAccent,
+                                }}
                               />
                             </div>
                           ) : (
@@ -442,11 +407,12 @@ export function ColorInput({
             </div>
           )}
 
-        {/* Settings Panel - Animated */}
+        {/* Settings Panel - Animated (only render content after mount to avoid hydration mismatch) */}
         <div
           ref={gsapContainerRef}
           className={`${styles.settingsPanel} ${showSettings ? styles.open : ""}`}
         >
+          {isMounted && (
           <div className={styles.settingsPanelContent}>
             {/* Harmonize Toggle */}
             <div className={styles.harmonizeSection}>
@@ -467,6 +433,7 @@ export function ColorInput({
                             styles.sliderPulse,
                           harmonizeColors && styles.sliderActive,
                         )}
+                        suppressHydrationWarning
                       >
                         <Palette className={styles.sliderIcon} />
                       </span>
@@ -479,11 +446,17 @@ export function ColorInput({
                 <div className={styles.switchLabel}>
                   <span className={styles.switchTitle}>
                     Color Harmony{" "}
-                    <small className={styles.sliderStatus}>
+                    <small
+                      className={styles.sliderStatus}
+                      suppressHydrationWarning
+                    >
                       {harmonizeColors ? "🟢  on" : "🔴  off"}
                     </small>
                   </span>
-                  <span className={styles.switchDescription}>
+                  <span
+                    className={styles.switchDescription}
+                    suppressHydrationWarning
+                  >
                     {harmonizeColors
                       ? "Transform base color using scheme"
                       : "Keep original color, add harmonious colors"}
@@ -631,6 +604,7 @@ export function ColorInput({
               </div>
             )}
           </div>
+          )}
         </div>
       </div>
 

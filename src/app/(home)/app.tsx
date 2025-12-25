@@ -115,6 +115,7 @@ export const RampKitApp = () => {
             initialHarmonized={initialValues.harmonized}
             initialPureColorTheory={initialValues.pureColorTheory}
             initialHarmonyIndex={initialValues.harmonyColorIndex}
+            hasInitialParams={initialValues.hasInitialParams}
           />
 
           {error && (
